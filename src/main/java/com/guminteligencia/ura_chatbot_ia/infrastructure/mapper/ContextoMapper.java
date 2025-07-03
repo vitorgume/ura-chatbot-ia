@@ -29,7 +29,9 @@ public class ContextoMapper {
 
     public static Contexto paraDomainDeMessage(Message message) {
         try {
-            return objectMapper.readValue(message.getBody(), Contexto.class);
+            Contexto contexto = objectMapper.readValue(message.body(), Contexto.class);
+            contexto.setMensagemFila(message);
+            return contexto;
         } catch (Exception e) {
             throw new RuntimeException("Erro ao converter mensagem da fila para Contexto", e);
         }

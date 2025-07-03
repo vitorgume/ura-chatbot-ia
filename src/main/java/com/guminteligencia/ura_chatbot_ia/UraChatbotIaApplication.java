@@ -12,6 +12,7 @@ public class UraChatbotIaApplication {
 		Dotenv dotenv = Dotenv.load();
 
 		System.setProperty("AWS_SQS_URL", dotenv.get("AWS_SQS_URL"));
+		System.setProperty("AWS_DYNAMODB_URL", dotenv.get("AWS_DYNAMODB_URL"));
 
 		SpringApplication.run(UraChatbotIaApplication.class, args);
 	}
