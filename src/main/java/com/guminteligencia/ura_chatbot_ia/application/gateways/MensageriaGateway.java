@@ -5,8 +5,8 @@ import software.amazon.awssdk.services.sqs.model.Message;
 
 import java.util.List;
 
-public interface SqsGateway {
-    List<Contexto> listarContextos();
+public interface MensageriaGateway {
+    List<Contexto> listarMensagens();
 
     void deletarMensagem(Message id);
 }

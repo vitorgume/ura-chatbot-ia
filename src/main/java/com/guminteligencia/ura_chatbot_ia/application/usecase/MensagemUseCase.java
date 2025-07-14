@@ -1,35 +1,20 @@
 package com.guminteligencia.ura_chatbot_ia.application.usecase;
 
-import com.guminteligencia.ura_chatbot_ia.application.gateways.SqsGateway;
+import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.Contexto;
+import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
+import com.guminteligencia.ura_chatbot_ia.domain.RespostaAgente;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class MensagemUseCase {
 
-    private final SqsUseCase sqsUseCase;
-    private final ContextoUseCase contextoUseCase;
-
-    @Scheduled(fixedDelay = 5000)
-    public void consumirMensagens() {
-        List<Contexto> contextos = sqsUseCase.listarContextos();
-
-        contextos.forEach(contexto -> {
-            this.processarMensagem(contexto);
-
-            sqsUseCase.deletarMensagem(contexto.getMensagemFila());
-
-            contextoUseCase.deletar(contexto.getId());
-        });
-    }
-
-    private void processarMensagem(Contexto contexto) {
 
 
-    }
 }

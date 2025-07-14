@@ -1,7 +1,7 @@
 package com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.guminteligencia.ura_chatbot_ia.application.gateways.SqsGateway;
+import com.guminteligencia.ura_chatbot_ia.application.gateways.MensageriaGateway;
 import com.guminteligencia.ura_chatbot_ia.domain.Contexto;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.exceptions.DataProviderException;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.mapper.ContextoMapper;
@@ -14,11 +14,10 @@ import software.amazon.awssdk.services.sqs.model.Message;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 
 import java.util.List;
-import java.util.UUID;
 
 @Component
 @Slf4j
-public class SqsDataProvider implements SqsGateway {
+public class MensageriaDataProvider implements MensageriaGateway {
 
     private final String MENSAGEM_ERRO_DELETAR_MENSAGEM_FILA = "Erro ao deletar mensagem da fila SQS";
     private final String MENSAGEM_ERRO_LISTAR_CONTEXTOS_SQS = "Erro ao listar contextos da fila SQS.";
@@ -28,7 +27,7 @@ public class SqsDataProvider implements SqsGateway {
     @Value("${aws.sqs.url}")
     private final String queueUrl;
 
-    public SqsDataProvider(
+    public MensageriaDataProvider(
             SqsClient sqsClient,
             ObjectMapper objectMapper,
             @Value("${aws.sqs.url}") String queueUrl
@@ -40,7 +39,7 @@ public class SqsDataProvider implements SqsGateway {
 
 
     @Override
-    public List<Contexto> listarContextos() {
+    public List<Contexto> listarMensagens() {
 
         try {
             ReceiveMessageRequest request = ReceiveMessageRequest.builder()
