@@ -28,16 +28,6 @@ public class DynamoDbConfig {
         return DynamoDbClient.builder()
                 .endpointOverride(URI.create(dynamoEndpoint))
                 .region(Region.US_EAST_1)
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create("test", "test")
-                ))
-                .build();
-    }
-
-    @Bean
-    public DynamoDbEnhancedClient enhancedClient(DynamoDbClient dynamoDbClient) {
-        return DynamoDbEnhancedClient.builder()
-                .dynamoDbClient(dynamoDbClient)
                 .build();
     }
 }

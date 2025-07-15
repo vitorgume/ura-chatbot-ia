@@ -1,27 +1,34 @@
 package com.guminteligencia.ura_chatbot_ia.infrastructure.repository;
 
 import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity.ContextoEntity;
+import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
-import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class ContextoRepository {
 
-    private final DynamoDbEnhancedClient enhancedClient;
-
-    private DynamoDbTable<ContextoEntity> getTable() {
-        return enhancedClient.table("contextos", TableSchema.fromBean(ContextoEntity.class));
-    }
+    private final DynamoDbTemplate dynamoDbTemplate;
 
     public void deletar(UUID id) {
-        ContextoEntity chave = new ContextoEntity();
-        chave.setId(id);
-        getTable().deleteItem(chave);
+        dynamoDbTemplate.delete(Key.builder()
+                .partitionValue(id.toString())
+                .build()
+        );
+    }
+
+    public Optional<ContextoEntity> consultarPorId(UUID id) {
+        ContextoEntity contexto = dynamoDbTemplate.load(Key.builder()
+                        .partitionValue(id.toString())
+                        .build()
+                ,ContextoEntity.class
+        );
+
+        return contexto == null ? Optional.empty() : Optional.of(contexto);
     }
 }

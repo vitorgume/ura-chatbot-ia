@@ -30,13 +30,12 @@ public class ProcessamentoMensagemUseCase {
 
     @Scheduled(fixedDelay = 5000)
     public void consumirFila() {
-        List<Contexto> contextos = mensageriaUseCase.listarContextos()
-                .stream()
-                .filter(contexto -> contexto.getStatus().getCodigo() == 1)
-                .toList();
+        List<Contexto> contextos = this.filtraContextosPeloStatus(mensageriaUseCase.listarContextos());
 
+        System.out.println("Lista de contextos: " + contextos);
 
         contextos.forEach(contexto -> {
+            System.out.println("Contexto: " + contexto);
             this.processarMensagem(contexto);
 
             mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
@@ -52,7 +51,7 @@ public class ProcessamentoMensagemUseCase {
 
         RespostaAgente resposta;
 
-        if(cliente.isEmpty()) {
+        if (cliente.isEmpty()) {
             Cliente clienteSalvo = clienteUseCase.cadastrar(contexto.getTelefone());
             ConversaAgente novaConversa = conversaAgenteUseCase.criar(clienteSalvo);
             resposta = agenteUseCase.enviarMensagem(clienteSalvo, novaConversa, contexto.getMensagens());
@@ -61,7 +60,7 @@ public class ProcessamentoMensagemUseCase {
             ConversaAgente conversaAgente = conversaAgenteUseCase.consultarPorCliente(cliente.get().getId());
             resposta = agenteUseCase.enviarMensagem(cliente.get(), conversaAgente, contexto.getMensagens());
 
-            if(resposta.getQualificacao().getQualificado()) {
+            if (resposta.getQualificacao().getQualificado()) {
                 Cliente clienteQualificado = Cliente.builder()
                         .nome(resposta.getQualificacao().getNome())
                         .regiao(EnumMapper.regiaoMapper(resposta.getQualificacao().getRegiao()))
@@ -79,5 +78,15 @@ public class ProcessamentoMensagemUseCase {
         }
 
         log.info("Mensagem nova processada com sucesso.");
+    }
+
+
+    private List<Contexto> filtraContextosPeloStatus(List<Contexto> contextos) {
+        return contextos.stream().filter(contexto -> {
+                    Contexto contextoSalvo = contextoUseCase.consultarPeloId(contexto.getId());
+
+                    return contextoSalvo.getStatus().getCodigo() == 1;
+                })
+                .toList();
     }
 }

@@ -1,6 +1,5 @@
 package com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.guminteligencia.ura_chatbot_ia.application.gateways.MensageriaGateway;
 import com.guminteligencia.ura_chatbot_ia.domain.Contexto;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.exceptions.DataProviderException;
@@ -22,18 +21,15 @@ public class MensageriaDataProvider implements MensageriaGateway {
     private final String MENSAGEM_ERRO_DELETAR_MENSAGEM_FILA = "Erro ao deletar mensagem da fila SQS";
     private final String MENSAGEM_ERRO_LISTAR_CONTEXTOS_SQS = "Erro ao listar contextos da fila SQS.";
     private final SqsClient sqsClient;
-    private final ObjectMapper objectMapper;
 
     @Value("${aws.sqs.url}")
     private final String queueUrl;
 
     public MensageriaDataProvider(
             SqsClient sqsClient,
-            ObjectMapper objectMapper,
             @Value("${aws.sqs.url}") String queueUrl
     ) {
         this.sqsClient = sqsClient;
-        this.objectMapper = objectMapper;
         this.queueUrl = queueUrl;
     }
 

@@ -1,9 +1,6 @@
 package com.guminteligencia.ura_chatbot_ia.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import software.amazon.awssdk.services.sqs.model.Message;
 
 import java.util.List;
@@ -13,6 +10,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@ToString
 public class Contexto {
     private UUID id;
     private String telefone;
