@@ -15,4 +15,6 @@ public class ConversaAgente {
         private Cliente cliente;
         private Vendedor vendedor;
         private LocalDateTime dataCriacao;
+        private Boolean inativa;
+        private Boolean finalizada;
 }

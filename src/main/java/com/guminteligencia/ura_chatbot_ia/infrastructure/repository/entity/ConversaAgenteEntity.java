@@ -24,11 +24,14 @@ public class ConversaAgenteEntity {
     private UUID id;
 
     @OneToOne
-    private Cliente cliente;
+    private ClienteEntity cliente;
 
     @ManyToOne
-    private Vendedor vendedor;
+    private VendedorEntity vendedor;
 
     @Column(name = "data_criacao")
     private LocalDateTime dataCriacao;
+
+    private Boolean finalizada;
+    private Boolean inativa;
 }

@@ -44,8 +44,10 @@ public class AgenteDataProvider implements AgenteGateway {
                 )
         );
 
+        String uri = agenteUriApi + "/chat";
+
         return webClient.post()
-                .uri(agenteUriApi)
+                .uri(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .retrieve()

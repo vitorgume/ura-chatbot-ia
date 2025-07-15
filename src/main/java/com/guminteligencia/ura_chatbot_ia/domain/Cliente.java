@@ -16,4 +16,10 @@ public class Cliente {
     private Regiao regiao;
     private Segmento segmento;
     private boolean inativo;
+
+    public void setDados(Cliente cliente) {
+        this.nome = cliente.getNome();
+        this.regiao = cliente.getRegiao();
+        this.segmento = cliente.getSegmento();
+    }
 }

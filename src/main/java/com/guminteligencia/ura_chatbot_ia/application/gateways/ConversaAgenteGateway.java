@@ -8,5 +8,7 @@ import java.util.UUID;
 public interface ConversaAgenteGateway {
     ConversaAgente salvar(ConversaAgente conversaAgente);
 
-    Optional<ConversaAgente> consultarPorId(UUID id);
+    Optional<ConversaAgente> consultarPorIdCliente(UUID id);
+
+    Optional<ConversaAgente> consultarPorId(UUID idConversa);
 }
