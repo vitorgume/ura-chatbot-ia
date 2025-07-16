@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ContextoGateway {
-    void deletar(UUID id);
+    void deletar(Contexto contexto);
 
     Optional<Contexto> consultarPorId(UUID id);
 }

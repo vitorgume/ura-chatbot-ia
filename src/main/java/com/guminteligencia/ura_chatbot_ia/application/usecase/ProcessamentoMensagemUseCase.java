@@ -30,18 +30,17 @@ public class ProcessamentoMensagemUseCase {
 
     @Scheduled(fixedDelay = 5000)
     public void consumirFila() {
+        log.info("Consumindo mensagens da fila.");
         List<Contexto> contextos = this.filtraContextosPeloStatus(mensageriaUseCase.listarContextos());
 
-        System.out.println("Lista de contextos: " + contextos);
-
         contextos.forEach(contexto -> {
-            System.out.println("Contexto: " + contexto);
             this.processarMensagem(contexto);
 
             mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
 
             contextoUseCase.deletar(contexto.getId());
         });
+        log.info("Mensagens consumidas com sucesso. Contextos: {}", contextos);
     }
 
     private void processarMensagem(Contexto contexto) {

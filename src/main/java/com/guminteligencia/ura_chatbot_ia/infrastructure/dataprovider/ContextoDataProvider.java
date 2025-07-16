@@ -23,9 +23,9 @@ public class ContextoDataProvider implements ContextoGateway {
     private final ContextoRepository repository;
 
     @Override
-    public void deletar(UUID id) {
+    public void deletar(Contexto contexto) {
         try {
-            repository.deletar(id);
+            repository.deletar(ContextoMapper.paraEntity(contexto));
         } catch (Exception ex) {
             log.error(MENSAGEM_ERRO_DELETAR_CONTEXTO_BD, ex);
             throw new DataProviderException(MENSAGEM_ERRO_DELETAR_CONTEXTO_BD, ex.getCause());

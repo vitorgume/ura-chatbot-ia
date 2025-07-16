@@ -15,11 +15,8 @@ public class ContextoRepository {
 
     private final DynamoDbTemplate dynamoDbTemplate;
 
-    public void deletar(UUID id) {
-        dynamoDbTemplate.delete(Key.builder()
-                .partitionValue(id.toString())
-                .build()
-        );
+    public void deletar(ContextoEntity contextoEntity) {
+        dynamoDbTemplate.delete(contextoEntity);
     }
 
     public Optional<ContextoEntity> consultarPorId(UUID id) {

@@ -36,13 +36,12 @@ public class AgenteDataProvider implements AgenteGateway {
     @Override
     public RespostaAgente enviarMensagem(MensagemAgenteDto mensagem) {
 
-        List<Map<String, Object>> requestBody = List.of(
-                Map.of(
-                        "cliente_id", mensagem.getClienteId(),
-                        "conversa_id", mensagem.getConversaId(),
-                        "message", mensagem.getMensagem()
-                )
+        Map<String, Object> requestBody = Map.of(
+                "cliente_id", mensagem.getClienteId(),
+                "conversa_id", mensagem.getConversaId(),
+                "message", mensagem.getMensagem()
         );
+
 
         String uri = agenteUriApi + "/chat";
 
