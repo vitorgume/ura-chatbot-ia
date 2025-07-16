@@ -70,7 +70,9 @@ public class ProcessamentoMensagemUseCase {
                 Vendedor vendedor = vendedorUseCase.escolherVendedor(clienteSalvo);
                 mensagemUseCase.enviarMensagem(mensagemBuilder.getMensagem(TipoMensagem.MENSAGEM_DIRECIONAMENTO_VENDEDOR, vendedor.getNome(), null), clienteSalvo.getTelefone());
                 mensagemUseCase.enviarContatoVendedor(vendedor, clienteSalvo);
-                conversaAgenteUseCase.finalizar(conversaAgente.getId());
+                conversaAgente.setVendedor(vendedor);
+                conversaAgente.setFinalizada(true);
+                conversaAgenteUseCase.salvar(conversaAgente);
             }
 
             mensagemUseCase.enviarMensagem(resposta.getResposta(), conversaAgente.getCliente().getTelefone());

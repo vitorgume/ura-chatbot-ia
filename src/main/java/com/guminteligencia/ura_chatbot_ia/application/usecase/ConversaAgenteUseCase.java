@@ -51,23 +51,7 @@ public class ConversaAgenteUseCase {
         return conversa;
     }
 
-    public void finalizar(UUID idConversa) {
-        log.info("Finalizando conversa do agente. Id conversa: {}", idConversa);
-
-        ConversaAgente conversaAgente = this.consultarPorId(idConversa);
-        conversaAgente.setFinalizada(true);
+    public void salvar(ConversaAgente conversaAgente) {
         gateway.salvar(conversaAgente);
-
-        log.info("Conversa finalizada com sucesso.");
-    }
-
-    private ConversaAgente consultarPorId(UUID idConversa) {
-        Optional<ConversaAgente> conversaAgente = gateway.consultarPorId(idConversa);
-
-        if(conversaAgente.isEmpty()) throw new ConversaAgenteNaoEncontradoException();
-
-        ConversaAgente conversa = conversaAgente.get();
-
-        return conversa;
     }
 }
