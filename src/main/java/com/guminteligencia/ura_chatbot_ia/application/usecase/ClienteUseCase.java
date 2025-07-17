@@ -30,7 +30,7 @@ public class ClienteUseCase {
 
     public Cliente alterar(Cliente clienteQualificado, UUID idCliente) {
         Cliente cliente = this.consultarPorId(idCliente);
-        cliente.setDados(cliente);
+        cliente.setDados(clienteQualificado);
         return gateway.salvar(cliente);
     }
 
