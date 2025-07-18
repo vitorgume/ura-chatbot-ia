@@ -1,4 +1,4 @@
-package com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem;
+package com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.mensagens;
 
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 

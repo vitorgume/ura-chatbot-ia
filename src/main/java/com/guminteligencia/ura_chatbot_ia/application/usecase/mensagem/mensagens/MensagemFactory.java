@@ -1,6 +1,7 @@
-package com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem;
+package com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.mensagens;
 
 import com.guminteligencia.ura_chatbot_ia.application.exceptions.EscolhaNaoIdentificadoException;
+import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.TipoMensagem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

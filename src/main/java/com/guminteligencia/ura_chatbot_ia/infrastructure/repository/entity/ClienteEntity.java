@@ -30,5 +30,7 @@ public class ClienteEntity {
     @Enumerated(EnumType.ORDINAL)
     private Segmento segmento;
 
+    private String descricaoMaterial;
+
     private boolean inativo;
 }

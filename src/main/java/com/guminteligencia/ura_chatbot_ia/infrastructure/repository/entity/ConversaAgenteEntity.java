@@ -1,7 +1,5 @@
 package com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity;
 
-import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
-import com.guminteligencia.ura_chatbot_ia.domain.Vendedor;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,6 +30,10 @@ public class ConversaAgenteEntity {
     @Column(name = "data_criacao")
     private LocalDateTime dataCriacao;
 
+    @Column(name = "data_ultima_mensagem")
+    private LocalDateTime dataUltimaMensagem;
+
     private Boolean finalizada;
     private Boolean inativa;
+    private Boolean recontato;
 }

@@ -1,4 +1,4 @@
-package com.guminteligencia.ura_chatbot_ia.application.usecase;
+package com.guminteligencia.ura_chatbot_ia.application.usecase.contexto;
 
 import com.guminteligencia.ura_chatbot_ia.application.exceptions.ContextoNaoEncontradoException;
 import com.guminteligencia.ura_chatbot_ia.application.gateways.ContextoGateway;

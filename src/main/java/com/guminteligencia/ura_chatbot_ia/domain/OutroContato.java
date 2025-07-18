@@ -7,10 +7,9 @@ import lombok.*;
 @Setter
 @Builder
 @ToString
-public class Qualificacao {
-    private Boolean qualificado;
+public class OutroContato {
+    private Long id;
     private String nome;
-    private int segmento;
-    private int regiao;
-    private String descricaoMaterial;
+    private String telefone;
+    private String descricao;
 }

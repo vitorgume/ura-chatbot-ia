@@ -8,7 +8,9 @@ import lombok.Getter;
 public enum TipoMensagem {
     MENSAGEM_DIRECIONAMENTO_VENDEDOR(0, "Mensagem para direcionamento do vendedor"),
     DADOS_CONTATO_VENDEDOR(1, "Mensagem para os dados do contato enviado ao vendedor"),
-    MENSAGEM_SEPARACAO(2, "Mensagem para separação entre contatos enviados ao vendedor");
+    MENSAGEM_SEPARACAO(2, "Mensagem para separação entre contatos enviados ao vendedor"),
+    MENSAGEM_RECONTATO_VENDEDOR(3, "Mensagem de recontato do usuário."),
+    MENSAGEM_ALERTA_RECONTATO(4, "Mensagem de alerta após recontato de um usuário");
 
     private final Integer codigo;
     private final String descricao;

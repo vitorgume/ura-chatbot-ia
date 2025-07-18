@@ -16,6 +16,7 @@ public class Cliente {
     private Regiao regiao;
     private Segmento segmento;
     private boolean inativo;
+    private String descricaoMaterial;
 
     public void setDados(Cliente cliente) {
         this.nome = cliente.getNome();
