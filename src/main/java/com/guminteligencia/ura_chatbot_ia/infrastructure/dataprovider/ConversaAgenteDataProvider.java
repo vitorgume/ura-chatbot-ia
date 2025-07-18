@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,6 +19,7 @@ import java.util.UUID;
 @Slf4j
 public class ConversaAgenteDataProvider implements ConversaAgenteGateway {
 
+    private final String MENSAGEM_ERRO_LISTAR_CONVERSAS_NAO_FINALIZADAS = "Erro ao listar conversas não finalizadas.";
     private final String MENSAGEM_ERRO_CONSULTAR_PELO_ID = "Erro ao consultar conversa pelo seu id.";
     private final String MENSAGEM_ERRO_CONSULTAR_ID_CLIENTE = "Erro ao consultar conversa pelo id do cliente.";
     private final String MENSAGEM_ERRO_SALVAR_CONVERSA_AGENTE = "Erro ao salvar conversa do agente.";
@@ -63,5 +65,19 @@ public class ConversaAgenteDataProvider implements ConversaAgenteGateway {
         }
 
         return conversaAgenteEntity.map(ConversaAgenteMapper::paraDomain);
+    }
+
+    @Override
+    public List<ConversaAgente> listarNaoFinalizados() {
+        List<ConversaAgenteEntity> conversasEntity;
+
+        try {
+            conversasEntity = repository.listarNaoFinalizadas();
+        } catch (Exception ex) {
+            log.error(MENSAGEM_ERRO_LISTAR_CONVERSAS_NAO_FINALIZADAS, ex);
+            throw new DataProviderException(MENSAGEM_ERRO_LISTAR_CONVERSAS_NAO_FINALIZADAS, ex.getCause());
+        }
+
+        return conversasEntity.stream().map(ConversaAgenteMapper::paraDomain).toList();
     }
 }

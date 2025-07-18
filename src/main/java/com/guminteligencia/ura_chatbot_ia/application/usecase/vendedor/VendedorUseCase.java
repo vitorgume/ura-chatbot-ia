@@ -71,4 +71,12 @@ public class VendedorUseCase {
 
         return vendedor.get();
     }
+
+    public Vendedor roletaVendedoresConversaInativa(Cliente cliente) {
+        if(cliente.getSegmento() != null) {
+            return escolherVendedor(cliente);
+        }
+
+        return this.consultarVendedor(this.roletaVendedores("Nilza"));
+    }
 }

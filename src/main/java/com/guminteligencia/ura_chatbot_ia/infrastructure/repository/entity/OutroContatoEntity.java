@@ -1,7 +1,6 @@
 package com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity(name = "OutroContato")
@@ -12,6 +11,10 @@ import lombok.*;
 @Setter
 @Builder
 public class OutroContatoEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_outro_contato")
     private Long id;
     private String nome;
     private String telefone;
