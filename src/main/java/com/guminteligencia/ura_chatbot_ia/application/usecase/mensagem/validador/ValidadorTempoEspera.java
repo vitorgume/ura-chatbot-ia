@@ -2,6 +2,7 @@ package com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.validado
 
 import com.guminteligencia.ura_chatbot_ia.application.usecase.ClienteUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.ConversaAgenteUseCase;
+import com.guminteligencia.ura_chatbot_ia.application.usecase.MensageriaUseCase;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.Contexto;
 import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
@@ -17,6 +18,7 @@ public class ValidadorTempoEspera implements ContextoValidator {
 
     private final ConversaAgenteUseCase conversaAgenteUseCase;
     private final ClienteUseCase clienteUseCase;
+    private final MensageriaUseCase mensageriaUseCase;
 
     @Override
     public boolean deveIgnorar(Contexto contexto) {
@@ -24,7 +26,13 @@ public class ValidadorTempoEspera implements ContextoValidator {
 
         if(cliente.isPresent()) {
             ConversaAgente conversaAgente = conversaAgenteUseCase.consultarPorCliente(cliente.get().getId());
-            return conversaAgente.getFinalizada() && conversaAgente.getDataUltimaMensagem().isBefore(LocalDateTime.now());
+            boolean deveIgnorar = conversaAgente.getFinalizada() && conversaAgente.getDataUltimaMensagem().isBefore(LocalDateTime.now());
+
+            if(deveIgnorar) {
+                mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
+            }
+
+            return deveIgnorar;
         }
 
         return false;

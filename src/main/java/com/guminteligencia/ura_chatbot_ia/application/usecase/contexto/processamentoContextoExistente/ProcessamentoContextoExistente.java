@@ -28,7 +28,7 @@ public class ProcessamentoContextoExistente {
         RespostaAgente resposta = agenteUseCase.enviarMensagem(cliente, conversaAgente, contexto.getMensagens());
 
         ProcessamentoContextoExistenteType processo = processarContextoExistenteFactory.create(resposta, conversaAgente);
-        processo.deveProcessar(resposta, conversaAgente);
+        processo.processar(resposta, conversaAgente, cliente);
 
         conversaAgente.setDataUltimaMensagem(LocalDateTime.now());
         conversaAgenteUseCase.salvar(conversaAgente);
