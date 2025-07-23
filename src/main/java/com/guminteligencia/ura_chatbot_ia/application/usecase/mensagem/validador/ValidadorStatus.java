@@ -4,10 +4,12 @@ import com.guminteligencia.ura_chatbot_ia.application.usecase.MensageriaUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.contexto.ContextoUseCase;
 import com.guminteligencia.ura_chatbot_ia.domain.Contexto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 @RequiredArgsConstructor
+@Order(2)
 public class ValidadorStatus implements ContextoValidator {
 
     private final ContextoUseCase contextoUseCase;

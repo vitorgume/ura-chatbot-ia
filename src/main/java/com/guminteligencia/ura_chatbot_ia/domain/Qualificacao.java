@@ -12,5 +12,5 @@ public class Qualificacao {
     private String nome;
     private int segmento;
     private int regiao;
-    private String descricaoMaterial;
+    private String descricao_material;
 }

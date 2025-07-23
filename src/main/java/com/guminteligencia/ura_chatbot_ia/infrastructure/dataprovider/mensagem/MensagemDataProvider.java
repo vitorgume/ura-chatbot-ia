@@ -66,10 +66,14 @@ public class MensagemDataProvider implements MensagemGateway {
                 .contactPhone(cliente.getTelefone())
                 .build();
 
-        Map<String, String> headers = Map.of("Client-Token", clienteToken);
+        if(profile.equals("prod")) {
+            Map<String, String> headers = Map.of("Client-Token", clienteToken);
 
-        String uri = String.format("https://api.z-api.io/instances/%s/token/%s/send-contact", idInstance, token);
+            String uri = String.format("https://api.z-api.io/instances/%s/token/%s/send-contact", idInstance, token);
 
-        executor.post(uri, body, headers, "Erro ao enviar contato.");
+            executor.post(uri, body, headers, "Erro ao enviar contato.");
+        } else {
+            System.out.println("Contato enviado: " + body);
+        }
     }
 }

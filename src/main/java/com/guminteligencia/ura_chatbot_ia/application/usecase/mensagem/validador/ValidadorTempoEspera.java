@@ -7,13 +7,15 @@ import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.Contexto;
 import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-@Component
+@Service
 @RequiredArgsConstructor
+@Order(1)
 public class ValidadorTempoEspera implements ContextoValidator {
 
     private final ConversaAgenteUseCase conversaAgenteUseCase;
