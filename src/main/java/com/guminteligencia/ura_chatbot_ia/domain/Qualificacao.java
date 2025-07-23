@@ -8,7 +8,6 @@ import lombok.*;
 @Builder
 @ToString
 public class Qualificacao {
-    private Boolean qualificado;
     private String nome;
     private int segmento;
     private int regiao;

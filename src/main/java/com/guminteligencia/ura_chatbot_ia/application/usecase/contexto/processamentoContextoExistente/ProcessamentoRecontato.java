@@ -21,7 +21,7 @@ public class ProcessamentoRecontato implements ProcessamentoContextoExistenteTyp
     private final ConversaAgenteUseCase conversaAgenteUseCase;
 
     @Override
-    public void processar(RespostaAgente resposta, ConversaAgente conversaAgente, Cliente cliente) {
+    public void processar(String resposta, ConversaAgente conversaAgente, Cliente cliente) {
         if(!conversaAgente.getRecontato()) {
             Vendedor vendedor = conversaAgente.getVendedor();
             mensagemUseCase.enviarMensagem(mensagemBuilder.getMensagem(TipoMensagem.MENSAGEM_RECONTATO_VENDEDOR, vendedor.getNome(), null), cliente.getTelefone());
@@ -32,12 +32,12 @@ public class ProcessamentoRecontato implements ProcessamentoContextoExistenteTyp
             conversaAgente.setRecontato(true);
             conversaAgenteUseCase.salvar(conversaAgente);
         } else {
-            mensagemUseCase.enviarMensagem(resposta.getResposta(), conversaAgente.getCliente().getTelefone());
+            mensagemUseCase.enviarMensagem(resposta, conversaAgente.getCliente().getTelefone());
         }
     }
 
     @Override
-    public boolean deveProcessar(RespostaAgente resposta, ConversaAgente conversaAgente) {
-        return true;
+    public boolean deveProcessar(String resposta, ConversaAgente conversaAgente) {
+        return conversaAgente.getRecontato();
     }
 }

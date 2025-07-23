@@ -1,6 +1,7 @@
 package com.guminteligencia.ura_chatbot_ia.application.usecase.contexto.processamentoContextoExistente;
 
 import com.guminteligencia.ura_chatbot_ia.application.mapper.EnumMapper;
+import com.guminteligencia.ura_chatbot_ia.application.usecase.AgenteUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.ClienteUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.MensagemUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.TipoMensagem;
@@ -8,7 +9,7 @@ import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.mensagens
 import com.guminteligencia.ura_chatbot_ia.application.usecase.vendedor.VendedorUseCase;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
-import com.guminteligencia.ura_chatbot_ia.domain.RespostaAgente;
+import com.guminteligencia.ura_chatbot_ia.domain.Qualificacao;
 import com.guminteligencia.ura_chatbot_ia.domain.Vendedor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.Order;
@@ -23,14 +24,17 @@ public class ProcessarClienteQualificado implements ProcessamentoContextoExisten
     private final ClienteUseCase clienteUseCase;
     private final MensagemUseCase mensagemUseCase;
     private final MensagemBuilder mensagemBuilder;
+    private final AgenteUseCase agenteUseCase;
 
     @Override
-    public void processar(RespostaAgente resposta, ConversaAgente conversaAgente, Cliente cliente) {
+    public void processar(String resposta, ConversaAgente conversaAgente, Cliente cliente) {
+        Qualificacao qualificacao = agenteUseCase.enviarJsonTrasformacao(resposta);
+
         Cliente clienteQualificado = Cliente.builder()
-                .nome(resposta.getQualificacao().getNome())
-                .regiao(EnumMapper.regiaoMapper(resposta.getQualificacao().getRegiao()))
-                .segmento(EnumMapper.segmentoMapper(resposta.getQualificacao().getSegmento()))
-                .descricaoMaterial(resposta.getQualificacao().getDescricao_material())
+                .nome(qualificacao.getNome())
+                .regiao(EnumMapper.regiaoMapper(qualificacao.getRegiao()))
+                .segmento(EnumMapper.segmentoMapper(qualificacao.getSegmento()))
+                .descricaoMaterial(qualificacao.getDescricao_material())
                 .build();
 
         Cliente clienteSalvo = clienteUseCase.alterar(clienteQualificado, conversaAgente.getCliente().getId());
@@ -42,7 +46,17 @@ public class ProcessarClienteQualificado implements ProcessamentoContextoExisten
     }
 
     @Override
-    public boolean deveProcessar(RespostaAgente resposta, ConversaAgente conversaAgente) {
-        return resposta.getQualificacao().getQualificado() && !conversaAgente.getFinalizada();
+    public boolean deveProcessar(String resposta, ConversaAgente conversaAgente) {
+        return isQualificado(resposta);
+    }
+
+    private boolean isQualificado(String resposta) {
+        if (resposta == null) return false;
+
+        String textoNormalizado = resposta
+                .toLowerCase()
+                .replaceAll("\\s+", "");
+
+        return textoNormalizado.contains("qualificado:true");
     }
 }

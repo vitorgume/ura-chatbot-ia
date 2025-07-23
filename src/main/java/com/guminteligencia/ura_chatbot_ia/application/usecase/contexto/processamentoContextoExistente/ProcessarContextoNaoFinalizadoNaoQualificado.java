@@ -16,12 +16,12 @@ public class ProcessarContextoNaoFinalizadoNaoQualificado implements Processamen
     private final MensagemUseCase mensagemUseCase;
 
     @Override
-    public void processar(RespostaAgente resposta, ConversaAgente conversaAgente, Cliente cliente) {
-        mensagemUseCase.enviarMensagem(resposta.getResposta(), conversaAgente.getCliente().getTelefone());
+    public void processar(String resposta, ConversaAgente conversaAgente, Cliente cliente) {
+        mensagemUseCase.enviarMensagem(resposta, conversaAgente.getCliente().getTelefone());
     }
 
     @Override
-    public boolean deveProcessar(RespostaAgente resposta, ConversaAgente conversaAgente) {
+    public boolean deveProcessar(String resposta, ConversaAgente conversaAgente) {
         return !conversaAgente.getFinalizada();
     }
 }

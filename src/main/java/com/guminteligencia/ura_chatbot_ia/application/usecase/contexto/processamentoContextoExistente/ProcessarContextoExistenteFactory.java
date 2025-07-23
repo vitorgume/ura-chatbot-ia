@@ -14,7 +14,7 @@ public class ProcessarContextoExistenteFactory {
 
     private final List<ProcessamentoContextoExistenteType> processos;
 
-    public ProcessamentoContextoExistenteType create(RespostaAgente resposta, ConversaAgente conversaAgente) {
+    public ProcessamentoContextoExistenteType create(String resposta, ConversaAgente conversaAgente) {
         return processos.stream()
                 .filter(processo -> processo.deveProcessar(resposta, conversaAgente))
                 .findFirst()
