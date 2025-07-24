@@ -2,6 +2,7 @@ package com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.mensagem;
 
 import com.guminteligencia.ura_chatbot_ia.application.gateways.MensagemGateway;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.ContatoRequestDto;
+import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.DocumentoRequestDto;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.MensagemRequestWhatsAppDto;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import org.springframework.beans.factory.annotation.Value;
@@ -74,6 +75,22 @@ public class MensagemDataProvider implements MensagemGateway {
             executor.post(uri, body, headers, "Erro ao enviar contato.");
         } else {
             System.out.println("Contato enviado: " + body);
+        }
+    }
+
+    @Override
+    public void enviarRelatorio(String arquivo, String fileName, String telefone) {
+        String base64ComPrefixo = "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64," + arquivo;
+        DocumentoRequestDto body = new DocumentoRequestDto(telefone, base64ComPrefixo, fileName);
+
+        if(profile.equals("prod")) {
+            Map<String, String> headers = Map.of("Client-Token", clienteToken);
+
+            String uri = String.format("/instances/%s/token/%s/send-document/xlsx", idInstance, token);
+
+            executor.post(uri, body, headers, "Erro ao enviar relatório.");
+        } else {
+            System.out.println("Enviado relatório: " + body);
         }
     }
 }

@@ -6,4 +6,5 @@ public interface MensagemGateway {
     void enviar(String resposta, String telefone);
 
     void enviarContato(String telefone, Cliente cliente);
+    void enviarRelatorio(String arquivo, String fileName, String telefone);
 }

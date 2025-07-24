@@ -38,4 +38,10 @@ public class MensagemUseCase {
 
         log.info("Contato enviado com sucesso para vendedor.");
     }
+
+    public void enviarRelatorio(String arquivo, String fileName, String telefone) {
+        log.info("Enviando relatório de vendedores.");
+        gateway.enviarRelatorio(arquivo, fileName, telefone);
+        log.info("Relatório enviado com sucesso.");
+    }
 }

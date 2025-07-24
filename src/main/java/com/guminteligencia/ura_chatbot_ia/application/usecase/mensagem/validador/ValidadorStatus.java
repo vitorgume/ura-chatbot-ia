@@ -24,6 +24,6 @@ public class ValidadorStatus implements ContextoValidator {
             mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
         }
 
-        return deveIgnorar;
+        return !deveIgnorar;
     }
 }

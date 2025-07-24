@@ -3,6 +3,8 @@ package com.guminteligencia.ura_chatbot_ia.application.usecase.vendedor;
 import com.guminteligencia.ura_chatbot_ia.application.exceptions.EscolhaNaoIdentificadoException;
 import com.guminteligencia.ura_chatbot_ia.application.exceptions.VendedorNaoEncontradoException;
 import com.guminteligencia.ura_chatbot_ia.application.gateways.VendedorGateway;
+import com.guminteligencia.ura_chatbot_ia.application.usecase.ClienteUseCase;
+import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.RelatorioContatoDto;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.Vendedor;
 import lombok.RequiredArgsConstructor;

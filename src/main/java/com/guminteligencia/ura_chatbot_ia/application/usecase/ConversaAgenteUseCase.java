@@ -29,6 +29,7 @@ public class ConversaAgenteUseCase {
                 .dataCriacao(LocalDateTime.now())
                 .finalizada(false)
                 .inativa(false)
+                .recontato(false)
                 .build();
 
         ConversaAgente conversa = gateway.salvar(conversaAgente);

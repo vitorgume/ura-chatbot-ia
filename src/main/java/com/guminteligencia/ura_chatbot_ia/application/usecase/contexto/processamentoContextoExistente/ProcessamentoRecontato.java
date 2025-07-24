@@ -38,6 +38,6 @@ public class ProcessamentoRecontato implements ProcessamentoContextoExistenteTyp
 
     @Override
     public boolean deveProcessar(String resposta, ConversaAgente conversaAgente) {
-        return conversaAgente.getRecontato();
+        return conversaAgente.getFinalizada();
     }
 }

@@ -2,10 +2,12 @@ package com.guminteligencia.ura_chatbot_ia.application.usecase;
 
 import com.guminteligencia.ura_chatbot_ia.application.exceptions.ClienteNaoEncontradoException;
 import com.guminteligencia.ura_chatbot_ia.application.gateways.ClienteGateway;
+import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.RelatorioContatoDto;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,4 +47,11 @@ public class ClienteUseCase {
     }
 
 
+    public List<RelatorioContatoDto> getRelatorioSegundaFeira() {
+        return gateway.getRelatorioContato();
+    }
+
+    public List<RelatorioContatoDto> getRelatorio() {
+        return gateway.getRelatorioContatoSegundaFeira();
+    }
 }

@@ -28,13 +28,13 @@ public class ValidadorTempoEspera implements ContextoValidator {
 
         if(cliente.isPresent()) {
             ConversaAgente conversaAgente = conversaAgenteUseCase.consultarPorCliente(cliente.get().getId());
-            boolean deveIgnorar = conversaAgente.getFinalizada() && conversaAgente.getDataUltimaMensagem().isBefore(LocalDateTime.now());
+            boolean deveIgnorar = conversaAgente.getFinalizada() && !conversaAgente.getDataUltimaMensagem().plusMinutes(30).isBefore(LocalDateTime.now());
 
             if(deveIgnorar) {
                 mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
             }
 
-            return deveIgnorar;
+            return !deveIgnorar;
         }
 
         return false;
