@@ -1,6 +1,7 @@
 package com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider;
 
 import com.guminteligencia.ura_chatbot_ia.application.gateways.VendedorGateway;
+import com.guminteligencia.ura_chatbot_ia.domain.Regiao;
 import com.guminteligencia.ura_chatbot_ia.domain.Segmento;
 import com.guminteligencia.ura_chatbot_ia.domain.Vendedor;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.exceptions.DataProviderException;
@@ -26,7 +27,7 @@ public class VendedorDataProvider implements VendedorGateway {
     private final String MENSAGEM_ERRO_CONSULTAR_POR_TELEFONE = "Erro ao consultar vendedor pelo telefone.";
     private final String MENSAGEM_ERRO_DELETAR_VENDEDOR = "Erro ao deletar vendedor.";
     private final String MENSAGEM_ERRO_CONSULTAR_POR_ID = "Erro ao consultar vendedor pelo seu id.";
-    private final String MENSAGEM_ERRO_LISTAR_POR_SEGMENTO = "Erro ao listar vendedores pelo segmento.";
+    private final String MENSAGEM_ERRO_LISTAR_ATIVOS = "Erro ao listar vendedores ativos.";
     private final VendedorRepository repository;
 
     @Override
@@ -124,14 +125,14 @@ public class VendedorDataProvider implements VendedorGateway {
     }
 
     @Override
-    public List<Vendedor> listarPorSegmento(Segmento segmento) {
+    public List<Vendedor> listarAtivos() {
         List<VendedorEntity> vendedorEntities;
 
         try {
-            vendedorEntities = repository.findBySegmento(segmento);
+            vendedorEntities = repository.findByInativoIsFalse();
         } catch (Exception ex) {
-            log.error(MENSAGEM_ERRO_LISTAR_POR_SEGMENTO, ex);
-            throw new DataProviderException(MENSAGEM_ERRO_LISTAR_POR_SEGMENTO, ex.getCause());
+            log.error(MENSAGEM_ERRO_LISTAR_ATIVOS, ex);
+            throw new DataProviderException(MENSAGEM_ERRO_LISTAR_ATIVOS, ex.getCause());
         }
 
         return vendedorEntities.stream().map(VendedorMapper::paraDomain).toList();

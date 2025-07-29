@@ -1,24 +1,28 @@
 package com.guminteligencia.ura_chatbot_ia.application.usecase.vendedor;
 
 import com.guminteligencia.ura_chatbot_ia.application.exceptions.EscolhaNaoIdentificadoException;
+import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.Regiao;
 import com.guminteligencia.ura_chatbot_ia.domain.Segmento;
+import com.guminteligencia.ura_chatbot_ia.domain.Vendedor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class EscolhaVendedorFactory {
+public class EscolhaVendedorComposite {
 
     private final List<EscolhaVendedorType> escolhas;
 
-    public EscolhaVendedorType escolha(Segmento segmento, Regiao regiao) {
+    public Optional<Vendedor> escolher(Cliente cliente, List<Vendedor> candidatos) {
         return escolhas.stream()
-                .filter(escolha -> escolha.deveAplicar(regiao, segmento))
-                .findFirst()
-                .orElseThrow(EscolhaNaoIdentificadoException::new);
+                .map(escolha -> escolha.escolher(cliente, candidatos))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
     }
 
 }

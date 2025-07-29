@@ -1,5 +1,6 @@
 package com.guminteligencia.ura_chatbot_ia.application.gateways;
 
+import com.guminteligencia.ura_chatbot_ia.domain.Regiao;
 import com.guminteligencia.ura_chatbot_ia.domain.Segmento;
 import com.guminteligencia.ura_chatbot_ia.domain.Vendedor;
 
@@ -21,5 +22,5 @@ public interface VendedorGateway {
 
     Optional<Vendedor> consultarPorId(Long idVendedor);
 
-    List<Vendedor> listarPorSegmento(Segmento segmento);
+    List<Vendedor> listarAtivos();
 }

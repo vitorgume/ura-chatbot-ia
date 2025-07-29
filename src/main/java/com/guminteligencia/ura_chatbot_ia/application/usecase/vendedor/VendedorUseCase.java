@@ -1,6 +1,5 @@
 package com.guminteligencia.ura_chatbot_ia.application.usecase.vendedor;
 
-import com.guminteligencia.ura_chatbot_ia.application.exceptions.EscolhaNaoIdentificadoException;
 import com.guminteligencia.ura_chatbot_ia.application.exceptions.VendedorComMesmoTelefoneException;
 import com.guminteligencia.ura_chatbot_ia.application.exceptions.VendedorNaoEncontradoException;
 import com.guminteligencia.ura_chatbot_ia.application.exceptions.VendedorNaoEscolhidoException;
@@ -21,7 +20,7 @@ import java.util.Random;
 @Slf4j
 public class VendedorUseCase {
 
-    private final EscolhaVendedorFactory escolhaVendedorFactory;
+    private final EscolhaVendedorComposite escolhaVendedorComposite;
     private final VendedorGateway gateway;
     private final Random random = new Random();
     private static String ultimoVendedor = null;
@@ -31,7 +30,7 @@ public class VendedorUseCase {
 
         Vendedor vendedor = this.consultarPorTelefone(novoVendedor.getTelefone());
 
-        if(vendedor.getTelefone().equals(novoVendedor.getTelefone())) {
+        if (vendedor.getTelefone().equals(novoVendedor.getTelefone())) {
             throw new VendedorComMesmoTelefoneException();
         }
 
@@ -44,25 +43,10 @@ public class VendedorUseCase {
 
 
     public Vendedor escolherVendedor(Cliente cliente) {
-        Vendedor vendedorEscolhido = null;
-        List<Vendedor> vendedoresSegmentos = gateway.listarPorSegmento(cliente.getSegmento());
-
-        if(!vendedoresSegmentos.stream().filter(vendedor -> vendedor.getPrioridade().getPrioritario()).toList().isEmpty()) {
-            vendedoresSegmentos.sort(
-                    Comparator.comparing(v -> v.getPrioridade().getValor())
-            );
-
-             vendedorEscolhido = vendedoresSegmentos.stream()
-                    .filter(vendedor -> vendedor.getSegmentos().contains(cliente.getSegmento()) || vendedor.getRegioes().contains(cliente.getRegiao()))
-                    .findFirst()
-                    .orElseThrow(VendedorNaoEscolhidoException::new);
-        }
-
-
-
-
-        return vendedorEscolhido;
+        List<Vendedor> candidatos = gateway.listarAtivos();
+        return escolhaVendedorComposite.escolher(cliente, candidatos).orElseThrow(VendedorNaoEscolhidoException::new);
     }
+
 
     public String roletaVendedores(String excecao) {
         List<Vendedor> vendedores;
@@ -96,7 +80,7 @@ public class VendedorUseCase {
     }
 
     public Vendedor roletaVendedoresConversaInativa(Cliente cliente) {
-        if(cliente.getSegmento() != null) {
+        if (cliente.getSegmento() != null) {
             return escolherVendedor(cliente);
         }
 
@@ -140,7 +124,7 @@ public class VendedorUseCase {
         log.info("Consultando vendedor pelo id. Id vendedor: {}", idVendedor);
         Optional<Vendedor> vendedor = gateway.consultarPorId(idVendedor);
 
-        if(vendedor.isEmpty()) {
+        if (vendedor.isEmpty()) {
             throw new VendedorNaoEncontradoException();
         }
 
@@ -152,7 +136,7 @@ public class VendedorUseCase {
 
         Optional<Vendedor> vendedor = gateway.consultarPorTelefone(telefone);
 
-        if(vendedor.isEmpty()) {
+        if (vendedor.isEmpty()) {
             throw new VendedorNaoEncontradoException();
         }
 
