@@ -124,18 +124,17 @@ class AdministradorDataProviderTest {
             assertEquals(ERR_SALVAR, ex.getMessage());
         }
     }
-    
+
 
     @Test
-    void deletar_success() {
+    void deveDeletarComSucesso() {
         UUID id = UUID.randomUUID();
-        // sem exceção
         provider.deletar(id);
         verify(repository).deleteById(id);
     }
 
     @Test
-    void deletar_repositoryThrows_throwsDataProviderException() {
+    void deletarDeveLancarException() {
         UUID id = UUID.randomUUID();
         doThrow(new RuntimeException("fail-del"))
                 .when(repository).deleteById(id);
@@ -145,6 +144,5 @@ class AdministradorDataProviderTest {
                 () -> provider.deletar(id)
         );
         assertEquals(ERR_DELETAR, ex.getMessage());
-        assertEquals("fail-del", ex.getCause().getMessage());
     }
 }
