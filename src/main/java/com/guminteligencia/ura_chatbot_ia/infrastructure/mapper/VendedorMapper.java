@@ -12,6 +12,7 @@ public class VendedorMapper {
                 .telefone(entity.getTelefone())
                 .segmentos(entity.getSegmentos())
                 .regioes(entity.getRegioes())
+                .prioridade(entity.getPrioridade())
                 .build();
     }
 
@@ -23,6 +24,7 @@ public class VendedorMapper {
                 .telefone(domain.getTelefone())
                 .segmentos(domain.getSegmentos())
                 .regioes(domain.getRegioes())
+                .prioridade(domain.getPrioridade())
                 .build();
     }
 }
