@@ -131,7 +131,7 @@ class AgenteDataProviderTest {
         when(responseSpec.bodyToMono(String.class))
                 .thenReturn(Mono.error(new RuntimeException("failJson")));
 
-        RuntimeException ex = assertThrows(
+        assertThrows(
                 RuntimeException.class,
                 () -> provider.enviarJsonTrasformacao(texto)
         );

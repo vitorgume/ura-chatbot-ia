@@ -28,7 +28,8 @@ class WebClientExecutorTest {
     @Mock
     WebClient.RequestBodyUriSpec requestBodyUriSpec;
 
-    @Mock WebClient.RequestBodySpec    requestBodySpec;
+    @Mock
+    WebClient.RequestBodySpec requestBodySpec;
 
     @Mock
     WebClient.RequestHeadersSpec<?> requestHeadersSpec;
@@ -49,8 +50,8 @@ class WebClientExecutorTest {
     @Test
     void deveExecutrPostComSucesso() {
         String uri = "http://api.test/send";
-        Object payload = Map.of("k","v");
-        Map<String, String> headers = Map.of("h","v");
+        Object payload = Map.of("k", "v");
+        Map<String, String> headers = Map.of("h", "v");
         String errorMsg = "err-msg";
 
         when(webClient.method(HttpMethod.POST)).thenReturn(requestBodyUriSpec);
@@ -86,7 +87,7 @@ class WebClientExecutorTest {
     void deveExecutarAoLancarExcetion() {
         String uri = "http://api.test/fail";
         Object payload = "x";
-        Map<String,String> headers = Map.of();
+        Map<String, String> headers = Map.of();
         String errorMsg = "failure";
 
         when(webClient.method(HttpMethod.GET)).thenReturn(requestBodyUriSpec);
@@ -102,6 +103,28 @@ class WebClientExecutorTest {
         );
         assertEquals("failure", ex.getMessage());
         assertNotNull(ex.getCause());
+    }
+
+    @Test
+    void invocaPostNoExecuter() {
+        String uri = "http://api.test/send";
+        Object body = Map.of("k", "v");
+        Map<String, String> hdrs = Map.of("h", "v");
+        String err = "err-msg";
+
+        when(webClient.method(HttpMethod.POST)).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri(uri)).thenReturn(requestBodySpec);
+        when(requestBodySpec.headers(any())).thenReturn(requestBodySpec);
+        doReturn(requestHeadersSpec)
+                .when(requestBodySpec).bodyValue(body);
+        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just("OK"));
+
+        String resp = executor.post(uri, body, hdrs, err);
+        assertEquals("OK", resp);
+
+        verify(webClient).method(HttpMethod.POST);
+        verify(requestBodySpec).bodyValue(body);
     }
 
 }

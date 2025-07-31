@@ -12,12 +12,14 @@ import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
 import com.guminteligencia.ura_chatbot_ia.domain.Qualificacao;
 import com.guminteligencia.ura_chatbot_ia.domain.Vendedor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 @Service
 @Order(1)
 @RequiredArgsConstructor
+@Slf4j
 public class ProcessarClienteQualificado implements ProcessamentoContextoExistenteType {
 
     private final VendedorUseCase vendedorUseCase;
@@ -28,6 +30,7 @@ public class ProcessarClienteQualificado implements ProcessamentoContextoExisten
 
     @Override
     public void processar(String resposta, ConversaAgente conversaAgente, Cliente cliente) {
+        log.info("Processando cliente qualificado. Resposta: {}, ConversaAgente: {}, Cliente: {}", resposta, conversaAgente, cliente);
         Qualificacao qualificacao = agenteUseCase.enviarJsonTrasformacao(resposta);
 
         Cliente clienteQualificado = Cliente.builder()
@@ -43,6 +46,7 @@ public class ProcessarClienteQualificado implements ProcessamentoContextoExisten
         mensagemUseCase.enviarContatoVendedor(vendedor, clienteSalvo);
         conversaAgente.setVendedor(vendedor);
         conversaAgente.setFinalizada(true);
+        log.info("Processamento de cliente qualificado concluido com sucesso.");
     }
 
     @Override

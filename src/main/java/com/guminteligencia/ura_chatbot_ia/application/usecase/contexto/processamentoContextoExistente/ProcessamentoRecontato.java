@@ -7,12 +7,14 @@ import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.TipoMensa
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.mensagens.MensagemBuilder;
 import com.guminteligencia.ura_chatbot_ia.domain.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Order(3)
+@Slf4j
 public class ProcessamentoRecontato implements ProcessamentoContextoExistenteType {
 
     private final MensagemUseCase mensagemUseCase;
@@ -22,6 +24,7 @@ public class ProcessamentoRecontato implements ProcessamentoContextoExistenteTyp
 
     @Override
     public void processar(String resposta, ConversaAgente conversaAgente, Cliente cliente) {
+        log.info("Processando recontato. Resposta: {}, ConversaAgente: {}, Cliente: {}", resposta, conversaAgente, cliente);
         if(!conversaAgente.getRecontato()) {
             Vendedor vendedor = conversaAgente.getVendedor();
             mensagemUseCase.enviarMensagem(mensagemBuilder.getMensagem(TipoMensagem.MENSAGEM_RECONTATO_VENDEDOR, vendedor.getNome(), null), cliente.getTelefone());
@@ -34,6 +37,7 @@ public class ProcessamentoRecontato implements ProcessamentoContextoExistenteTyp
         } else {
             mensagemUseCase.enviarMensagem(resposta, conversaAgente.getCliente().getTelefone());
         }
+        log.info("Processamente de recontato concluido com sucesso.");
     }
 
     @Override
