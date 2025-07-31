@@ -73,22 +73,19 @@ class ProcessamentoContextoExistenteTest {
     }
 
     @Test
-    void processarContextoExistente_quandoAgenteFalha_propagates() {
-        // arrange
+    void deveLancarExceptionQuandoComunicacaoComAgenteFalha() {
         when(conversaAgenteUseCase.consultarPorCliente(cliente.getId()))
                 .thenReturn(conversaAgente);
         when(agenteUseCase.enviarMensagem(any(), any(), anyList()))
                 .thenThrow(new RuntimeException("erro-agente"));
 
-        // act & assert
         RuntimeException ex = assertThrows(RuntimeException.class,
                 () -> processamentoContextoExistente.processarContextoExistente(cliente, contexto));
         assertEquals("erro-agente", ex.getMessage());
     }
 
     @Test
-    void processarContextoExistente_quandoProcessoFalha_propagates() {
-        // arrange
+    void deveLancarExceptionAoProcessarContextoExistente() {
         when(conversaAgenteUseCase.consultarPorCliente(cliente.getId()))
                 .thenReturn(conversaAgente);
         when(agenteUseCase.enviarMensagem(any(), any(), anyList()))
@@ -97,12 +94,10 @@ class ProcessamentoContextoExistenteTest {
                 .thenReturn(processoMock);
         doThrow(new IllegalStateException("erro-processo"))
                 .when(processoMock).processar("ok", conversaAgente, cliente);
-
-        // act & assert
         IllegalStateException ex = assertThrows(IllegalStateException.class,
                 () -> processamentoContextoExistente.processarContextoExistente(cliente, contexto));
         assertEquals("erro-processo", ex.getMessage());
-        // garantir que não chegou a salvar após falha
+
         verify(conversaAgenteUseCase, never()).salvar(any());
     }
 }
