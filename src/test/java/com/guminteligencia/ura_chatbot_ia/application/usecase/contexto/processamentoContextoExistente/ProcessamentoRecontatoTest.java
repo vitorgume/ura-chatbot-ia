@@ -15,8 +15,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -37,7 +38,7 @@ class ProcessamentoRecontatoTest {
     private ConversaAgenteUseCase conversaAgenteUseCase;
 
     @InjectMocks
-    private ProcessamentoRecontato sut;
+    private ProcessamentoRecontato processamentoRecontato;
 
     @Mock
     private ConversaAgente conversaAgente;
@@ -58,22 +59,23 @@ class ProcessamentoRecontatoTest {
     @BeforeEach
     void init() {
         vendedor = Vendedor.builder().id(1L).nome("Carlos").build();
+        cliente = Cliente.builder().id(UUID.randomUUID()).telefone(telCliente).build();
     }
 
     @Test
-    void deveProcessar_quandoFinalizadaTrue_retornaTrue() {
+    void deveRetornarTrueQuandoConversaForFinalizada() {
         when(conversaAgente.getFinalizada()).thenReturn(true);
-        assertTrue(sut.deveProcessar("qualquer", conversaAgente));
+        assertTrue(processamentoRecontato.deveProcessar("qualquer", conversaAgente));
     }
 
     @Test
-    void deveProcessar_quandoFinalizadaFalse_retornaFalse() {
+    void deveRetornarFalseQuandoConversaNaoForFinalizada() {
         when(conversaAgente.getFinalizada()).thenReturn(false);
-        assertFalse(sut.deveProcessar("qualquer", conversaAgente));
+        assertFalse(processamentoRecontato.deveProcessar("qualquer", conversaAgente));
     }
 
     @Test
-    void processar_quandoNaoRecontato_executaFluxoCompleto() {
+    void deveProcessarFluxoCompletoQuandoRecontatoForFalse() {
         when(conversaAgente.getVendedor()).thenReturn(vendedor);
         when(cliente.getTelefone()).thenReturn(telCliente);
 
@@ -84,7 +86,7 @@ class ProcessamentoRecontatoTest {
         when(outroContatoUseCase.consultarPorNome("Ney")).thenReturn(outroContato);
         when(outroContato.getTelefone()).thenReturn(telOutro);
 
-        sut.processar(resposta, conversaAgente, cliente);
+        processamentoRecontato.processar(resposta, conversaAgente, cliente);
 
         InOrder ord = inOrder(mensagemUseCase, outroContatoUseCase, conversaAgente, conversaAgenteUseCase);
 
@@ -95,37 +97,33 @@ class ProcessamentoRecontatoTest {
         ord.verify(outroContatoUseCase).consultarPorNome("Ney");
 
         ord.verify(mensagemUseCase).enviarMensagem("msg-alerta-recontato", telOutro);
-        
+
         ord.verify(conversaAgente).setRecontato(true);
         ord.verify(conversaAgenteUseCase).salvar(conversaAgente);
         ord.verifyNoMoreInteractions();
     }
 
     @Test
-    void processar_quandoJaRecontato_reenviaApenasResposta() {
-        when(conversaAgente.getFinalizada()).thenReturn(true);
+    void deveEnviarApenasRespostaQuandoForRecontato() {
         when(conversaAgente.getRecontato()).thenReturn(true);
+        when(conversaAgente.getCliente()).thenReturn(cliente);
 
-        sut.processar(resposta, conversaAgente, cliente);
-
-        // deve enviar apenas a resposta original para o cliente
+        processamentoRecontato.processar(resposta, conversaAgente, cliente);
         verify(mensagemUseCase).enviarMensagem(resposta, telCliente);
-        // não deve invocar os demais colaboradores
         verifyNoInteractions(mensagemBuilder, outroContatoUseCase, conversaAgenteUseCase);
     }
 
     @Test
-    void processar_quandoOutroContatoFalha_propagates() {
-        when(conversaAgente.getFinalizada()).thenReturn(true);
+    void deveProcessarQuandoOutroContatoFalha() {
         when(conversaAgente.getRecontato()).thenReturn(false);
+        when(conversaAgente.getVendedor()).thenReturn(vendedor);
         when(mensagemBuilder.getMensagem(any(), any(), any())).thenReturn("m");
         when(outroContatoUseCase.consultarPorNome("Ney"))
                 .thenThrow(new RuntimeException("fail-outro"));
 
         RuntimeException ex = assertThrows(RuntimeException.class,
-                () -> sut.processar(resposta, conversaAgente, cliente));
+                () -> processamentoRecontato.processar(resposta, conversaAgente, cliente));
         assertEquals("fail-outro", ex.getMessage());
-        // após falha, não deve salvar nem marcar recontato
         verify(conversaAgente, never()).setRecontato(true);
         verify(conversaAgenteUseCase, never()).salvar(any());
     }
