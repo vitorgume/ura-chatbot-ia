@@ -9,7 +9,7 @@ public class MensagemRecontato implements MensagemType {
 
     @Override
     public String getMensagem(String nomeVendedor, Cliente cliente) {
-        return "Identifiquei que você já estava em conversa com o(a) " + nomeVendedor + ", vou repessar você novamente " +
+        return "Identifiquei que você já estava em conversa com o(a) " + nomeVendedor + ", vou repassar você novamente " +
                 "para o vendedor.";
     }
 

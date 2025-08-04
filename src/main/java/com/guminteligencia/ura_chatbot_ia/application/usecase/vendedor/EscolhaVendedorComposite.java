@@ -1,9 +1,6 @@
 package com.guminteligencia.ura_chatbot_ia.application.usecase.vendedor;
 
-import com.guminteligencia.ura_chatbot_ia.application.exceptions.EscolhaNaoIdentificadoException;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
-import com.guminteligencia.ura_chatbot_ia.domain.Regiao;
-import com.guminteligencia.ura_chatbot_ia.domain.Segmento;
 import com.guminteligencia.ura_chatbot_ia.domain.Vendedor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
