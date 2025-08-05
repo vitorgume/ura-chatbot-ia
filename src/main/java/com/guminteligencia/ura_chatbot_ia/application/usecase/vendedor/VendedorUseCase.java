@@ -27,9 +27,9 @@ public class VendedorUseCase {
     public Vendedor cadastrar(Vendedor novoVendedor) {
         log.info("Cadastrando novo vendedor. Novo vendedor: {}", novoVendedor);
 
-        Vendedor vendedor = this.consultarPorTelefone(novoVendedor.getTelefone());
+        Optional<Vendedor> vendedor = gateway.consultarPorTelefone(novoVendedor.getTelefone());
 
-        if (vendedor.getTelefone().equals(novoVendedor.getTelefone())) {
+        if(vendedor.isPresent() && vendedor.get().getTelefone().equals(novoVendedor.getTelefone())) {
             throw new VendedorComMesmoTelefoneException();
         }
 

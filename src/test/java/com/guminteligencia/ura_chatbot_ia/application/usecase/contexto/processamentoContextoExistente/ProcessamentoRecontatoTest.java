@@ -77,7 +77,6 @@ class ProcessamentoRecontatoTest {
     @Test
     void deveProcessarFluxoCompletoQuandoRecontatoForFalse() {
         when(conversaAgente.getVendedor()).thenReturn(vendedor);
-        when(cliente.getTelefone()).thenReturn(telCliente);
 
         when(mensagemBuilder.getMensagem(TipoMensagem.MENSAGEM_RECONTATO_VENDEDOR, "Carlos", null))
                 .thenReturn("msg-recontato-vendedor");

@@ -13,6 +13,7 @@ public class VendedorMapper {
                 .inativo(dto.getInativo())
                 .segmentos(dto.getSegmentos())
                 .regioes(dto.getRegioes())
+                .prioridade(dto.getPrioridade())
                 .build();
     }
 
@@ -24,6 +25,7 @@ public class VendedorMapper {
                 .inativo(domain.getInativo())
                 .segmentos(domain.getSegmentos())
                 .regioes(domain.getRegioes())
+                .prioridade(domain.getPrioridade())
                 .build();
     }
 }

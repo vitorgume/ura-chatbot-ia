@@ -1,5 +1,6 @@
 package com.guminteligencia.ura_chatbot_ia.entrypoint.dto;
 
+import com.guminteligencia.ura_chatbot_ia.domain.Prioridade;
 import com.guminteligencia.ura_chatbot_ia.domain.Regiao;
 import com.guminteligencia.ura_chatbot_ia.domain.Segmento;
 import lombok.*;
@@ -18,4 +19,5 @@ public class VendedorDto {
     private Boolean inativo;
     private List<Segmento> segmentos;
     private List<Regiao> regioes;
+    private Prioridade prioridade;
 }
