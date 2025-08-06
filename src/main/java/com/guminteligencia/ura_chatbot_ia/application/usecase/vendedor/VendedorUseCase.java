@@ -129,18 +129,4 @@ public class VendedorUseCase {
 
         return vendedor.get();
     }
-
-    private Vendedor consultarPorTelefone(String telefone) {
-        log.info("Consultando vendedor pelo seu telefone. Telefone: {}", telefone);
-
-        Optional<Vendedor> vendedor = gateway.consultarPorTelefone(telefone);
-
-        if (vendedor.isEmpty()) {
-            throw new VendedorNaoEncontradoException();
-        }
-
-        log.info("Vendedor consultado pelo seu telefone com sucesso. Vendedor: {}", vendedor);
-
-        return vendedor.get();
-    }
 }

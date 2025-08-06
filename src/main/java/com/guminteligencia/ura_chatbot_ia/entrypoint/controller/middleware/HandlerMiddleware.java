@@ -39,6 +39,15 @@ public class HandlerMiddleware {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseDto.comErro(erroDto));
     }
 
+    @ExceptionHandler(CredenciasIncorretasException.class)
+    public ResponseEntity<ResponseDto> exceptionHandlerCredenciasIncorretasException(Exception exception) {
+        ResponseDto.ErroDto erroDto = ResponseDto.ErroDto.builder()
+                .mensagens(mensagens(exception.getMessage()))
+                .build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseDto.comErro(erroDto));
+    }
+
+
     //Cliente
 
     @ExceptionHandler(ClienteNaoEncontradoException.class)
@@ -47,14 +56,6 @@ public class HandlerMiddleware {
                 .mensagens(mensagens(exception.getMessage()))
                 .build();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseDto.comErro(erroDto));
-    }
-
-    @ExceptionHandler(CredenciasIncorretasException.class)
-    public ResponseEntity<ResponseDto> exceptionHandlerCredenciasIncorretasException(Exception exception) {
-        ResponseDto.ErroDto erroDto = ResponseDto.ErroDto.builder()
-                .mensagens(mensagens(exception.getMessage()))
-                .build();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseDto.comErro(erroDto));
     }
 
     //Contexto
@@ -85,14 +86,6 @@ public class HandlerMiddleware {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseDto.comErro(erroDto));
     }
 
-    @ExceptionHandler(OutroContatoNaoEncontradoException.class)
-    public ResponseEntity<ResponseDto> exceptionHandlerOutroContatoNaoEncontradoException(Exception exception) {
-        ResponseDto.ErroDto erroDto = ResponseDto.ErroDto.builder()
-                .mensagens(mensagens(exception.getMessage()))
-                .build();
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseDto.comErro(erroDto));
-    }
-
     @ExceptionHandler(ProcessoContextoExistenteNaoIdentificadoException.class)
     public ResponseEntity<ResponseDto> exceptionHandlerProcessoContextoExistenteNaoIdentificadoException(Exception exception) {
         ResponseDto.ErroDto erroDto = ResponseDto.ErroDto.builder()
@@ -100,6 +93,8 @@ public class HandlerMiddleware {
                 .build();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseDto.comErro(erroDto));
     }
+
+    //Vendedor
 
     @ExceptionHandler(VendedorComMesmoTelefoneException.class)
     public ResponseEntity<ResponseDto> exceptionHandlerVendedorComMesmoTelefoneException(Exception exception) {
@@ -125,12 +120,22 @@ public class HandlerMiddleware {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseDto.comErro(erroDto));
     }
 
+    //Outros
+
     @ExceptionHandler(DataProviderException.class)
     public ResponseEntity<ResponseDto> exceptionHandlerDataProviderException(Exception exception) {
         ResponseDto.ErroDto erroDto = ResponseDto.ErroDto.builder()
                 .mensagens(mensagens(exception.getMessage()))
                 .build();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseDto.comErro(erroDto));
+    }
+
+    @ExceptionHandler(OutroContatoNaoEncontradoException.class)
+    public ResponseEntity<ResponseDto> exceptionHandlerOutroContatoNaoEncontradoException(Exception exception) {
+        ResponseDto.ErroDto erroDto = ResponseDto.ErroDto.builder()
+                .mensagens(mensagens(exception.getMessage()))
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseDto.comErro(erroDto));
     }
 
     private List<String> mensagens(String mensagem) {

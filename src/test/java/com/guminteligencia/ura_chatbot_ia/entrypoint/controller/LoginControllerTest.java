@@ -46,7 +46,7 @@ class LoginControllerTest {
     }
 
     @Test
-    void logar_comCredenciaisValidas_retornaCreatedEBodyCorreto() throws Exception {
+    void logarComCredenciaisValidasRetornaCreatedEBodyCorreto() throws Exception {
         String payload = """
                     {
                       "email": "admin@teste.com",
@@ -71,7 +71,7 @@ class LoginControllerTest {
     }
 
     @Test
-    void logar_comCredenciaisInvalidas_retornaUnauthorized() throws Exception {
+    void logarComCredenciaisInvalidasRetornaUnauthorized() throws Exception {
         String payload = """
                     {
                       "email": "admin@teste.com",
@@ -82,7 +82,6 @@ class LoginControllerTest {
         given(loginUseCase.autenticar("admin@teste.com", "senhaErrada"))
                 .willThrow(new CredenciasIncorretasException());
 
-        // Esperamos 401 Unauthorized
         mockMvc.perform(post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))

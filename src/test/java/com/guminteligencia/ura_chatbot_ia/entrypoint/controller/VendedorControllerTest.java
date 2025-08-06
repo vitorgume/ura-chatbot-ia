@@ -48,7 +48,7 @@ class VendedorControllerTest {
     }
 
     @Test
-    void cadastrar_quandoSucesso_retornaCreated() throws Exception {
+    void cadastrarQuandoSucessoRetornaCreated() throws Exception {
         given(repository.findByTelefone("99999999"))
                 .willReturn(Optional.empty());
 
@@ -93,7 +93,7 @@ class VendedorControllerTest {
     }
 
     @Test
-    void alterar_quandoSucesso_retornaOk() throws Exception {
+    void alterarQuandoSucessoRetornaOk() throws Exception {
         VendedorEntity existing = new VendedorEntity();
         existing.setId(2L);
         existing.setNome("A");
@@ -144,7 +144,7 @@ class VendedorControllerTest {
     }
 
     @Test
-    void listar_quandoSucesso_retornaOkComLista() throws Exception {
+    void listarQuandoSucessoRetornaOkComLista() throws Exception {
         VendedorEntity v1 = new VendedorEntity(null,"A","1111",false,
                 List.of(Segmento.BOUTIQUE_LOJAS),
                 List.of(Regiao.MARINGA), null);
@@ -164,7 +164,7 @@ class VendedorControllerTest {
     }
 
     @Test
-    void deletar_quandoSucesso_retornaNoContent() throws Exception {
+    void deletarQuandoSucessoRetornaNoContent() throws Exception {
         VendedorEntity existing = new VendedorEntity();
         existing.setId(2L);
         existing.setNome("A");
@@ -180,12 +180,15 @@ class VendedorControllerTest {
         mockMvc.perform(delete("/vendedores/3"))
                 .andExpect(status().isNoContent());
 
-        // garante que chegou ao repositório
         then(repository).should().deleteById(3L);
     }
 
     @Test
-    void deletar_quandoNaoEncontrado_retornaInternalServerError() throws Exception {
+    void deletarQuandoNaoEncontradoRetornaInternalServerError() throws Exception {
+        VendedorEntity dummy = new VendedorEntity();
+        dummy.setId(4L);
+        given(repository.findById(4L)).willReturn(Optional.of(dummy));
+
         willThrow(new RuntimeException("falha"))
                 .given(repository).deleteById(4L);
 

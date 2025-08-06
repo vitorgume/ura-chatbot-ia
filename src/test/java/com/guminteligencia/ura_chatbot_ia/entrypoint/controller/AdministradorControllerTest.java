@@ -55,7 +55,7 @@ class AdministradorControllerTest {
     }
 
     @Test
-    void cadastrar_comSucesso_retornaCreated() throws Exception {
+    void cadastrarComSucessoRetornaCreated() throws Exception {
         String payload = """
             {
               "nome": "Admin Teste",
@@ -94,7 +94,7 @@ class AdministradorControllerTest {
     }
 
     @Test
-    void deletar_comSucesso_retornaNoContent() throws Exception {
+    void deletarComSucessoRetornaNoContent() throws Exception {
         UUID id = UUID.randomUUID();
         willDoNothing().given(repository).deleteById(id);
 
