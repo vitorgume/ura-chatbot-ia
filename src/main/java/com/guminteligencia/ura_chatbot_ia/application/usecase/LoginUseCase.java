@@ -7,8 +7,6 @@ import com.guminteligencia.ura_chatbot_ia.domain.LoginResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 public class LoginUseCase {
@@ -17,12 +15,12 @@ public class LoginUseCase {
     private final LoginGateway loginGateway;
     private final CriptografiaUseCase criptografiaUseCase;
 
-    public LoginResponse autenticar(String email, String senha) {
-        Administrador administrador = administradorUseCase.consultarPorEmail(email);
+    public LoginResponse autenticar(String telefone, String senha) {
+        Administrador administrador = administradorUseCase.consultarPorTelefone(telefone);
         
-        this.validaCredenciais(administrador, email, senha);
+        this.validaCredenciais(administrador, telefone, senha);
         
-        String token = loginGateway.gerarToken(email);
+        String token = loginGateway.gerarToken(telefone);
         
         return LoginResponse.builder()
                 .token(token)
@@ -31,7 +29,7 @@ public class LoginUseCase {
     }
 
     private void validaCredenciais(Administrador administrador, String email, String senha) {
-        if(!administrador.getEmail().equals(email) || !criptografiaUseCase.validaSenha(senha, administrador.getSenha())) {
+        if(!administrador.getTelefone().equals(email) || !criptografiaUseCase.validaSenha(senha, administrador.getSenha())) {
             throw new CredenciasIncorretasException();
         }
     }

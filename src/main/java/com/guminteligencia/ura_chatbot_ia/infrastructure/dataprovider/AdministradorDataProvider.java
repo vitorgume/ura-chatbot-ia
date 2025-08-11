@@ -24,11 +24,11 @@ public class AdministradorDataProvider implements AdministradorGateway {
     private final String MENSAGEM_ERRO_DELETAR = "Erro ao deletar administrador.";
 
     @Override
-    public Optional<Administrador> consultarPorEmail(String email) {
+    public Optional<Administrador> consultarPorTelefone(String email) {
         Optional<AdministradorEntity> administradorEntity;
 
         try {
-            administradorEntity = repository.findByEmail(email);
+            administradorEntity = repository.findByTelefone(email);
         } catch (Exception ex) {
             log.error(MENSAGEM_ERRO_CONSULTAR_POR_EMAIL, ex);
             throw new DataProviderException(MENSAGEM_ERRO_CONSULTAR_POR_EMAIL, ex.getCause());

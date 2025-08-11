@@ -49,8 +49,8 @@ class AdministradorDataProviderTest {
     }
 
     @Test
-    void deveConsultarPorEmailComSucesso() {
-        when(repository.findByEmail("foo@x.com"))
+    void deveConsultarPorTelefoneComSucesso() {
+        when(repository.findByTelefone("0000000000000"))
                 .thenReturn(Optional.of(entityIn));
 
         try (MockedStatic<AdministradorMappper> ms =
@@ -58,33 +58,33 @@ class AdministradorDataProviderTest {
             ms.when(() -> AdministradorMappper.paraDomain(entityIn))
                     .thenReturn(domainOut);
 
-            Optional<Administrador> result = provider.consultarPorEmail("foo@x.com");
+            Optional<Administrador> result = provider.consultarPorTelefone("0000000000000");
             assertTrue(result.isPresent());
             assertSame(domainOut, result.get());
 
-            verify(repository).findByEmail("foo@x.com");
+            verify(repository).findByTelefone("0000000000000");
             ms.verify(() -> AdministradorMappper.paraDomain(entityIn));
         }
     }
 
     @Test
-    void deveRetornarAdministradorVazioAoConsultarPorEmail() {
-        when(repository.findByEmail("nope@x.com"))
+    void deveRetornarAdministradorVazioAoConsultarPorTelefone() {
+        when(repository.findByTelefone("0000000000000"))
                 .thenReturn(Optional.empty());
 
-        Optional<Administrador> result = provider.consultarPorEmail("nope@x.com");
+        Optional<Administrador> result = provider.consultarPorTelefone("0000000000000");
         assertTrue(result.isEmpty());
-        verify(repository).findByEmail("nope@x.com");
+        verify(repository).findByTelefone("0000000000000");
     }
 
     @Test
-    void deveLancarExceptinAoConsultarPorEmail() {
-        when(repository.findByEmail(anyString()))
+    void deveLancarExceptinAoConsultarPorTelefone() {
+        when(repository.findByTelefone(anyString()))
                 .thenThrow(new RuntimeException("fail-consulta"));
 
         DataProviderException ex = assertThrows(
                 DataProviderException.class,
-                () -> provider.consultarPorEmail("e@mail.com")
+                () -> provider.consultarPorTelefone("0000000000000")
         );
         assertEquals(ERR_CONSULT, ex.getMessage());
     }

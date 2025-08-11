@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface AdministradorGateway {
-    Optional<Administrador> consultarPorEmail(String email);
+    Optional<Administrador> consultarPorTelefone(String email);
 
     Administrador salvar(Administrador novoAdministrador);
 

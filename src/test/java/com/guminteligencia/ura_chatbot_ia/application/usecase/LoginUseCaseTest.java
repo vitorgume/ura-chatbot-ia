@@ -42,14 +42,14 @@ class LoginUseCaseTest {
     void setup() {
         administrador = Administrador.builder()
                 .id(adminId)
-                .email(email)
+                .telefone(email)
                 .senha(senhaHash)
                 .build();
     }
 
     @Test
     void deveAutenticarComCredenciaisValidas() {
-        when(administradorUseCase.consultarPorEmail(email)).thenReturn(administrador);
+        when(administradorUseCase.consultarPorTelefone(email)).thenReturn(administrador);
         when(criptografiaUseCase.validaSenha(senhaBruta, senhaHash)).thenReturn(true);
         when(loginGateway.gerarToken(email)).thenReturn("TOKEN123");
 
@@ -58,7 +58,7 @@ class LoginUseCaseTest {
         assertEquals(adminId, response.getId(), "Deve retornar o ID do administrador");
         assertEquals("TOKEN123", response.getToken(), "Deve retornar o token gerado pelo gateway");
 
-        verify(administradorUseCase).consultarPorEmail(email);
+        verify(administradorUseCase).consultarPorTelefone(email);
         verify(criptografiaUseCase).validaSenha(senhaBruta, senhaHash);
         verify(loginGateway).gerarToken(email);
     }
@@ -67,10 +67,10 @@ class LoginUseCaseTest {
     void deveLancarCredenciasIncorretasQuandoEmailDiferente() {
         Administrador outro = Administrador.builder()
                 .id(adminId)
-                .email("outro@example.com")
+                .telefone("outro@example.com")
                 .senha(senhaHash)
                 .build();
-        when(administradorUseCase.consultarPorEmail(email)).thenReturn(outro);
+        when(administradorUseCase.consultarPorTelefone(email)).thenReturn(outro);
 
         assertThrows(
                 CredenciasIncorretasException.class,
@@ -78,13 +78,13 @@ class LoginUseCaseTest {
                 "Quando o email do administrador não coincidir, deve lançar CredenciasIncorretasException"
         );
 
-        verify(administradorUseCase).consultarPorEmail(email);
+        verify(administradorUseCase).consultarPorTelefone(email);
         verifyNoInteractions(criptografiaUseCase, loginGateway);
     }
 
     @Test
     void deveLancarCredenciasIncorretasQuandoSenhaInvalida() {
-        when(administradorUseCase.consultarPorEmail(email)).thenReturn(administrador);
+        when(administradorUseCase.consultarPorTelefone(email)).thenReturn(administrador);
         when(criptografiaUseCase.validaSenha(senhaBruta, senhaHash)).thenReturn(false);
 
         assertThrows(
@@ -93,7 +93,7 @@ class LoginUseCaseTest {
                 "Quando a senha for inválida, deve lançar CredenciasIncorretasException"
         );
 
-        verify(administradorUseCase).consultarPorEmail(email);
+        verify(administradorUseCase).consultarPorTelefone(email);
         verify(criptografiaUseCase).validaSenha(senhaBruta, senhaHash);
         verifyNoInteractions(loginGateway);
     }

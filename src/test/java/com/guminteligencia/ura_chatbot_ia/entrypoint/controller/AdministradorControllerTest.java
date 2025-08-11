@@ -12,10 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
-import software.amazon.awssdk.services.sqs.model.ReceiveMessageResponse;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -59,12 +56,12 @@ class AdministradorControllerTest {
         String payload = """
             {
               "nome": "Admin Teste",
-              "email": "admin@teste.com",
+              "telefone": "0000000000000",
               "senha": "senha123"
             }
         """;
 
-        given(repository.findByEmail("admin@teste.com"))
+        given(repository.findByTelefone("0000000000000"))
                 .willReturn(Optional.empty());
 
         given(criptografiaUseCase.criptografar("senha123"))
@@ -74,7 +71,7 @@ class AdministradorControllerTest {
         AdministradorEntity saved = new AdministradorEntity();
         saved.setId(esperadoId);
         saved.setNome("Admin Teste");
-        saved.setEmail("admin@teste.com");
+        saved.setTelefone("0000000000000");
         saved.setSenha("HASHED_pwd123");
         given(repository.save(any(AdministradorEntity.class)))
                 .willReturn(saved);
@@ -86,9 +83,9 @@ class AdministradorControllerTest {
                 .andExpect(header().string("Location", "/administradores/" + esperadoId))
                 .andExpect(jsonPath("$.dado.id").value(esperadoId.toString()))
                 .andExpect(jsonPath("$.dado.nome").value("Admin Teste"))
-                .andExpect(jsonPath("$.dado.email").value("admin@teste.com"));
+                .andExpect(jsonPath("$.dado.telefone").value("0000000000000"));
 
-        then(repository).should().findByEmail("admin@teste.com");
+        then(repository).should().findByTelefone("0000000000000");
         then(criptografiaUseCase).should().criptografar("senha123");
         then(repository).should().save(any(AdministradorEntity.class));
     }

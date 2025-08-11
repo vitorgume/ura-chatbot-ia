@@ -53,7 +53,7 @@ class JwtAuthFilterTest {
         String json = objectMapper.writeValueAsString(AdministradorDto.builder()
                 .nome("Nome teste")
                 .senha("senha123")
-                .email("email123@gmail.com")
+                .telefone("email123@gmail.com")
                 .build()
         );
 

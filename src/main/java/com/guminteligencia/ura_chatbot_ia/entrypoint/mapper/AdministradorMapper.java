@@ -10,7 +10,7 @@ public class AdministradorMapper {
                 .id(dto.getId())
                 .nome(dto.getNome())
                 .senha(dto.getSenha())
-                .email(dto.getEmail())
+                .telefone(dto.getTelefone())
                 .build();
     }
 
@@ -19,7 +19,7 @@ public class AdministradorMapper {
                 .id(domain.getId())
                 .nome(domain.getNome())
                 .senha(domain.getSenha())
-                .email(domain.getEmail())
+                .telefone(domain.getTelefone())
                 .build();
     }
 }

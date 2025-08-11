@@ -22,7 +22,7 @@ public class AdministradorUseCase {
     public Administrador cadastrar(Administrador novoAdministrador) {
         log.info("Cadastrando novo administrador. Novo administrador: {}", novoAdministrador);
 
-        Optional<Administrador> administrador = gateway.consultarPorEmail(novoAdministrador.getEmail());
+        Optional<Administrador> administrador = gateway.consultarPorTelefone(novoAdministrador.getTelefone());
 
         if(administrador.isPresent()) {
             throw new AdministradorJaExisteException();
@@ -42,8 +42,8 @@ public class AdministradorUseCase {
         gateway.deletar(id);
     }
 
-    public Administrador consultarPorEmail(String email) {
-        Optional<Administrador> administrador = gateway.consultarPorEmail(email);
+    public Administrador consultarPorTelefone(String telefone) {
+        Optional<Administrador> administrador = gateway.consultarPorTelefone(telefone);
 
         if(administrador.isEmpty()) {
             throw new AdministradorNaoEncontradoException();

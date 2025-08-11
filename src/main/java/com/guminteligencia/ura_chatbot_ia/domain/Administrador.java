@@ -13,5 +13,5 @@ public class Administrador {
     private UUID id;
     private String nome;
     private String senha;
-    private String email;
+    private String telefone;
 }

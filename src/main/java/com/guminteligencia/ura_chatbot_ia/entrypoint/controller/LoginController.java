@@ -22,7 +22,7 @@ public class LoginController {
 
     @PostMapping
     public ResponseEntity<ResponseDto<LoginResponseDto>> logar(@RequestBody LoginDto loginDto) {
-        LoginResponseDto resultado = LoginMapper.paraDto(loginUseCase.autenticar(loginDto.getEmail(), loginDto.getSenha()));
+        LoginResponseDto resultado = LoginMapper.paraDto(loginUseCase.autenticar(loginDto.getTelefone(), loginDto.getSenha()));
         ResponseDto<LoginResponseDto> response = new ResponseDto<>(resultado);
         return ResponseEntity.created(UriComponentsBuilder
                 .newInstance()

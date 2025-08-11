@@ -31,19 +31,19 @@ class AdministradorUseCaseTest {
     private AdministradorUseCase useCase;
 
     private Administrador novo;
-    private final String email = "admin@test.com";
+    private final String telefone = "0000000000000";
     private final String senha = "minhaSenha";
 
     @BeforeEach
     void setup() {
         novo = new Administrador();
-        novo.setEmail(email);
+        novo.setTelefone(telefone);
         novo.setSenha(senha);
     }
 
     @Test
     void deveLancarExceptionAoCadastrarSeEmailJaExiste() {
-        when(gateway.consultarPorEmail(email))
+        when(gateway.consultarPorTelefone(telefone))
                 .thenReturn(Optional.of(new Administrador()));
 
         assertThrows(
@@ -52,16 +52,16 @@ class AdministradorUseCaseTest {
                 "Quando já existe admin com o mesmo email, deve lançar AdministradorJaExisteException"
         );
 
-        verify(gateway).consultarPorEmail(email);
+        verify(gateway).consultarPorTelefone(telefone);
         verifyNoMoreInteractions(gateway, criptografiaUseCase);
     }
 
     @Test
     void deveCadastrarComSenhaCriptografadaQuandoEmailNaoExiste() {
-        when(gateway.consultarPorEmail(email)).thenReturn(Optional.empty());
+        when(gateway.consultarPorTelefone(telefone)).thenReturn(Optional.empty());
         when(criptografiaUseCase.criptografar(senha)).thenReturn("HASHED");
         Administrador salvo = new Administrador();
-        salvo.setEmail(email);
+        salvo.setTelefone(telefone);
         salvo.setSenha("HASHED");
         when(gateway.salvar(any(Administrador.class))).thenReturn(salvo);
 
@@ -83,23 +83,23 @@ class AdministradorUseCaseTest {
     }
 
     @Test
-    void deveRetornarAdministradorQuandoConsultarPorEmailEncontrado() {
+    void deveRetornarAdministradorQuandoConsultarPorTelefoneEncontrado() {
         Administrador existente = new Administrador();
-        existente.setEmail(email);
-        when(gateway.consultarPorEmail(email)).thenReturn(Optional.of(existente));
+        existente.setTelefone(telefone);
+        when(gateway.consultarPorTelefone(telefone)).thenReturn(Optional.of(existente));
 
-        Administrador res = useCase.consultarPorEmail(email);
+        Administrador res = useCase.consultarPorTelefone(telefone);
 
         assertSame(existente, res);
     }
 
     @Test
-    void deveLancarAoConsultarPorEmailSeNaoEncontrar() {
-        when(gateway.consultarPorEmail(email)).thenReturn(Optional.empty());
+    void deveLancarAoConsultarPorTelefoneSeNaoEncontrar() {
+        when(gateway.consultarPorTelefone(telefone)).thenReturn(Optional.empty());
 
         assertThrows(
                 AdministradorNaoEncontradoException.class,
-                () -> useCase.consultarPorEmail(email),
+                () -> useCase.consultarPorTelefone(telefone),
                 "Quando não encontrar admin, deve lançar AdministradorNaoEncontradoException"
         );
     }

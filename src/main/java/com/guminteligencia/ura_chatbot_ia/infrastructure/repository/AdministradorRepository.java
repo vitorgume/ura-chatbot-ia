@@ -9,5 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface AdministradorRepository extends JpaRepository<AdministradorEntity, UUID> {
-    Optional<AdministradorEntity> findByEmail(String email);
+
+    Optional<AdministradorEntity> findByTelefone(String email);
 }

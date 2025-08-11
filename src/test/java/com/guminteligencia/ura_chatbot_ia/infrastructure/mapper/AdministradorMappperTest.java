@@ -2,14 +2,11 @@ package com.guminteligencia.ura_chatbot_ia.infrastructure.mapper;
 
 import com.guminteligencia.ura_chatbot_ia.domain.Administrador;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity.AdministradorEntity;
-import io.jsonwebtoken.lang.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class AdministradorMappperTest {
 
@@ -22,14 +19,14 @@ class AdministradorMappperTest {
                 .id(UUID.randomUUID())
                 .nome("Nome domain")
                 .senha("senhadomain123")
-                .email("emaildomain@gmail.com")
+                .telefone("emaildomain@gmail.com")
                 .build();
 
         administradorEntity = AdministradorEntity.builder()
                 .id(UUID.randomUUID())
                 .nome("Nome emtity")
                 .senha("senhaentity123")
-                .email("emailentity@gmail.com")
+                .telefone("emailentity@gmail.com")
                 .build();
     }
 
@@ -40,7 +37,7 @@ class AdministradorMappperTest {
         Assertions.assertEquals(administradorTeste.getId(), administradorEntity.getId());
         Assertions.assertEquals(administradorTeste.getNome(), administradorEntity.getNome());
         Assertions.assertEquals(administradorTeste.getSenha(), administradorEntity.getSenha());
-        Assertions.assertEquals(administradorTeste.getEmail(), administradorEntity.getEmail());
+        Assertions.assertEquals(administradorTeste.getTelefone(), administradorEntity.getTelefone());
     }
 
     @Test
@@ -50,6 +47,6 @@ class AdministradorMappperTest {
         Assertions.assertEquals(administradorTeste.getId(), administradorDomain.getId());
         Assertions.assertEquals(administradorTeste.getNome(), administradorDomain.getNome());
         Assertions.assertEquals(administradorTeste.getSenha(), administradorDomain.getSenha());
-        Assertions.assertEquals(administradorTeste.getEmail(), administradorDomain.getEmail());
+        Assertions.assertEquals(administradorTeste.getTelefone(), administradorDomain.getTelefone());
     }
 }
