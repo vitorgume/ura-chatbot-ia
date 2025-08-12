@@ -15,6 +15,7 @@ public class ClienteMapper {
                 .segmento(entity.getSegmento())
                 .inativo(entity.isInativo())
                 .descricaoMaterial(entity.getDescricaoMaterial())
+                .canal(entity.getCanal())
                 .build();
     }
 
@@ -27,6 +28,7 @@ public class ClienteMapper {
                 .segmento(domain.getSegmento())
                 .inativo(domain.isInativo())
                 .descricaoMaterial(domain.getDescricaoMaterial())
+                .canal(domain.getCanal())
                 .build();
     }
 }

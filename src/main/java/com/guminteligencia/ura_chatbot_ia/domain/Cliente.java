@@ -17,6 +17,7 @@ public class Cliente {
     private Segmento segmento;
     private boolean inativo;
     private String descricaoMaterial;
+    private Canal canal;
 
     public void setDados(Cliente cliente) {
         this.nome = cliente.getNome();

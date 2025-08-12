@@ -3,6 +3,7 @@ package com.guminteligencia.ura_chatbot_ia.application.usecase;
 import com.guminteligencia.ura_chatbot_ia.application.exceptions.ClienteNaoEncontradoException;
 import com.guminteligencia.ura_chatbot_ia.application.gateways.ClienteGateway;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.RelatorioContatoDto;
+import com.guminteligencia.ura_chatbot_ia.domain.Canal;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class ClienteUseCase {
 
         Cliente cliente = Cliente.builder()
                 .telefone(telefone)
+                .canal(Canal.CHATBOT)
                 .build();
 
         return gateway.salvar(cliente);

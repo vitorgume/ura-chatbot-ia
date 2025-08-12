@@ -1,5 +1,6 @@
 package com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity;
 
+import com.guminteligencia.ura_chatbot_ia.domain.Canal;
 import com.guminteligencia.ura_chatbot_ia.domain.Regiao;
 import com.guminteligencia.ura_chatbot_ia.domain.Segmento;
 import jakarta.persistence.*;
@@ -33,4 +34,7 @@ public class ClienteEntity {
     private String descricaoMaterial;
 
     private boolean inativo;
+
+    @Enumerated(EnumType.ORDINAL)
+    private Canal canal;
 }
