@@ -14,7 +14,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import java.net.URI;
 
 @Configuration
-@Profile("!test")
+@Profile("prod")
 public class DynamoDbConfig {
 
     @Bean
