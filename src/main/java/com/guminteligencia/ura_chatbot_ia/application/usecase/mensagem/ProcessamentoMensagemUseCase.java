@@ -28,16 +28,34 @@ public class ProcessamentoMensagemUseCase {
     @Scheduled(fixedDelay = 5000)
     public void consumirFila() {
         log.info("Consumindo mensagens da fila.");
-        List<Contexto> contextos = mensageriaUseCase.listarContextos().stream().filter(contextoValidadorComposite::deveIgnorar).toList();;
 
-        contextos.forEach(contexto -> {
-            this.processarMensagem(contexto);
+        var recebidas = mensageriaUseCase.listarContextos();
 
-            mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
+        log.info("Recebidas da SQS: {}", recebidas.size());
 
-            contextoUseCase.deletar(contexto.getId());
+        var processaveis = recebidas.stream()
+                .filter(contextoValidadorComposite::permitirProcessar)
+                .toList();
+
+        var ignoradas = recebidas.stream()
+                .filter(c -> !contextoValidadorComposite.permitirProcessar(c))
+                .toList();
+
+        log.info("Processáveis: {}, Ignoradas: {}", processaveis.size(), ignoradas.size());
+
+        processaveis.forEach(contexto -> {
+            try {
+                log.info("Processando: id={}, tel={}", contexto.getId(), contexto.getTelefone());
+                processarMensagem(contexto);
+                mensageriaUseCase.deletarMensagem(contexto.getMensagemFila()); // delete só após sucesso
+                contextoUseCase.deletar(contexto.getId());
+            } catch (Exception e) {
+                log.error("Falha ao processar id={}, tel={}. Não deletando da fila para retry.",
+                        contexto.getId(), contexto.getTelefone(), e);
+            }
         });
-        log.info("Mensagens consumidas com sucesso. Contextos: {}", contextos);
+
+        log.info("Consumo concluído.");
     }
 
     private void processarMensagem(Contexto contexto) {

@@ -3,5 +3,5 @@ package com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.validado
 import com.guminteligencia.ura_chatbot_ia.domain.Contexto;
 
 public interface ContextoValidator {
-    boolean deveIgnorar(Contexto contexto);
+    boolean permitirProcessar(Contexto contexto);
 }

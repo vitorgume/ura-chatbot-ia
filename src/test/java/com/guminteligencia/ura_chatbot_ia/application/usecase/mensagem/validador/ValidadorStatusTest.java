@@ -42,7 +42,7 @@ class ValidadorStatusTest {
         when(salvo.getStatus()).thenReturn(st);
         when(contextoUseCase.consultarPeloId(id)).thenReturn(salvo);
 
-        boolean result = sut.deveIgnorar(input);
+        boolean result = sut.permitirProcessar(input);
         assertFalse(result);
         verify(mensageriaUseCase).deletarMensagem(msgFila);
     }
@@ -59,7 +59,7 @@ class ValidadorStatusTest {
         when(salvo.getStatus()).thenReturn(st);
         when(contextoUseCase.consultarPeloId(id)).thenReturn(salvo);
 
-        boolean result = sut.deveIgnorar(input);
+        boolean result = sut.permitirProcessar(input);
         assertTrue(result);
         verifyNoInteractions(mensageriaUseCase);
     }

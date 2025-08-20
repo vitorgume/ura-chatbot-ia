@@ -54,7 +54,7 @@ class ValidadorTempoEsperaTest {
     @Test
     void deveRetornarFalseSeClienteNaoEncontrado() {
         when(clienteUseCase.consultarPorTelefone(tel)).thenReturn(Optional.empty());
-        assertFalse(validadorTempoEspera.deveIgnorar(ctx));
+        assertFalse(validadorTempoEspera.permitirProcessar(ctx));
         verifyNoInteractions(conversaAgenteUseCase, mensageriaUseCase);
     }
 
@@ -65,7 +65,7 @@ class ValidadorTempoEsperaTest {
                 .thenReturn(conv);
         when(conv.getFinalizada()).thenReturn(false);
 
-        assertTrue(validadorTempoEspera.deveIgnorar(ctx));
+        assertTrue(validadorTempoEspera.permitirProcessar(ctx));
         verifyNoInteractions(mensageriaUseCase);
     }
 
@@ -82,7 +82,7 @@ class ValidadorTempoEsperaTest {
             when(conv.getDataUltimaMensagem())
                     .thenReturn(fixed.minusMinutes(10));
 
-            assertFalse(validadorTempoEspera.deveIgnorar(ctx));
+            assertFalse(validadorTempoEspera.permitirProcessar(ctx));
             verify(mensageriaUseCase).deletarMensagem(ctx.getMensagemFila());
         }
     }
@@ -100,7 +100,7 @@ class ValidadorTempoEsperaTest {
             when(conv.getDataUltimaMensagem())
                     .thenReturn(fixed.minusMinutes(40));
 
-            assertTrue(validadorTempoEspera.deveIgnorar(ctx));
+            assertTrue(validadorTempoEspera.permitirProcessar(ctx));
             verifyNoInteractions(mensageriaUseCase);
         }
     }

@@ -20,23 +20,17 @@ public class ValidadorTempoEspera implements ContextoValidator {
 
     private final ConversaAgenteUseCase conversaAgenteUseCase;
     private final ClienteUseCase clienteUseCase;
-    private final MensageriaUseCase mensageriaUseCase;
 
     @Override
-    public boolean deveIgnorar(Contexto contexto) {
-        Optional<Cliente> cliente = clienteUseCase.consultarPorTelefone(contexto.getTelefone());
+    public boolean permitirProcessar(Contexto contexto) {
+        return clienteUseCase.consultarPorTelefone(contexto.getTelefone())
+                .map(cliente -> {
+                    var conv = conversaAgenteUseCase.consultarPorCliente(cliente.getId());
 
-        if(cliente.isPresent()) {
-            ConversaAgente conversaAgente = conversaAgenteUseCase.consultarPorCliente(cliente.get().getId());
-            boolean deveIgnorar = conversaAgente.getFinalizada() && !conversaAgente.getDataUltimaMensagem().plusMinutes(30).isBefore(LocalDateTime.now());
-
-            if(deveIgnorar) {
-                mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
-            }
-
-            return !deveIgnorar;
-        }
-
-        return false;
+                    boolean aindaNoCooldown = conv.getFinalizada() &&
+                            !conv.getDataUltimaMensagem().plusMinutes(30).isBefore(LocalDateTime.now());
+                    return !aindaNoCooldown;
+                })
+                .orElse(true);
     }
 }

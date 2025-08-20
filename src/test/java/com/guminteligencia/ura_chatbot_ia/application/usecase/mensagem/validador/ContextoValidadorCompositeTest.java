@@ -21,29 +21,29 @@ class ContextoValidadorCompositeTest {
     Contexto contexto = mock(Contexto.class);
 
     @Test
-    void deveIgnorarTrueSeQualquerValidadorRetornarTrue() {
-        when(v1.deveIgnorar(contexto)).thenReturn(false);
-        when(v2.deveIgnorar(contexto)).thenReturn(true);
+    void permitirProcessarTrueSeQualquerValidadorRetornarTrue() {
+        when(v1.permitirProcessar(contexto)).thenReturn(false);
+        when(v2.permitirProcessar(contexto)).thenReturn(true);
 
         var composite = new ContextoValidadorComposite(List.of(v1, v2));
-        assertTrue(composite.deveIgnorar(contexto));
+        assertTrue(composite.permitirProcessar(contexto));
 
         InOrder ord = inOrder(v1, v2);
-        ord.verify(v1).deveIgnorar(contexto);
-        ord.verify(v2).deveIgnorar(contexto);
+        ord.verify(v1).permitirProcessar(contexto);
+        ord.verify(v2).permitirProcessar(contexto);
         ord.verifyNoMoreInteractions();
     }
 
     @Test
     void deveIngnorarFalseSeNenhumValidadorRetornarTrue() {
-        when(v1.deveIgnorar(contexto)).thenReturn(false);
-        when(v2.deveIgnorar(contexto)).thenReturn(false);
+        when(v1.permitirProcessar(contexto)).thenReturn(false);
+        when(v2.permitirProcessar(contexto)).thenReturn(false);
 
         var composite = new ContextoValidadorComposite(List.of(v1, v2));
-        assertFalse(composite.deveIgnorar(contexto));
+        assertFalse(composite.permitirProcessar(contexto));
 
-        verify(v1).deveIgnorar(contexto);
-        verify(v2).deveIgnorar(contexto);
+        verify(v1).permitirProcessar(contexto);
+        verify(v2).permitirProcessar(contexto);
         verifyNoMoreInteractions(v1, v2);
     }
 

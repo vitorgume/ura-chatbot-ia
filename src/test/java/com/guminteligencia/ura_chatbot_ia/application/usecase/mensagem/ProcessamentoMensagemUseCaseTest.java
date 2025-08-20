@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,8 +82,8 @@ class ProcessamentoMensagemUseCaseTest {
     @Test
     void deveProcessarFluxoExistenteComSucesso() {
         when(mensageriaUseCase.listarContextos()).thenReturn(List.of(ctx1, ctx2));
-        when(contextoValidadorComposite.deveIgnorar(ctx1)).thenReturn(true);
-        when(contextoValidadorComposite.deveIgnorar(ctx2)).thenReturn(false);
+        when(contextoValidadorComposite.permitirProcessar(ctx1)).thenReturn(true);
+        when(contextoValidadorComposite.permitirProcessar(ctx2)).thenReturn(false);
         when(ctx1.getId()).thenReturn(id1);
         when(ctx1.getMensagemFila()).thenReturn(msg1);
         when(ctx1.getTelefone()).thenReturn(tel1);
@@ -108,7 +107,7 @@ class ProcessamentoMensagemUseCaseTest {
         ord.verify(mensageriaUseCase).deletarMensagem(msg1);
         ord.verify(contextoUseCase).deletar(id1);
 
-        verify(contextoValidadorComposite).deveIgnorar(ctx2);
+        verify(contextoValidadorComposite).permitirProcessar(ctx2);
         verifyNoMoreInteractions(
                 processamentoContextoExistente,
                 processamentoContextoNovoUseCase,
@@ -120,7 +119,7 @@ class ProcessamentoMensagemUseCaseTest {
     @Test
     void deveProcessarNovoFluxoComSucessoQuandoClienteNaoEncontrado() {
         when(mensageriaUseCase.listarContextos()).thenReturn(List.of(ctx1));
-        when(contextoValidadorComposite.deveIgnorar(ctx1)).thenReturn(true);
+        when(contextoValidadorComposite.permitirProcessar(ctx1)).thenReturn(true);
         when(ctx1.getId()).thenReturn(id1);
         when(ctx1.getMensagemFila()).thenReturn(msg1);
         when(ctx1.getTelefone()).thenReturn(tel1);

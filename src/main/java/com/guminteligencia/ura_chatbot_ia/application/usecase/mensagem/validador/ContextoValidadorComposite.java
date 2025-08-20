@@ -12,7 +12,7 @@ public class ContextoValidadorComposite {
 
     private final List<ContextoValidator> validators;
 
-    public boolean deveIgnorar(Contexto contexto) {
-        return validators.stream().anyMatch(validator -> validator.deveIgnorar(contexto));
+    public boolean permitirProcessar(Contexto contexto) {
+        return validators.stream().allMatch(v -> v.permitirProcessar(contexto));
     }
 }

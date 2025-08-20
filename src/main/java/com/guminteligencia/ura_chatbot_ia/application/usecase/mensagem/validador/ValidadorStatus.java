@@ -13,17 +13,11 @@ import org.springframework.stereotype.Service;
 public class ValidadorStatus implements ContextoValidator {
 
     private final ContextoUseCase contextoUseCase;
-    private final MensageriaUseCase mensageriaUseCase;
 
     @Override
-    public boolean deveIgnorar(Contexto contexto) {
-        Contexto contextoSalvo = contextoUseCase.consultarPeloId(contexto.getId());
-        boolean deveIgnorar = contextoSalvo.getStatus().getCodigo() == 1;
-
-        if(deveIgnorar) {
-            mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
-        }
-
-        return !deveIgnorar;
+    public boolean permitirProcessar(Contexto contexto) {
+        var ctx = contextoUseCase.consultarPeloId(contexto.getId());
+        boolean statusBloqueante = (ctx.getStatus().getCodigo() == 1);
+        return !statusBloqueante;
     }
 }
