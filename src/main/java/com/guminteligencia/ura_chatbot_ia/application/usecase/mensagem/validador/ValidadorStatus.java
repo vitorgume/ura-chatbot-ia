@@ -17,7 +17,7 @@ public class ValidadorStatus implements ContextoValidator {
     @Override
     public boolean permitirProcessar(Contexto contexto) {
         var ctx = contextoUseCase.consultarPeloId(contexto.getId());
-        boolean statusBloqueante = (ctx.getStatus().getCodigo() == 1);
+        boolean statusBloqueante = (ctx.getStatus().getCodigo() == 0);
         return !statusBloqueante;
     }
 }
