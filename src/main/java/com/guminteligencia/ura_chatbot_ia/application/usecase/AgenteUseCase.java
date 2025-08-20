@@ -1,6 +1,8 @@
 package com.guminteligencia.ura_chatbot_ia.application.usecase;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.guminteligencia.ura_chatbot_ia.application.gateways.AgenteGateway;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.MensagemAgenteDto;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
@@ -19,7 +21,8 @@ import java.util.stream.Collectors;
 public class AgenteUseCase {
 
     private final AgenteGateway gateway;
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = new ObjectMapper()
+            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
 
     public String enviarMensagem(Cliente clienteSalvo, ConversaAgente conversa, List<String> mensagens) {
         log.info("Enviando mensagem para o agente. Cliente: {}, ConversaAgente: {}, Mensagens: {}", clienteSalvo, conversa, mensagens);
@@ -55,8 +58,15 @@ public class AgenteUseCase {
 
     private static Qualificacao parseJson(String json) {
         try {
-            return mapper.readValue(json, Qualificacao.class);
+            JsonNode node = mapper.readTree(json);
+
+            if (node.isTextual()) {
+                node = mapper.readTree(node.asText());
+            }
+
+            return mapper.treeToValue(node, Qualificacao.class);
         } catch (Exception e) {
+            log.error("Falha ao parsear. json='{}'", json, e);
             throw new RuntimeException("Erro ao tentar mapear JSON da IA", e);
         }
     }

@@ -16,7 +16,7 @@ public class ProcessarContextoNaoFinalizadoNaoQualificado implements Processamen
 
     @Override
     public void processar(String resposta, ConversaAgente conversaAgente, Cliente cliente) {
-        mensagemUseCase.enviarMensagem(resposta, conversaAgente.getCliente().getTelefone());
+        mensagemUseCase.enviarMensagem(resposta.replaceAll("^\"|\"$", ""), conversaAgente.getCliente().getTelefone());
     }
 
     @Override
