@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Component
@@ -18,9 +19,13 @@ public class EcolhaPrioritariaSegmento implements EscolhaVendedorType {
 
     @Override
     public Optional<Vendedor> escolher(Cliente cliente, List<Vendedor> candidatos) {
+        if (cliente == null) return Optional.empty();
+
         return candidatos.stream()
-                .filter(v -> v.getSegmentos().contains(cliente.getSegmento()))
-                .filter(v -> Boolean.TRUE.equals(v.getPrioridade().getPrioritario()))
-                .min(Comparator.comparing(v -> v.getPrioridade().getValor()));
+                .filter(Objects::nonNull)
+                .filter(v -> VendedorPrioritarioUtil.safe(v.getSegmentos())
+                        .contains(cliente.getSegmento()))
+                .filter(VendedorPrioritarioUtil::isPrioritario)
+                .min(Comparator.comparingInt(VendedorPrioritarioUtil::prioridadeValor));
     }
 }

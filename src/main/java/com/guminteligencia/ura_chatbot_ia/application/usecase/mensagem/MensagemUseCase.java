@@ -20,7 +20,7 @@ public class MensagemUseCase {
     public void enviarMensagem(String mensagem, String telefone) {
         log.info("Enviando mensagem para usuário. Resposta: {}, Telefone: {}", mensagem, telefone);
 
-        this.gateway.enviar(mensagem, telefone);
+        this.gateway.enviar(mensagem.replaceAll("^\"|\"$", ""), telefone);
 
         log.info("Mensagem para o usuário enviada com sucesso.");
     }

@@ -47,12 +47,17 @@ public class ProcessamentoMensagemUseCase {
             try {
                 log.info("Processando: id={}, tel={}", contexto.getId(), contexto.getTelefone());
                 processarMensagem(contexto);
-                mensageriaUseCase.deletarMensagem(contexto.getMensagemFila()); // delete só após sucesso
+                mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
                 contextoUseCase.deletar(contexto.getId());
             } catch (Exception e) {
                 log.error("Falha ao processar id={}, tel={}. Não deletando da fila para retry.",
                         contexto.getId(), contexto.getTelefone(), e);
             }
+        });
+
+        ignoradas.forEach(contexto -> {
+            mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
+            contextoUseCase.deletar(contexto.getId());
         });
 
         log.info("Consumo concluído.");
