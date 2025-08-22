@@ -124,7 +124,7 @@ class ProcessarClienteQualificadoTest {
         inOrder.verify(mensagemBuilder)
                 .getMensagem(TipoMensagem.MENSAGEM_DIRECIONAMENTO_VENDEDOR, "Carlos", null);
 
-        inOrder.verify(mensagemUseCase).enviarMensagem("msg-dir", telSalvo);
+        inOrder.verify(mensagemUseCase).enviarMensagem("msg-dir", telSalvo, false);
 
         inOrder.verify(mensagemUseCase).enviarContatoVendedor(vendedor, clienteSalvo);
 

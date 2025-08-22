@@ -89,13 +89,13 @@ class ProcessamentoRecontatoTest {
 
         InOrder ord = inOrder(mensagemUseCase, outroContatoUseCase, conversaAgente, conversaAgenteUseCase);
 
-        ord.verify(mensagemUseCase).enviarMensagem("msg-recontato-vendedor", telCliente);
+        ord.verify(mensagemUseCase).enviarMensagem("msg-recontato-vendedor", telCliente, false);
 
         ord.verify(mensagemUseCase).enviarContatoVendedor(vendedor, cliente);
 
         ord.verify(outroContatoUseCase).consultarPorNome("Ney");
 
-        ord.verify(mensagemUseCase).enviarMensagem("msg-alerta-recontato", telOutro);
+        ord.verify(mensagemUseCase).enviarMensagem("msg-alerta-recontato", telOutro, false);
 
         ord.verify(conversaAgente).setRecontato(true);
         ord.verify(conversaAgenteUseCase).salvar(conversaAgente);
@@ -108,7 +108,7 @@ class ProcessamentoRecontatoTest {
         when(conversaAgente.getCliente()).thenReturn(cliente);
 
         processamentoRecontato.processar(resposta, conversaAgente, cliente);
-        verify(mensagemUseCase).enviarMensagem(resposta, telCliente);
+        verify(mensagemUseCase).enviarMensagem(resposta, telCliente, false);
         verifyNoInteractions(mensagemBuilder, outroContatoUseCase, conversaAgenteUseCase);
     }
 

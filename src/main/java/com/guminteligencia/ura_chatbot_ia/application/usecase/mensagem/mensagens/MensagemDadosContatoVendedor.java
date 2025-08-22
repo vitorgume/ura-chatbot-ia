@@ -44,6 +44,12 @@ public class MensagemDadosContatoVendedor implements MensagemType {
             mensagem.append("Telefone: ").append("Telefone não informado");
         }
 
+        if(cliente.getDescricaoMaterial() != null) {
+            mensagem.append("Descrição material: ").append(cliente.getDescricaoMaterial());
+        } else {
+            mensagem.append("Descrição material: ").append("Descrição material não informado.");
+        }
+
         return mensagem.toString();
     }
 

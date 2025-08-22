@@ -50,7 +50,7 @@ class MensagemUseCaseTest {
 
     @Test
     void deveEnviarMensagemParaTelefoneComSucesso() {
-        useCase.enviarMensagem(texto, telefone);
+        useCase.enviarMensagem(texto, telefone, false);
 
         verify(gateway, times(1)).enviar(texto, telefone);
     }
@@ -61,7 +61,7 @@ class MensagemUseCaseTest {
 
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
-                () -> useCase.enviarMensagem(texto, telefone)
+                () -> useCase.enviarMensagem(texto, telefone, false)
         );
         assertEquals("erro-enviar", ex.getMessage());
     }

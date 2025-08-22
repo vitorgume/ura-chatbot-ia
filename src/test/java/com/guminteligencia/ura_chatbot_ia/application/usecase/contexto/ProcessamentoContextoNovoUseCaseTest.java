@@ -74,7 +74,7 @@ class ProcessamentoContextoNovoUseCaseTest {
         ord.verify(clienteUseCase).cadastrar(telefone);
         ord.verify(conversaAgenteUseCase).criar(clienteSalvo);
         ord.verify(agenteUseCase).enviarMensagem(clienteSalvo, novaConversa, mensagens);
-        ord.verify(mensagemUseCase).enviarMensagem("resposta", telefone);
+        ord.verify(mensagemUseCase).enviarMensagem("resposta", telefone, false);
         ord.verify(novaConversa).setDataUltimaMensagem(Mockito.any(LocalDateTime.class));
         ord.verify(conversaAgenteUseCase).salvar(novaConversa);
         ord.verifyNoMoreInteractions();
@@ -141,7 +141,7 @@ class ProcessamentoContextoNovoUseCaseTest {
         when(conversaAgenteUseCase.criar(clienteSalvo)).thenReturn(novaConversa);
         when(agenteUseCase.enviarMensagem(clienteSalvo, novaConversa, mensagens))
                 .thenReturn("resposta");
-        Mockito.doNothing().when(mensagemUseCase).enviarMensagem(Mockito.anyString(), Mockito.any());
+        Mockito.doNothing().when(mensagemUseCase).enviarMensagem(Mockito.anyString(), Mockito.any(), false);
         when(contexto.getTelefone()).thenReturn(telefone);
         when(clienteSalvo.getTelefone()).thenReturn(telefone);
         doThrow(new IllegalArgumentException("erro-msg")).when(conversaAgenteUseCase).salvar(Mockito.any());
@@ -156,7 +156,7 @@ class ProcessamentoContextoNovoUseCaseTest {
         verify(clienteUseCase).cadastrar(telefone);
         verify(conversaAgenteUseCase).criar(clienteSalvo);
         verify(agenteUseCase).enviarMensagem(clienteSalvo, novaConversa, mensagens);
-        verify(mensagemUseCase).enviarMensagem("resposta", telefone);
+        verify(mensagemUseCase).enviarMensagem("resposta", telefone, false);
         verify(novaConversa).setDataUltimaMensagem(any());
         verify(conversaAgenteUseCase).salvar(any());
     }

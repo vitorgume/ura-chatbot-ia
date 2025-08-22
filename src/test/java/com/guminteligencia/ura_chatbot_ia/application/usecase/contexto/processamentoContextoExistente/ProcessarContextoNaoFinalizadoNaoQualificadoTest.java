@@ -60,7 +60,7 @@ class ProcessarContextoNaoFinalizadoNaoQualificadoTest {
 
         verify(conversaAgente).getCliente();
         verify(cliente).getTelefone();
-        verify(mensagemUseCase).enviarMensagem(resposta, telefone);
+        verify(mensagemUseCase).enviarMensagem(resposta, telefone, false);
 
         verifyNoMoreInteractions(conversaAgente, cliente, mensagemUseCase);
     }
@@ -74,7 +74,7 @@ class ProcessarContextoNaoFinalizadoNaoQualificadoTest {
 
         verify(conversaAgente).getCliente();
         verify(cliente).getTelefone();
-        verify(mensagemUseCase).enviarMensagem(resposta, (String) null);
+        verify(mensagemUseCase).enviarMensagem(resposta, (String) null, false);
         verifyNoMoreInteractions(mensagemUseCase);
     }
 }

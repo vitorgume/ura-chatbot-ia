@@ -17,10 +17,12 @@ public class MensagemUseCase {
     private final MensagemGateway gateway;
     private final MensagemBuilder mensagemBuilder;
 
-    public void enviarMensagem(String mensagem, String telefone) {
+    public void enviarMensagem(String mensagem, String telefone, boolean semEspacos) {
         log.info("Enviando mensagem para usuário. Resposta: {}, Telefone: {}", mensagem, telefone);
 
-        this.gateway.enviar(mensagem.replaceAll("^\"|\"$", ""), telefone);
+        String mensagemAEnviar = semEspacos ? mensagem.replaceAll("^\"|\"$", "").replaceAll("\\n", "") : mensagem.replaceAll("^\"|\"$", "");
+
+        this.gateway.enviar(mensagemAEnviar, telefone);
 
         log.info("Mensagem para o usuário enviada com sucesso.");
     }
@@ -33,8 +35,8 @@ public class MensagemUseCase {
 
         gateway.enviarContato(vendedor.getTelefone(), cliente);
 
-        this.enviarMensagem(textoMensagem, vendedor.getTelefone());
-        this.enviarMensagem(textoSeparacao, vendedor.getTelefone());
+        this.enviarMensagem(textoMensagem, vendedor.getTelefone(), false);
+        this.enviarMensagem(textoSeparacao, vendedor.getTelefone(), false);
 
         log.info("Contato enviado com sucesso para vendedor.");
     }

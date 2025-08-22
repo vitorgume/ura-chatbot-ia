@@ -23,5 +23,6 @@ public class Cliente {
         this.nome = cliente.getNome();
         this.regiao = cliente.getRegiao();
         this.segmento = cliente.getSegmento();
+        this.descricaoMaterial = cliente.getDescricaoMaterial();
     }
 }

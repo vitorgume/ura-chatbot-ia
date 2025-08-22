@@ -100,7 +100,7 @@ class ConversaInativaUseCaseTest {
             ord.verify(conv).setVendedor(vendedor);
             ord.verify(conv).setInativa(true);
             ord.verify(mensagemUseCase).enviarContatoVendedor(vendedor, cliente);
-            ord.verify(mensagemUseCase).enviarMensagem("MSG_INATIVO", vendedor.getTelefone());
+            ord.verify(mensagemUseCase).enviarMensagem("MSG_INATIVO", vendedor.getTelefone(), false);
             ord.verify(conversaAgenteUseCase).salvar(conv);
             ord.verifyNoMoreInteractions();
         }
