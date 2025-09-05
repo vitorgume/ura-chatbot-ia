@@ -39,9 +39,9 @@ public class MensagemDadosContatoVendedor implements MensagemType {
         }
 
         if(cliente.getTelefone() != null) {
-            mensagem.append("Telefone: ").append(cliente.getTelefone());
+            mensagem.append("Telefone: ").append(cliente.getTelefone()).append("\n");
         } else {
-            mensagem.append("Telefone: ").append("Telefone não informado");
+            mensagem.append("Telefone: ").append("Telefone não informado").append("\n");
         }
 
         if(cliente.getDescricaoMaterial() != null) {

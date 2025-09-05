@@ -61,9 +61,11 @@ public class MensagemDataProvider implements MensagemGateway {
 
     @Override
     public void enviarContato(String telefone, Cliente cliente) {
+        String nomeCliente = cliente.getNome() != null ? cliente.getNome() : "Nome não informado";
+
         ContatoRequestDto body = ContatoRequestDto.builder()
                 .phone(telefone)
-                .contactName(cliente.getNome())
+                .contactName(nomeCliente)
                 .contactPhone(cliente.getTelefone())
                 .build();
 
