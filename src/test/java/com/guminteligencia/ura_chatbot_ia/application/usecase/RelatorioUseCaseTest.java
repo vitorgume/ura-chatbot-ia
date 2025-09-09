@@ -1,11 +1,10 @@
 package com.guminteligencia.ura_chatbot_ia.application.usecase;
 
+import com.guminteligencia.ura_chatbot_ia.application.gateways.RelatorioGateway;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.RelatorioContatoDto;
+import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.RelatorioOnlineDto;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.MensagemUseCase;
-import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.mensagens.MensagemBuilder;
-import com.guminteligencia.ura_chatbot_ia.domain.OutroContato;
-import com.guminteligencia.ura_chatbot_ia.domain.Regiao;
-import com.guminteligencia.ura_chatbot_ia.domain.Segmento;
+import com.guminteligencia.ura_chatbot_ia.domain.*;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -35,6 +34,9 @@ class RelatorioUseCaseTest {
 
     @Mock
     private MensagemUseCase mensagemUseCase;
+
+    @Mock
+    private RelatorioGateway gateway;
 
     @InjectMocks
     private RelatorioUseCase useCase;
@@ -158,6 +160,34 @@ class RelatorioUseCaseTest {
             verify(clienteUseCase, never()).getRelatorioSegundaFeira();
             verify(mensagemUseCase, times(2))
                     .enviarRelatorio(anyString(), eq("Relatorio.xlsx"), anyString());
+        }
+    }
+
+    @Test
+    void atualizarRelatorioOnline_montaDtoComDataFormatoBR_eChamaGateway() {
+        LocalDate fixedDate = LocalDate.of(2025, 8, 5);
+
+        try (MockedStatic<LocalDate> mockDate =
+                     Mockito.mockStatic(LocalDate.class, Mockito.CALLS_REAL_METHODS)) {
+            mockDate.when(LocalDate::now).thenReturn(fixedDate);
+
+            Cliente cliente = mock(Cliente.class);
+            Vendedor vendedor = mock(Vendedor.class);
+            when(cliente.getTelefone()).thenReturn("+5544999887766");
+            when(cliente.getNome()).thenReturn("Ana");
+            when(vendedor.getNome()).thenReturn("João");
+
+            useCase.atualizarRelatorioOnline(cliente, vendedor);
+
+            ArgumentCaptor<RelatorioOnlineDto> dtoCap = ArgumentCaptor.forClass(RelatorioOnlineDto.class);
+            verify(gateway, times(1)).atualizarRelatorioOnline(dtoCap.capture());
+            verifyNoMoreInteractions(gateway);
+
+            RelatorioOnlineDto dto = dtoCap.getValue();
+            assertEquals("05/08/2025", dto.getData());
+            assertEquals("+5544999887766", dto.getTelefone());
+            assertEquals("Ana", dto.getCliente());
+            assertEquals("João", dto.getVendedor());
         }
     }
 }
