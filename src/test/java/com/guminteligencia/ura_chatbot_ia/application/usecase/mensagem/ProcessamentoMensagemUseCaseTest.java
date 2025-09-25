@@ -107,7 +107,7 @@ class ProcessamentoMensagemUseCaseTest {
         ord.verify(mensageriaUseCase).deletarMensagem(msg1);
         ord.verify(contextoUseCase).deletar(id1);
 
-        verify(contextoValidadorComposite).permitirProcessar(ctx2);
+        verify(contextoValidadorComposite, times(2)).permitirProcessar(ctx2);
         verifyNoMoreInteractions(
                 processamentoContextoExistente,
                 processamentoContextoNovoUseCase,

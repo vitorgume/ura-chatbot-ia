@@ -25,7 +25,7 @@ public class ConversaInativaUseCase {
     private final VendedorUseCase vendedorUseCase;
     private final MensagemUseCase mensagemUseCase;
     private final MensagemBuilder mensagemBuilder;
-    private final RelatorioUseCase relatorioUseCase;
+        private final RelatorioUseCase relatorioUseCase;
 
     @Scheduled(cron = "0 */20 * * * *")
     public void verificaAusenciaDeMensagem() {

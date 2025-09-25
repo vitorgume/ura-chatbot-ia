@@ -9,10 +9,7 @@ import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
 import com.guminteligencia.ura_chatbot_ia.domain.Vendedor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InOrder;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
@@ -25,16 +22,19 @@ import static org.mockito.Mockito.*;
 class ConversaInativaUseCaseTest {
 
     @Mock
-    ConversaAgenteUseCase conversaAgenteUseCase;
+    private ConversaAgenteUseCase conversaAgenteUseCase;
 
     @Mock
-    VendedorUseCase vendedorUseCase;
+    private VendedorUseCase vendedorUseCase;
 
     @Mock
-    MensagemUseCase mensagemUseCase;
+    private MensagemUseCase mensagemUseCase;
 
     @Mock
-    MensagemBuilder mensagemBuilder;
+    private MensagemBuilder mensagemBuilder;
+
+    @Mock
+    private RelatorioUseCase relatorioUseCase;
 
     @InjectMocks
     private ConversaInativaUseCase useCase;
@@ -91,6 +91,8 @@ class ConversaInativaUseCaseTest {
 
             when(mensagemBuilder.getMensagem(TipoMensagem.CONTATO_INATIVO, null, null))
                     .thenReturn("MSG_INATIVO");
+
+            doNothing().when(relatorioUseCase).atualizarRelatorioOnline(Mockito.any(), Mockito.any());
 
             useCase.verificaAusenciaDeMensagem();
 
