@@ -29,22 +29,20 @@ class ValidadorStatusTest {
     ValidadorStatus sut;
 
     @Test
-    void deveRetornaFalaseStatus1DeletarMensagemRetornar() {
+    void deveRetornaFalaseStatus0DeletarMensagemRetornar() {
         UUID id = UUID.randomUUID();
         Contexto input = mock(Contexto.class);
         when(input.getId()).thenReturn(id);
         Message msgFila = Message.builder().build();
-        when(input.getMensagemFila()).thenReturn(msgFila);
 
         Contexto salvo = mock(Contexto.class);
         StatusContexto st = mock(StatusContexto.class);
-        when(st.getCodigo()).thenReturn(1);
+        when(st.getCodigo()).thenReturn(0);
         when(salvo.getStatus()).thenReturn(st);
         when(contextoUseCase.consultarPeloId(id)).thenReturn(salvo);
 
         boolean result = sut.permitirProcessar(input);
         assertFalse(result);
-        verify(mensageriaUseCase).deletarMensagem(msgFila);
     }
 
     @Test

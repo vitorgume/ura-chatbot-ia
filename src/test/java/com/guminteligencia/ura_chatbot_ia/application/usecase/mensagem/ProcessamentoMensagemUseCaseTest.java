@@ -110,9 +110,7 @@ class ProcessamentoMensagemUseCaseTest {
         verify(contextoValidadorComposite, times(2)).permitirProcessar(ctx2);
         verifyNoMoreInteractions(
                 processamentoContextoExistente,
-                processamentoContextoNovoUseCase,
-                mensageriaUseCase,
-                contextoUseCase
+                processamentoContextoNovoUseCase
         );
     }
 

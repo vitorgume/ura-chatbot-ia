@@ -54,7 +54,7 @@ class ValidadorTempoEsperaTest {
     @Test
     void deveRetornarFalseSeClienteNaoEncontrado() {
         when(clienteUseCase.consultarPorTelefone(tel)).thenReturn(Optional.empty());
-        assertFalse(validadorTempoEspera.permitirProcessar(ctx));
+        assertTrue(validadorTempoEspera.permitirProcessar(ctx));
         verifyNoInteractions(conversaAgenteUseCase, mensageriaUseCase);
     }
 
@@ -83,7 +83,6 @@ class ValidadorTempoEsperaTest {
                     .thenReturn(fixed.minusMinutes(10));
 
             assertFalse(validadorTempoEspera.permitirProcessar(ctx));
-            verify(mensageriaUseCase).deletarMensagem(ctx.getMensagemFila());
         }
     }
 

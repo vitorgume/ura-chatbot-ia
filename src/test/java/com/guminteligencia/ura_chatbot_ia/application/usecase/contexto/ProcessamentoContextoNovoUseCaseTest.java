@@ -74,7 +74,7 @@ class ProcessamentoContextoNovoUseCaseTest {
         ord.verify(clienteUseCase).cadastrar(telefone);
         ord.verify(conversaAgenteUseCase).criar(clienteSalvo);
         ord.verify(agenteUseCase).enviarMensagem(clienteSalvo, novaConversa, mensagens);
-        ord.verify(mensagemUseCase).enviarMensagem("resposta", telefone, false);
+        ord.verify(mensagemUseCase).enviarMensagem("resposta", telefone, true);
         ord.verify(novaConversa).setDataUltimaMensagem(Mockito.any(LocalDateTime.class));
         ord.verify(conversaAgenteUseCase).salvar(novaConversa);
         ord.verifyNoMoreInteractions();
@@ -136,16 +136,17 @@ class ProcessamentoContextoNovoUseCaseTest {
     }
 
     @Test
-    void processarContextoNovo_quandoMensagemThrows_propagatesEParaFluxo() {
+    void processarContextoNovo_quandoSalvarFalha_propagatesEParaFluxo() {
+        when(contexto.getTelefone()).thenReturn(telefone);
+        when(contexto.getMensagens()).thenReturn(mensagens);
         when(clienteUseCase.cadastrar(telefone)).thenReturn(clienteSalvo);
+        when(clienteSalvo.getTelefone()).thenReturn(telefone);
         when(conversaAgenteUseCase.criar(clienteSalvo)).thenReturn(novaConversa);
         when(agenteUseCase.enviarMensagem(clienteSalvo, novaConversa, mensagens))
                 .thenReturn("resposta");
-        Mockito.doNothing().when(mensagemUseCase).enviarMensagem(Mockito.anyString(), Mockito.any(), false);
-        when(contexto.getTelefone()).thenReturn(telefone);
-        when(clienteSalvo.getTelefone()).thenReturn(telefone);
-        doThrow(new IllegalArgumentException("erro-msg")).when(conversaAgenteUseCase).salvar(Mockito.any());
-        when(contexto.getMensagens()).thenReturn(mensagens);
+
+        doThrow(new IllegalArgumentException("erro-msg"))
+                .when(conversaAgenteUseCase).salvar(any());
 
         IllegalArgumentException ex = assertThrows(
                 IllegalArgumentException.class,
@@ -156,9 +157,11 @@ class ProcessamentoContextoNovoUseCaseTest {
         verify(clienteUseCase).cadastrar(telefone);
         verify(conversaAgenteUseCase).criar(clienteSalvo);
         verify(agenteUseCase).enviarMensagem(clienteSalvo, novaConversa, mensagens);
-        verify(mensagemUseCase).enviarMensagem("resposta", telefone, false);
+        verify(mensagemUseCase).enviarMensagem(eq("resposta"), eq(telefone), eq(true));
         verify(novaConversa).setDataUltimaMensagem(any());
         verify(conversaAgenteUseCase).salvar(any());
+        verifyNoMoreInteractions(clienteUseCase, conversaAgenteUseCase, agenteUseCase, mensagemUseCase, novaConversa);
     }
+
 
 }

@@ -108,7 +108,7 @@ class ProcessamentoRecontatoTest {
         when(conversaAgente.getCliente()).thenReturn(cliente);
 
         processamentoRecontato.processar(resposta, conversaAgente, cliente);
-        verify(mensagemUseCase).enviarMensagem(resposta, telCliente, false);
+        verify(mensagemUseCase).enviarMensagem(resposta, telCliente, true);
         verifyNoInteractions(mensagemBuilder, outroContatoUseCase, conversaAgenteUseCase);
     }
 

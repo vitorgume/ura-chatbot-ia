@@ -15,17 +15,16 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ContextoValidadorCompositeTest {
 
-    @Mock
-    ContextoValidator v1, v2;
-
+    @Mock ContextoValidator v1, v2;
     Contexto contexto = mock(Contexto.class);
 
     @Test
-    void permitirProcessarTrueSeQualquerValidadorRetornarTrue() {
-        when(v1.permitirProcessar(contexto)).thenReturn(false);
+    void deveRetornarTrue_quandoTodosValidadoresRetornaremTrue() {
+        when(v1.permitirProcessar(contexto)).thenReturn(true);
         when(v2.permitirProcessar(contexto)).thenReturn(true);
 
         var composite = new ContextoValidadorComposite(List.of(v1, v2));
+
         assertTrue(composite.permitirProcessar(contexto));
 
         InOrder ord = inOrder(v1, v2);
@@ -35,11 +34,24 @@ class ContextoValidadorCompositeTest {
     }
 
     @Test
-    void deveIngnorarFalseSeNenhumValidadorRetornarTrue() {
+    void deveRetornarFalse_eFazerCurtoCircuito_quandoPrimeiroRetornaFalse() {
         when(v1.permitirProcessar(contexto)).thenReturn(false);
+
+        var composite = new ContextoValidadorComposite(List.of(v1, v2));
+
+        assertFalse(composite.permitirProcessar(contexto));
+
+        verify(v1).permitirProcessar(contexto);
+        verifyNoInteractions(v2); // não chama o segundo (curto-circuito do AND)
+    }
+
+    @Test
+    void deveRetornarFalse_quandoSegundoRetornaFalse() {
+        when(v1.permitirProcessar(contexto)).thenReturn(true);
         when(v2.permitirProcessar(contexto)).thenReturn(false);
 
         var composite = new ContextoValidadorComposite(List.of(v1, v2));
+
         assertFalse(composite.permitirProcessar(contexto));
 
         verify(v1).permitirProcessar(contexto);
@@ -47,4 +59,9 @@ class ContextoValidadorCompositeTest {
         verifyNoMoreInteractions(v1, v2);
     }
 
+    @Test
+    void comportamentoListaVazia_AND_vazioRetornaTruePorVerdadeVacuosa() {
+        var composite = new ContextoValidadorComposite(List.of());
+        assertTrue(composite.permitirProcessar(contexto)); // allMatch em lista vazia => true
+    }
 }
