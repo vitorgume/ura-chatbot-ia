@@ -48,18 +48,16 @@ class LoginControllerTest {
     @Test
     void logarComCredenciaisValidasRetornaCreatedEBodyCorreto() throws Exception {
         String payload = """
-                    {
-                      "email": "admin@teste.com",
-                      "senha": "senha123"
-                    }
+                    { "telefone": "+5511999000111", "senha": "senha123" }
                 """;
 
         UUID esperadoId = UUID.randomUUID();
-        LoginResponse domainResponse = LoginResponse.builder()
+        var domainResponse = LoginResponse.builder()
                 .token("meu-token-abc")
                 .id(esperadoId)
                 .build();
-        given(loginUseCase.autenticar("admin@teste.com", "senha123"))
+
+        given(loginUseCase.autenticar("+5511999000111", "senha123"))
                 .willReturn(domainResponse);
 
         mockMvc.perform(post("/login")
@@ -70,16 +68,15 @@ class LoginControllerTest {
                 .andExpect(jsonPath("$.dado.id").value(esperadoId.toString()));
     }
 
+
     @Test
     void logarComCredenciaisInvalidasRetornaUnauthorized() throws Exception {
+        String telefone = "+5511999000111";
         String payload = """
-                    {
-                      "email": "admin@teste.com",
-                      "senha": "senhaErrada"
-                    }
-                """;
+                    { "telefone": "%s", "senha": "senhaErrada" }
+                """.formatted(telefone);
 
-        given(loginUseCase.autenticar("admin@teste.com", "senhaErrada"))
+        given(loginUseCase.autenticar(telefone, "senhaErrada"))
                 .willThrow(new CredenciasIncorretasException());
 
         mockMvc.perform(post("/login")

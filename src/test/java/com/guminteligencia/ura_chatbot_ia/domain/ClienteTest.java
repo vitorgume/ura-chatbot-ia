@@ -45,6 +45,6 @@ class ClienteTest {
         Assertions.assertEquals(cliente.getRegiao(), novosDados.getRegiao());
         Assertions.assertEquals(cliente.getSegmento(), novosDados.getSegmento());
         Assertions.assertFalse(cliente.isInativo());
-        Assertions.assertNotEquals(cliente.getDescricaoMaterial(), novosDados.getDescricaoMaterial());
+        Assertions.assertEquals(cliente.getDescricaoMaterial(), novosDados.getDescricaoMaterial());
     }
 }

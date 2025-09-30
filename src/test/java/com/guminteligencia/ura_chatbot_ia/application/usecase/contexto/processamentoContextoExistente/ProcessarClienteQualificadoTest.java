@@ -2,6 +2,7 @@ package com.guminteligencia.ura_chatbot_ia.application.usecase.contexto.processa
 
 import com.guminteligencia.ura_chatbot_ia.application.usecase.AgenteUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.ClienteUseCase;
+import com.guminteligencia.ura_chatbot_ia.application.usecase.RelatorioUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.MensagemUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.TipoMensagem;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.mensagens.MensagemBuilder;
@@ -9,10 +10,7 @@ import com.guminteligencia.ura_chatbot_ia.application.usecase.vendedor.VendedorU
 import com.guminteligencia.ura_chatbot_ia.domain.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
@@ -40,9 +38,6 @@ class ProcessarClienteQualificadoTest {
     @Mock
     private AgenteUseCase agenteUseCase;
 
-    @InjectMocks
-    private ProcessarClienteQualificado processarClienteQualificado;
-
     @Mock
     private ConversaAgente conversaAgente;
 
@@ -54,6 +49,12 @@ class ProcessarClienteQualificadoTest {
 
     @Mock
     private Vendedor vendedor;
+
+    @Mock
+    private RelatorioUseCase relatorioUseCase;
+
+    @InjectMocks
+    private ProcessarClienteQualificado processarClienteQualificado;
 
     private final String resposta = "conteudo quebrado QUALIFICADO:true extra";
     private final UUID originalId = UUID.randomUUID();
@@ -98,6 +99,8 @@ class ProcessarClienteQualificadoTest {
 
         when(clienteSalvo.getTelefone()).thenReturn(telSalvo);
 
+        doNothing().when(relatorioUseCase).atualizarRelatorioOnline(Mockito.any(), Mockito.any());
+
         processarClienteQualificado.processar(resposta, conversaAgente, originalCliente);
 
         InOrder inOrder = inOrder(
@@ -106,6 +109,7 @@ class ProcessarClienteQualificadoTest {
                 vendedorUseCase,
                 mensagemBuilder,
                 mensagemUseCase,
+                relatorioUseCase,
                 conversaAgente
         );
 
@@ -127,6 +131,8 @@ class ProcessarClienteQualificadoTest {
         inOrder.verify(mensagemUseCase).enviarMensagem("msg-dir", telSalvo, false);
 
         inOrder.verify(mensagemUseCase).enviarContatoVendedor(vendedor, clienteSalvo);
+
+        inOrder.verify(relatorioUseCase).atualizarRelatorioOnline(Mockito.any(), Mockito.any());
 
         inOrder.verify(conversaAgente).setVendedor(vendedor);
         inOrder.verify(conversaAgente).setFinalizada(true);
