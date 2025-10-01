@@ -56,6 +56,7 @@ public class ProcessamentoMensagemUseCase {
         });
 
         ignoradas.forEach(contexto -> {
+            log.info("Ignorando: {}", contexto);
             mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
             contextoUseCase.deletar(contexto.getId());
         });
