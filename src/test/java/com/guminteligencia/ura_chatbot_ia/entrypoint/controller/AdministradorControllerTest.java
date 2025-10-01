@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import reactor.util.retry.RetryBackoffSpec;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,6 +45,9 @@ class AdministradorControllerTest {
 
     @MockitoBean
     private MensageriaGateway mensageriaGateway;
+
+    @MockitoBean
+    private RetryBackoffSpec retryBackoffSpec;
 
     @BeforeEach
     void setMockMensageria() {

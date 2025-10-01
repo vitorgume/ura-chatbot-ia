@@ -1,10 +1,11 @@
-package com.guminteligencia.ura_chatbot_ia.infrastructure.security.jwt;
+package com.guminteligencia.ura_chatbot_ia.infrastructure.security.jwt.jwtAuthFilterTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.guminteligencia.ura_chatbot_ia.application.gateways.MensageriaGateway;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.AdministradorUseCase;
 import com.guminteligencia.ura_chatbot_ia.domain.Administrador;
 import com.guminteligencia.ura_chatbot_ia.entrypoint.dto.AdministradorDto;
+import com.guminteligencia.ura_chatbot_ia.infrastructure.security.jwt.JwtUtil;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import reactor.util.retry.RetryBackoffSpec;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -37,6 +39,9 @@ class JwtAuthFilterTest {
 
     @MockitoBean
     private AdministradorUseCase administradorUseCase;
+
+    @MockitoBean
+    private RetryBackoffSpec retryBackoffSpec;
 
     @Value("${ura-chatbot-ia.apikey}")
     private String validApiKey;

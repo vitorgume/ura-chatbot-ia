@@ -109,4 +109,46 @@ class AgenteUseCaseTest {
         assertEquals(Segmento.MEDICINA_SAUDE.getCodigo(), resultado.getSegmento());
         assertEquals("desc", resultado.getDescricao_material());
     }
+
+    @Test
+    void deveRetornarQualificacaoQuandoGatewayRetornaJsonDentroDeStringTextual() throws Exception {
+        String texto = "texto";
+
+        // Monta um JSON válido como string
+        Qualificacao qual = new Qualificacao();
+        qual.setNome("Ana");
+        qual.setRegiao(Regiao.MARINGA.getCodigo());
+        qual.setSegmento(Segmento.MEDICINA_SAUDE.getCodigo());
+        qual.setDescricao_material("desc");
+
+        // JSON "normal"
+        String innerJson = new ObjectMapper().writeValueAsString(qual);
+        // Agora embrulha como STRING JSON (nó textual): "\"{...}\""
+        String wrappedAsTextNode = new ObjectMapper().writeValueAsString(innerJson);
+
+        when(gateway.enviarJsonTrasformacao(texto)).thenReturn(wrappedAsTextNode);
+
+        Qualificacao resultado = useCase.enviarJsonTrasformacao(texto);
+
+        assertNotNull(resultado);
+        assertEquals("Ana", resultado.getNome());
+        assertEquals(Regiao.MARINGA.getCodigo(), resultado.getRegiao());
+        assertEquals(Segmento.MEDICINA_SAUDE.getCodigo(), resultado.getSegmento());
+        assertEquals("desc", resultado.getDescricao_material());
+    }
+
+    @Test
+    void deveLancarRuntimeExceptionQuandoJsonTextualTemConteudoInternoInvalido() throws Exception {
+        String texto = "qualquer";
+
+        // Primeiro parse vira nó textual: "\"not a json\""
+        String wrappedInvalid = new ObjectMapper().writeValueAsString("not a json");
+
+        when(gateway.enviarJsonTrasformacao(texto)).thenReturn(wrappedInvalid);
+
+        RuntimeException ex = assertThrows(RuntimeException.class,
+                () -> useCase.enviarJsonTrasformacao(texto));
+
+        assertTrue(ex.getMessage().contains("Erro ao tentar mapear JSON da IA"));
+    }
 }

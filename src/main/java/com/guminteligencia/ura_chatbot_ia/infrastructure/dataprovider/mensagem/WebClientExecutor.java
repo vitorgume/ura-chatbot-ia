@@ -7,6 +7,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.util.retry.Retry;
+import reactor.util.retry.RetryBackoffSpec;
 
 import java.time.Duration;
 import java.util.Map;
@@ -17,6 +18,7 @@ import java.util.Map;
 public class WebClientExecutor {
 
     private final WebClient webClient;
+    private final RetryBackoffSpec retrySpec;
 
     public String post(String uri, Object body, Map<String, String> headers, String errorMessage) {
         return execute(uri, body, headers, errorMessage, HttpMethod.POST);
@@ -41,18 +43,11 @@ public class WebClientExecutor {
             String response = requestSpec
                     .retrieve()
                     .bodyToMono(String.class)
-                    .retryWhen(
-                            Retry.backoff(3, Duration.ofSeconds(2))
-                                    .filter(throwable -> {
-                                        log.warn("Tentando novamente após erro: {}", throwable.getMessage());
-                                        return true;
-                                    })
-                    )
+                    .retryWhen(retrySpec) // <- usa o spec injetado
                     .doOnError(e -> log.error("{} | Erro: {}", errorMessage, e.getMessage()))
                     .block();
 
             log.info("Response recebido: {}", response);
-
             return response;
         } catch (Exception e) {
             log.error(errorMessage, e);
