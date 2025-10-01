@@ -4,11 +4,13 @@ import com.guminteligencia.ura_chatbot_ia.application.usecase.MensageriaUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.contexto.ContextoUseCase;
 import com.guminteligencia.ura_chatbot_ia.domain.Contexto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Order(2)
 public class ValidadorStatus implements ContextoValidator {
 
@@ -18,6 +20,8 @@ public class ValidadorStatus implements ContextoValidator {
     public boolean permitirProcessar(Contexto contexto) {
         var ctx = contextoUseCase.consultarPeloId(contexto.getId());
         boolean statusBloqueante = (ctx.getStatus().getCodigo() == 0);
+        if(statusBloqueante)
+            log.info("Ignorado pelo status não ser ativo.");
         return !statusBloqueante;
     }
 }

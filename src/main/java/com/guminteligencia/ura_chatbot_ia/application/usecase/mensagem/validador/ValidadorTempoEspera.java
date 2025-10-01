@@ -7,6 +7,7 @@ import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.Contexto;
 import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Order(1)
 public class ValidadorTempoEspera implements ContextoValidator {
 
@@ -29,6 +31,10 @@ public class ValidadorTempoEspera implements ContextoValidator {
 
                     boolean aindaNoCooldown = conv.getFinalizada() &&
                             !conv.getDataUltimaMensagem().plusMinutes(30).isBefore(LocalDateTime.now());
+
+                    if(aindaNoCooldown)
+                        log.info("Ignorado pois ainda está no cooldown");
+
                     return !aindaNoCooldown;
                 })
                 .orElse(true);
