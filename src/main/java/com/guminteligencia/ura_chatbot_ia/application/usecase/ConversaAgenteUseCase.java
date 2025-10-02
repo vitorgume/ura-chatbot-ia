@@ -61,4 +61,13 @@ public class ConversaAgenteUseCase {
         return gateway.listarNaoFinalizados();
     }
 
+    public ConversaAgente consultarPorId(UUID idConversa) {
+        Optional<ConversaAgente> conversaAgente = gateway.consultarPorId(idConversa);
+
+        if(conversaAgente.isEmpty()) {
+            throw new ConversaAgenteNaoEncontradoException();
+        }
+
+        return conversaAgente.get();
+    }
 }
