@@ -21,6 +21,7 @@ public class ChatDataProvider implements ChatGateway {
     private final ChatRepository repository;
 
     private final String MENSAGEM_ERRO_CONSULTAR_POR_ID = "Erro ao consultar chat pelo seu id.";
+    private final String MENSAMGE_ERRO_SALVAR = "Erro ao salvar chat.";
 
     @Override
     public Optional<Chat> consultarPorId(UUID idChat) {

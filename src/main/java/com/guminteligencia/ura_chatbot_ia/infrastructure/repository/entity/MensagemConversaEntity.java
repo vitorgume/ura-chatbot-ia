@@ -6,8 +6,8 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity(name = "MensagemChat")
-@Table(name = "mensagens_chat")
+@Entity(name = "MensagemConversa")
+@Table(name = "mensagens_conversa")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -17,11 +17,17 @@ public class MensagemConversaEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id_mensagem_conversa")
     private UUID id;
     private String responsavel;
     private String conteudo;
     private LocalDateTime data;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "id_conversa",
+            referencedColumnName = "id_conversa",
+            foreignKey = @ForeignKey(name = "fk_msg_conversa")
+    )
     private ConversaAgenteEntity conversaAgente;
 }

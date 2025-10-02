@@ -27,5 +27,13 @@ public class ChatEntity {
     private ClienteEntity cliente;
 
     @OneToMany
+    @JoinTable(
+            name = "chats_mensagens_chat",
+            joinColumns = @JoinColumn(name = "chat_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(
+                    name = "mensagens_chat_id",
+                    referencedColumnName = "id_mensagem_conversa"
+            )
+    )
     private List<MensagemConversaEntity> mensagensChat;
 }
