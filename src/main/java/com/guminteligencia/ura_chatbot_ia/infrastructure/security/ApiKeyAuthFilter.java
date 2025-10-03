@@ -21,8 +21,8 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             "/healthz",
             "/login",
             "/administradores",
-            "/chat",
-            "/chat/**"
+            "/chats",
+            "/chats/**"
     );
 
     @Value("${ura-chatbot-ia.apikey}")

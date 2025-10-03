@@ -25,7 +25,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configure(http))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/administradores", "/actuator/health", "/actuator/health/**", "/actuator/info", "/healthz", "/chat", "/chat/**").permitAll()
+                        .requestMatchers("/login", "/administradores", "/actuator/health", "/actuator/health/**", "/actuator/info", "/healthz", "/chats", "/chats/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter.class)
