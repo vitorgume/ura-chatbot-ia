@@ -35,5 +35,6 @@ public class ChatEntity {
                     referencedColumnName = "id_mensagem_conversa"
             )
     )
+    @OrderBy("data ASC, id ASC")
     private List<MensagemConversaEntity> mensagensChat;
 }
