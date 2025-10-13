@@ -3,6 +3,7 @@ package com.guminteligencia.ura_chatbot_ia.application.usecase.contexto.processa
 import com.guminteligencia.ura_chatbot_ia.application.mapper.EnumMapper;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.AgenteUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.ClienteUseCase;
+import com.guminteligencia.ura_chatbot_ia.application.usecase.CrmUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.RelatorioUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.MensagemUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.TipoMensagem;
@@ -28,7 +29,7 @@ public class ProcessarClienteQualificado implements ProcessamentoContextoExisten
     private final MensagemUseCase mensagemUseCase;
     private final MensagemBuilder mensagemBuilder;
     private final AgenteUseCase agenteUseCase;
-    private final RelatorioUseCase relatorioUseCase;
+    private final CrmUseCase crmUseCase;
 
     @Override
     public void processar(String resposta, ConversaAgente conversaAgente, Cliente cliente) {
@@ -45,8 +46,7 @@ public class ProcessarClienteQualificado implements ProcessamentoContextoExisten
         Cliente clienteSalvo = clienteUseCase.alterar(clienteQualificado, conversaAgente.getCliente().getId());
         Vendedor vendedor = vendedorUseCase.escolherVendedor(clienteSalvo);
         mensagemUseCase.enviarMensagem(mensagemBuilder.getMensagem(TipoMensagem.MENSAGEM_DIRECIONAMENTO_VENDEDOR, vendedor.getNome(), null), clienteSalvo.getTelefone(), false);
-        mensagemUseCase.enviarContatoVendedor(vendedor, clienteSalvo);
-        relatorioUseCase.atualizarRelatorioOnline(cliente, vendedor);
+        crmUseCase.atualizarCrm(vendedor, clienteSalvo, conversaAgente);
         conversaAgente.setVendedor(vendedor);
         conversaAgente.setFinalizada(true);
         log.info("Processamento de cliente qualificado concluido com sucesso.");

@@ -27,6 +27,7 @@ public class VendedorEntity {
     private Boolean inativo;
     private List<Segmento> segmentos;
     private List<Regiao> regioes;
+    private Integer idVendedorCrm;
 
     @Embedded
     private Prioridade prioridade;

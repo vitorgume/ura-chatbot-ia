@@ -20,4 +20,5 @@ public class VendedorDto {
     private List<Segmento> segmentos;
     private List<Regiao> regioes;
     private Prioridade prioridade;
+    private Integer idVendedorCrm;
 }

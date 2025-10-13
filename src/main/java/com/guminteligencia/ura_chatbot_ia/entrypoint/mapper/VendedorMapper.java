@@ -14,6 +14,7 @@ public class VendedorMapper {
                 .segmentos(dto.getSegmentos())
                 .regioes(dto.getRegioes())
                 .prioridade(dto.getPrioridade())
+                .idVendedorCrm(dto.getIdVendedorCrm())
                 .build();
     }
 
@@ -26,6 +27,7 @@ public class VendedorMapper {
                 .segmentos(domain.getSegmentos())
                 .regioes(domain.getRegioes())
                 .prioridade(domain.getPrioridade())
+                .idVendedorCrm(domain.getIdVendedorCrm())
                 .build();
     }
 }

@@ -17,6 +17,7 @@ public class Vendedor {
     private List<Segmento> segmentos;
     private List<Regiao> regioes;
     private Prioridade prioridade;
+    private Integer idVendedorCrm;
 
     public void setDados(Vendedor novosDados) {
         this.nome = novosDados.getNome();
@@ -25,5 +26,6 @@ public class Vendedor {
         this.segmentos = novosDados.getSegmentos();
         this.regioes = novosDados.getRegioes();
         this.prioridade = novosDados.getPrioridade();
+        this.idVendedorCrm = novosDados.getIdVendedorCrm();
     }
 }

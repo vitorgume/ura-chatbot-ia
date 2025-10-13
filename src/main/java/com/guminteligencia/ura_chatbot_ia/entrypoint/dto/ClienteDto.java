@@ -23,4 +23,5 @@ public class ClienteDto {
     private boolean inativo;
     private String descricaoMaterial;
     private Canal canal;
+    private String regiaoReal;
 }

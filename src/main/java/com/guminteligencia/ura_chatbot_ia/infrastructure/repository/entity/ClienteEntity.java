@@ -37,4 +37,6 @@ public class ClienteEntity {
 
     @Enumerated(EnumType.ORDINAL)
     private Canal canal;
+
+    private String regiaoReal;
 }

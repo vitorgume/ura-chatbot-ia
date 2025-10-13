@@ -98,21 +98,4 @@ public class RelatorioUseCase {
 
         return "";
     }
-
-    public void atualizarRelatorioOnline(Cliente cliente, Vendedor vendedor) {
-        log.info("Atualizando relatório online. Cliente: {}, Vendedor: {}", cliente, vendedor);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-        RelatorioOnlineDto novaLinha = RelatorioOnlineDto.builder()
-                .data(LocalDate.now().format(formatter))
-                .telefone(cliente.getTelefone())
-                .cliente(cliente.getNome())
-                .vendedor(vendedor.getNome())
-                .build();
-
-        gateway.atualizarRelatorioOnline(novaLinha);
-
-        log.info("Relatório atualizado com sucesso.");
-    }
 }

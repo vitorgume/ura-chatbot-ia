@@ -25,7 +25,7 @@ public class ConversaInativaUseCase {
     private final VendedorUseCase vendedorUseCase;
     private final MensagemUseCase mensagemUseCase;
     private final MensagemBuilder mensagemBuilder;
-        private final RelatorioUseCase relatorioUseCase;
+    private final CrmUseCase crmUseCase;
 
     @Scheduled(cron = "0 */20 * * * *")
     public void verificaAusenciaDeMensagem() {
@@ -52,13 +52,7 @@ public class ConversaInativaUseCase {
                 Vendedor vendedor = vendedorUseCase.roletaVendedoresConversaInativa(conversa.getCliente());
                 conversa.setVendedor(vendedor);
                 conversa.setInativa(true);
-                mensagemUseCase
-                        .enviarContatoVendedor(
-                                vendedor,
-                                conversa.getCliente()
-                        );
-                mensagemUseCase.enviarMensagem(mensagemBuilder.getMensagem(TipoMensagem.CONTATO_INATIVO, null, null), vendedor.getTelefone(), false);
-                relatorioUseCase.atualizarRelatorioOnline(conversa.getCliente(), vendedor);
+                crmUseCase.atualizarCrm(vendedor, conversa.getCliente(), conversa);
                 conversaAgenteUseCase.salvar(conversa);
             });
         }
