@@ -57,9 +57,9 @@ public class ChatUseCase {
                 .mensagensChat(mensagens)
                 .build();
 
-        log.info("Chat criado com sucesso. Chat: {}", chat);
-
         chat = gateway.salvar(chat);
+
+        log.info("Chat criado com sucesso. Chat: {}", chat);
 
         return URL_CHAT + chat.getId().toString();
     }

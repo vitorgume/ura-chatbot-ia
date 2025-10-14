@@ -18,13 +18,13 @@ public class Cliente {
     private boolean inativo;
     private String descricaoMaterial;
     private Canal canal;
-    private String regiaoReal;
+    private String enderecoReal;
 
     public void setDados(Cliente cliente) {
         this.nome = cliente.getNome();
         this.regiao = cliente.getRegiao();
         this.segmento = cliente.getSegmento();
         this.descricaoMaterial = cliente.getDescricaoMaterial();
-        this.regiaoReal = cliente.getRegiaoReal();
+        this.enderecoReal = cliente.getEnderecoReal();
     }
 }

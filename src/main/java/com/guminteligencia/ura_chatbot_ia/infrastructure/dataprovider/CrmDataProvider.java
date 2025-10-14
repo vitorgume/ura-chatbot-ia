@@ -11,6 +11,7 @@ import com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.Remote
 import com.guminteligencia.ura_chatbot_ia.infrastructure.exceptions.DataProviderException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -28,11 +29,16 @@ import java.util.Comparator;
 import java.util.Optional;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class CrmDataProvider implements CrmGateway {
 
+
     private final WebClient webClient;
+
+    public CrmDataProvider(@Qualifier("kommoWebClient") WebClient webClient) {
+        this.webClient = webClient;
+    }
+
     private static final String MENSAGEM_ERRO_CONSULTAR_LEAD_PELO_TELEFONE = "Erro ao consultar lead pelo seu telefone.";
     private static final String MENSAGEM_ERRO_ATUALIZAR_CARD = "Erro ao atualizar card.";
     private static final String MENSAGEM_ERRO_CRIAR_SESSAO_ARQUIVO = "Erro ao criar sessão arquivo.";
@@ -75,7 +81,7 @@ public class CrmDataProvider implements CrmGateway {
 
     @Override
     public void atualizarCard(CardDto body, Integer idLead) {
-
+        System.out.println("Body: " + body);
         try {
             webClient.patch()
                     .uri(uri -> uri.path("/leads/{id}").build(idLead))
@@ -92,11 +98,12 @@ public class CrmDataProvider implements CrmGateway {
 
     @Override
     public SessaoArquivoDto criarSessaoArquivo() {
-
         try {
             return webClient.post()
                     .uri("https://drive-c.kommo.com/v1.0/sessions")
                     .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .bodyValue(java.util.Collections.emptyMap())
                     .retrieve()
                     .bodyToMono(SessaoArquivoDto.class)
                     .block();
@@ -108,8 +115,6 @@ public class CrmDataProvider implements CrmGateway {
 
     @Override
     public String enviarArquivoParaUpload(SessaoArquivoDto sessaoArquivo, String urlArquivo) {
-        try {
-
 
             RemoteFileMetaDto meta = obterMeta(urlArquivo);
 
@@ -117,13 +122,11 @@ public class CrmDataProvider implements CrmGateway {
                 throw new IllegalArgumentException("Arquivo excede max_file_size do Kommo.");
             }
 
-            // 2) se couber em uma parte, manda de uma vez
             if (meta.getLength() > 0 && sessaoArquivo.getMaxPartSize() != null && meta.getLength() <= sessaoArquivo.getMaxPartSize()) {
                 byte[] bytes = baixarBytes(urlArquivo);
                 UploadParteRespostaDto r = postChunk(sessaoArquivo.getUploadUrl(), bytes, 0, bytes.length - 1, meta.getLength(), meta.getContentType());
                 if (!r.isFinished() && r.getFileUuid() == null) {
-                    // algumas implementações retornam finished=true e uuid no final
-                    // se não vier, use nextUrl e finalize com um POST vazio (depende do drive); raríssimo
+
                     log.warn("Upload em parte única não retornou finished; nextUrl={}", r.getNextUploadUrl());
                 }
                 if (r.getFileUuid() == null) {
@@ -133,7 +136,6 @@ public class CrmDataProvider implements CrmGateway {
                 return r.getFileUuid();
             }
 
-            // 3) multipartes (stream → fatias de até max_part_size)
             long total = meta.getLength();
             long offset = 0;
             String nextUrl = sessaoArquivo.getUploadUrl();
@@ -164,9 +166,7 @@ public class CrmDataProvider implements CrmGateway {
                 throw new DataProviderException("Falha no streaming do arquivo para o Kommo.", e);
             }
 
-        } catch (Exception ex) {
             throw new IllegalStateException("Upload não finalizado.");
-        }
     }
 
     private UploadParteRespostaDto postChunk(String uploadUrl,

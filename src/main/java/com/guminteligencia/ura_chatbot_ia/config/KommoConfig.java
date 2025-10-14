@@ -25,16 +25,11 @@ public class KommoConfig {
             @Value("${app.crm.url}") String baseUrl,
             @Value("${app.crm.access-token}") String accessToken
     ) {
-        HttpClient httpClient = HttpClient.create()
-                .compress(true)
-                .responseTimeout(Duration.ofSeconds(15))
-                .doOnConnected(conn -> conn
-                        .addHandlerLast(new ReadTimeoutHandler(15))
-                        .addHandlerLast(new WriteTimeoutHandler(15)));
-
+        if (baseUrl == null || !baseUrl.startsWith("http")) {
+            throw new IllegalArgumentException("app.crm.url inválido: " + baseUrl);
+        }
         return builder
                 .baseUrl(baseUrl)
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .defaultHeaders(h -> {
                     h.setBearerAuth(accessToken);
                     h.setAccept(List.of(MediaType.valueOf("application/hal+json")));

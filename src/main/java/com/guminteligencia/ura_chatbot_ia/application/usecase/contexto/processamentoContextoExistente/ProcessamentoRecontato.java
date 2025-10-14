@@ -1,6 +1,7 @@
 package com.guminteligencia.ura_chatbot_ia.application.usecase.contexto.processamentoContextoExistente;
 
 import com.guminteligencia.ura_chatbot_ia.application.usecase.ConversaAgenteUseCase;
+import com.guminteligencia.ura_chatbot_ia.application.usecase.CrmUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.OutroContatoUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.MensagemUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.TipoMensagem;
@@ -21,6 +22,7 @@ public class ProcessamentoRecontato implements ProcessamentoContextoExistenteTyp
     private final MensagemBuilder mensagemBuilder;
     private final OutroContatoUseCase outroContatoUseCase;
     private final ConversaAgenteUseCase conversaAgenteUseCase;
+    private final CrmUseCase crmUseCase;
 
     @Override
     public void processar(String resposta, ConversaAgente conversaAgente, Cliente cliente) {
@@ -28,7 +30,6 @@ public class ProcessamentoRecontato implements ProcessamentoContextoExistenteTyp
         if(!conversaAgente.getRecontato()) {
             Vendedor vendedor = conversaAgente.getVendedor();
             mensagemUseCase.enviarMensagem(mensagemBuilder.getMensagem(TipoMensagem.MENSAGEM_RECONTATO_VENDEDOR, vendedor.getNome(), null), cliente.getTelefone(), false);
-            mensagemUseCase.enviarContatoVendedor(vendedor, cliente);
 
             OutroContato outroContato = outroContatoUseCase.consultarPorNome("Ney");
             mensagemUseCase.enviarMensagem(mensagemBuilder.getMensagem(TipoMensagem.MENSAGEM_ALERTA_RECONTATO, vendedor.getNome(), cliente), outroContato.getTelefone(), false);

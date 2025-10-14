@@ -27,6 +27,8 @@ public class VendedorEntity {
     private Boolean inativo;
     private List<Segmento> segmentos;
     private List<Regiao> regioes;
+
+    @Column(name = "id_vendedor_crm")
     private Integer idVendedorCrm;
 
     @Embedded

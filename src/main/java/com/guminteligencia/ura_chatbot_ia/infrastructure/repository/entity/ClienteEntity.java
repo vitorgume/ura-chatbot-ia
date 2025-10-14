@@ -31,6 +31,7 @@ public class ClienteEntity {
     @Enumerated(EnumType.ORDINAL)
     private Segmento segmento;
 
+    @Column(name = "descricao_material")
     private String descricaoMaterial;
 
     private boolean inativo;
@@ -38,5 +39,6 @@ public class ClienteEntity {
     @Enumerated(EnumType.ORDINAL)
     private Canal canal;
 
-    private String regiaoReal;
+    @Column(name = "endereco_real")
+    private String enderecoReal;
 }

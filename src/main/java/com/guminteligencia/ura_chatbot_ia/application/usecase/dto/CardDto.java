@@ -1,10 +1,7 @@
 package com.guminteligencia.ura_chatbot_ia.application.usecase.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 import java.util.Map;
@@ -13,17 +10,17 @@ import java.util.Map;
 @Getter
 @Setter
 @Builder
+@ToString
 public class CardDto {
-
-    @JsonProperty("responsible_use_id")
-    private Integer responsibleUseId;
-
-    @JsonProperty("custom_fields_values")
-    private List<CustomFieldDto> customFieldsValues;
+    @JsonProperty("responsible_user_id")
+    private Integer responsibleUserId;
 
     @JsonProperty("status_id")
     private Integer statusId;
 
+    @JsonProperty("custom_fields_values")
+    private List<CustomFieldDto> customFieldsValues;
+
     @JsonProperty("_embedded")
-    private Map<String, List<Map<String, Integer>>> embedded;
+    private Map<String, Object> embedded;
 }

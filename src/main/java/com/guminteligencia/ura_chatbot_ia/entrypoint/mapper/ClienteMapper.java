@@ -15,7 +15,7 @@ public class ClienteMapper {
                 .inativo(cliente.isInativo())
                 .descricaoMaterial(cliente.getDescricaoMaterial())
                 .canal(cliente.getCanal())
-                .regiaoReal(cliente.getRegiaoReal())
+                .enderecoReal(cliente.getEnderecoReal())
                 .build();
     }
 }

@@ -3,8 +3,6 @@ package com.guminteligencia.ura_chatbot_ia.infrastructure.mapper;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity.ClienteEntity;
 
-import java.util.function.Function;
-
 public class ClienteMapper {
     public static Cliente paraDomain(ClienteEntity entity) {
         return Cliente.builder()
@@ -16,7 +14,7 @@ public class ClienteMapper {
                 .inativo(entity.isInativo())
                 .descricaoMaterial(entity.getDescricaoMaterial())
                 .canal(entity.getCanal())
-                .regiaoReal(entity.getRegiaoReal())
+                .enderecoReal(entity.getEnderecoReal())
                 .build();
     }
 
@@ -30,7 +28,7 @@ public class ClienteMapper {
                 .inativo(domain.isInativo())
                 .descricaoMaterial(domain.getDescricaoMaterial())
                 .canal(domain.getCanal())
-                .regiaoReal(domain.getRegiaoReal())
+                .enderecoReal(domain.getEnderecoReal())
                 .build();
     }
 }

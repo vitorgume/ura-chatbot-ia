@@ -4,7 +4,6 @@ import com.guminteligencia.ura_chatbot_ia.application.mapper.EnumMapper;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.AgenteUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.ClienteUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.CrmUseCase;
-import com.guminteligencia.ura_chatbot_ia.application.usecase.RelatorioUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.MensagemUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.TipoMensagem;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.mensagens.MensagemBuilder;
@@ -40,7 +39,8 @@ public class ProcessarClienteQualificado implements ProcessamentoContextoExisten
                 .nome(qualificacao.getNome())
                 .regiao(EnumMapper.regiaoMapper(qualificacao.getRegiao()))
                 .segmento(EnumMapper.segmentoMapper(qualificacao.getSegmento()))
-                .descricaoMaterial(qualificacao.getDescricao_material())
+                .descricaoMaterial(qualificacao.getDescricaoMaterial())
+                .enderecoReal(qualificacao.getEnderecoReal())
                 .build();
 
         Cliente clienteSalvo = clienteUseCase.alterar(clienteQualificado, conversaAgente.getCliente().getId());
