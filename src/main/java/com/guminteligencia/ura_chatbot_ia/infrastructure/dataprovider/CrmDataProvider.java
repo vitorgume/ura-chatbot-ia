@@ -7,9 +7,9 @@ import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.SessaoArquivoD
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.UploadParteRespostaDto;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.ContactDto;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.ContactsResponse;
+import com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.KommoSessionRequest;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.RemoteFileMetaDto;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.exceptions.DataProviderException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -23,15 +23,20 @@ import reactor.util.function.Tuples;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Optional;
+import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 @Component
 @Slf4j
 public class CrmDataProvider implements CrmGateway {
 
+
+    private static final String KOMMO_DRIVE_BASE = "https://drive-c.kommo.com"; // ajuste para o drive da sua conta, se necessário
 
     private final WebClient webClient;
 
@@ -42,6 +47,45 @@ public class CrmDataProvider implements CrmGateway {
     private static final String MENSAGEM_ERRO_CONSULTAR_LEAD_PELO_TELEFONE = "Erro ao consultar lead pelo seu telefone.";
     private static final String MENSAGEM_ERRO_ATUALIZAR_CARD = "Erro ao atualizar card.";
     private static final String MENSAGEM_ERRO_CRIAR_SESSAO_ARQUIVO = "Erro ao criar sessão arquivo.";
+
+    // ========= Helpers para arquivo local =========
+
+    private static boolean isLocalFile(String s) {
+        if (s == null || s.isBlank()) return false;
+        return s.startsWith("file:") || !(s.startsWith("http://") || s.startsWith("https://"));
+    }
+
+    private static Path toPath(String s) {
+        return s.startsWith("file:") ? Paths.get(URI.create(s)) : Paths.get(s);
+    }
+
+    private static String guessContentType(Path p) {
+        try {
+            String ct = Files.probeContentType(p);
+            if (ct != null) return ct;
+        } catch (Exception ignore) {
+        }
+        String guess = URLConnection.guessContentTypeFromName(p.getFileName().toString());
+        return guess != null ? guess : "application/octet-stream";
+    }
+
+    private static String extractFilename(String urlOrPath) {
+        try {
+            if (isLocalFile(urlOrPath)) {
+                return toPath(urlOrPath).getFileName().toString();
+            } else {
+                URI u = URI.create(urlOrPath);
+                String path = u.getPath();
+                if (path == null || path.isBlank()) return "upload.bin";
+                int idx = path.lastIndexOf('/');
+                return (idx >= 0 && idx < path.length() - 1) ? path.substring(idx + 1) : "upload.bin";
+            }
+        } catch (Exception e) {
+            return "upload.bin";
+        }
+    }
+
+    // ==============================================
 
     public Optional<Integer> consultaLeadPeloTelefone(String telefoneE164) {
         String normalized = normalizeE164(telefoneE164);
@@ -97,110 +141,182 @@ public class CrmDataProvider implements CrmGateway {
     }
 
     @Override
-    public SessaoArquivoDto criarSessaoArquivo() {
+    public SessaoArquivoDto criarSessaoArquivo(String urlArquivo) {
         try {
-            return webClient.post()
-                    .uri("https://drive-c.kommo.com/v1.0/sessions")
+            long size = detectarTamanhoReal(urlArquivo);
+            if (size <= 0) {
+                throw new DataProviderException("Falha ao determinar tamanho real do arquivo: " + urlArquivo, null);
+            }
+
+            String contentType = isLocalFile(urlArquivo)
+                    ? guessContentType(toPath(urlArquivo))
+                    : Optional.ofNullable(obterMeta(urlArquivo).getContentType()).orElse(null);
+
+            if (contentType == null || contentType.isBlank()) contentType = "application/octet-stream";
+
+            String filename = extractFilename(urlArquivo);
+
+            log.info("🪶 Criando sessão Kommo");
+            log.info("📂 Arquivo: {}", filename);
+            log.info("📏 file_size: {} bytes ({} KB)", size, size / 1024);
+            log.info("🧾 Content-Type: {}", contentType);
+
+            // body com nomes aceitos pelo Drive (file_name, file_size, content_type)
+            var body = new KommoSessionRequest(filename, size, contentType);
+
+            SessaoArquivoDto sessao = webClient.post()
+                    .uri(KOMMO_DRIVE_BASE + "/v1.0/sessions")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .bodyValue(java.util.Collections.emptyMap())
+                    .bodyValue(body)
                     .retrieve()
                     .bodyToMono(SessaoArquivoDto.class)
                     .block();
+
+            if (sessao == null) {
+                throw new DataProviderException("Resposta nula ao criar sessão de upload no Kommo.", null);
+            }
+
+            log.info("✅ Sessão criada: uploadUrl={} maxFileSize={} maxPartSize={}",
+                    sessao.getUploadUrl(), sessao.getMaxFileSize(), sessao.getMaxPartSize());
+
+            if (sessao.getMaxFileSize() != null && size > sessao.getMaxFileSize()) {
+                throw new IllegalArgumentException("Arquivo excede max_file_size do Kommo.");
+            }
+
+            return sessao;
         } catch (Exception ex) {
-            log.error(MENSAGEM_ERRO_CRIAR_SESSAO_ARQUIVO, ex);
-            throw new DataProviderException(MENSAGEM_ERRO_CRIAR_SESSAO_ARQUIVO, ex.getCause());
+            log.error("Erro ao criar sessão arquivo.", ex);
+            throw new DataProviderException("Erro ao criar sessão arquivo.", ex.getCause());
         }
     }
 
     @Override
     public String enviarArquivoParaUpload(SessaoArquivoDto sessaoArquivo, String urlArquivo) {
 
-            RemoteFileMetaDto meta = obterMeta(urlArquivo);
+        // Detecta tamanho real para decidir single vs multi-part com segurança
+        long realSize = detectarTamanhoReal(urlArquivo);
+        RemoteFileMetaDto meta = obterMeta(urlArquivo);
+        if (meta.getLength() <= 0) {
+            meta = new RemoteFileMetaDto(realSize, meta.getContentType());
+        }
 
-            if (sessaoArquivo.getMaxFileSize() != null && meta.getLength() > 0 && meta.getLength() > sessaoArquivo.getMaxFileSize()) {
-                throw new IllegalArgumentException("Arquivo excede max_file_size do Kommo.");
+        if (sessaoArquivo.getMaxFileSize() != null && realSize > 0 && realSize > sessaoArquivo.getMaxFileSize()) {
+            throw new IllegalArgumentException("Arquivo excede max_file_size do Kommo.");
+        }
+
+        String uploadUrl = sessaoArquivo.getUploadUrl();
+        String contentType = Optional.ofNullable(meta.getContentType()).orElse("application/octet-stream");
+
+        // SINGLE-PART: quando o arquivo total ≤ max_part_size
+        if (realSize > 0 && sessaoArquivo.getMaxPartSize() != null && realSize <= sessaoArquivo.getMaxPartSize()) {
+            byte[] bytes = baixarBytes(urlArquivo);
+            UploadParteRespostaDto r = postChunk(uploadUrl, bytes, contentType);
+            if (!r.isFinished() && r.getFileUuid() == null) {
+                log.warn("Upload em parte única não retornou finished; nextUrl={}", r.getNextUploadUrl());
+            }
+            if (r.getFileUuid() == null) {
+                throw new IllegalStateException("Upload concluído, mas sem file_uuid na resposta.");
+            }
+            return r.getFileUuid();
+        }
+
+        // MULTI-PART (sem Content-Range)
+        long offset = 0;
+        String nextUrl = uploadUrl;
+
+        try (InputStream in = isLocalFile(urlArquivo)
+                ? new BufferedInputStream(Files.newInputStream(toPath(urlArquivo)))
+                : new BufferedInputStream(new URL(urlArquivo).openStream())) {
+
+            int defaultChunk = 512 * 1024; // 512 KB
+            int maxPart = (sessaoArquivo.getMaxPartSize() != null ? sessaoArquivo.getMaxPartSize() : defaultChunk);
+            int chunkSize = Math.min(maxPart, 5 * 1024 * 1024); // segurança
+
+            byte[] buf = new byte[chunkSize];
+
+            while (true) {
+                int read = in.read(buf);
+                if (read == -1) break;
+
+                byte[] slice = (read == buf.length) ? buf : Arrays.copyOf(buf, read);
+
+                UploadParteRespostaDto r = postChunk(nextUrl, slice, contentType);
+                offset += read;
+
+                if (r.getNextUploadUrl() != null) nextUrl = r.getNextUploadUrl();
+                if (r.isFinished()) {
+                    if (r.getFileUuid() == null)
+                        throw new IllegalStateException("Upload finalizado sem file_uuid.");
+                    return r.getFileUuid();
+                }
+            }
+        } catch (IOException e) {
+            throw new DataProviderException("Falha no streaming do arquivo para o Kommo.", e);
+        }
+
+        throw new IllegalStateException("Upload não finalizado.");
+    }
+
+    private long detectarTamanhoReal(String urlArquivo) {
+        try {
+            if (isLocalFile(urlArquivo)) {
+                Path path = toPath(urlArquivo);
+                if (!Files.exists(path))
+                    throw new IOException("Arquivo local não encontrado: " + path);
+                long len = Files.size(path);
+                log.info("📦 Tamanho local detectado: {} bytes ({} KB)", len, len / 1024);
+                return len;
             }
 
-            if (meta.getLength() > 0 && sessaoArquivo.getMaxPartSize() != null && meta.getLength() <= sessaoArquivo.getMaxPartSize()) {
-                byte[] bytes = baixarBytes(urlArquivo);
-                UploadParteRespostaDto r = postChunk(sessaoArquivo.getUploadUrl(), bytes, 0, bytes.length - 1, meta.getLength(), meta.getContentType());
-                if (!r.isFinished() && r.getFileUuid() == null) {
+            URL url = new URL(urlArquivo);
+            URLConnection conn = url.openConnection();
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(5000);
+            long length = conn.getContentLengthLong();
 
-                    log.warn("Upload em parte única não retornou finished; nextUrl={}", r.getNextUploadUrl());
-                }
-                if (r.getFileUuid() == null) {
-                    throw new IllegalStateException("Upload concluído, mas sem file_uuid na resposta.");
-                }
-
-                return r.getFileUuid();
+            if (length > 0) {
+                log.info("🌐 Tamanho remoto detectado via HEAD: {} bytes ({} KB)", length, length / 1024);
+                return length;
             }
 
-            long total = meta.getLength();
-            long offset = 0;
-            String nextUrl = sessaoArquivo.getUploadUrl();
-
-            try (InputStream in = new BufferedInputStream(new URL(urlArquivo).openStream())) {
-                int chunkSize = (sessaoArquivo.getMaxPartSize() != null ? sessaoArquivo.getMaxPartSize() : 5 * 1024 * 1024);
-                byte[] buf = new byte[chunkSize];
-
-                while (true) {
-                    int read = in.read(buf);
-                    if (read == -1) break;
-
-                    long start = offset;
-                    long end = offset + read - 1;
-                    byte[] slice = (read == buf.length) ? buf : Arrays.copyOf(buf, read);
-
-                    UploadParteRespostaDto r = postChunk(nextUrl, slice, start, end, total, meta.getContentType());
-                    offset += read;
-
-                    if (r.getNextUploadUrl() != null) nextUrl = r.getNextUploadUrl();
-                    if (r.isFinished()) {
-                        if (r.getFileUuid() == null)
-                            throw new IllegalStateException("Upload finalizado sem file_uuid.");
-                        return r.getFileUuid();
-                    }
-                }
-            } catch (IOException e) {
-                throw new DataProviderException("Falha no streaming do arquivo para o Kommo.", e);
+            // Fallback: baixa o arquivo inteiro (apenas se necessário)
+            try (InputStream in = new BufferedInputStream(url.openStream())) {
+                byte[] buffer = in.readAllBytes();
+                long len = buffer.length;
+                log.info("⬇️  Tamanho remoto detectado via download: {} bytes ({} KB)", len, len / 1024);
+                return len;
             }
-
-            throw new IllegalStateException("Upload não finalizado.");
+        } catch (Exception e) {
+            log.warn("⚠️  Falha ao detectar tamanho real do arquivo {}: {}", urlArquivo, e.getMessage());
+            return -1;
+        }
     }
 
     private UploadParteRespostaDto postChunk(String uploadUrl,
                                              byte[] bytes,
-                                             long start, long end, long total,
                                              String contentType) {
-        WebClient.RequestBodySpec spec = webClient.post().uri(uploadUrl);
-
-        if (total > 0) {
-            String range = String.format("bytes %d-%d/%d", start, end, total);
-            spec = spec.header("Content-Range", range);
-        }
-        if (contentType != null && !contentType.isBlank()) {
-            spec = spec.contentType(MediaType.parseMediaType(contentType));
-        } else {
-            spec = spec.contentType(MediaType.APPLICATION_OCTET_STREAM);
-        }
-
-        JsonNode node = spec
-                .bodyValue(bytes) // envia bytes “puros”
+        JsonNode node = webClient.post()
+                .uri(uploadUrl)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM) // chunk binário
+                .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(bytes.length))
+                .bodyValue(bytes)
                 .retrieve()
                 .bodyToMono(JsonNode.class)
                 .block();
 
-        UploadParteRespostaDto resposta = parseUploadResponse(node);
-        log.debug("Chunk enviado: start={}, end={}, finished={}, nextUrl={}",
-                start, end, resposta.isFinished(), resposta.getNextUploadUrl());
-        return resposta;
+        UploadParteRespostaDto r = parseUploadResponse(node);
+        log.debug("Chunk enviado: len={}, finished={}, nextUrl={}",
+                bytes.length, r.isFinished(), r.getNextUploadUrl());
+        return r;
     }
 
     private static byte[] baixarBytes(String url) {
         try {
+            if (isLocalFile(url)) {
+                return Files.readAllBytes(toPath(url));
+            }
             return WebClient.create()
-                    .get().uri(url)
+                    .get().uri(URI.create(url))
                     .retrieve()
                     .bodyToMono(byte[].class)
                     .block();
@@ -211,8 +327,15 @@ public class CrmDataProvider implements CrmGateway {
 
     private RemoteFileMetaDto obterMeta(String url) {
         try {
+            if (isLocalFile(url)) {
+                Path p = toPath(url);
+                long len = Files.exists(p) ? Files.size(p) : -1;
+                String ct = guessContentType(p);
+                return new RemoteFileMetaDto(len, ct);
+            }
+
             var resp = WebClient.create()
-                    .method(HttpMethod.HEAD).uri(url)
+                    .method(HttpMethod.HEAD).uri(URI.create(url))
                     .exchangeToMono(r -> Mono.just(Tuples.of(r.headers().asHttpHeaders(), r.statusCode())))
                     .block();
 
@@ -225,9 +348,9 @@ public class CrmDataProvider implements CrmGateway {
                 if (cl != null) len = Long.parseLong(cl);
             }
 
-            // Se o servidor não suportar HEAD/Content-Length, tentamos via GET dos headers
+            // fallback via GET headers
             if (len <= 0 || ct == null) {
-                var getResp = WebClient.create().get().uri(url).exchangeToMono(r ->
+                var getResp = WebClient.create().get().uri(URI.create(url)).exchangeToMono(r ->
                         r.releaseBody().then(Mono.just(r.headers().asHttpHeaders()))
                 ).block();
                 if (getResp != null) {
@@ -246,7 +369,6 @@ public class CrmDataProvider implements CrmGateway {
     }
 
     private UploadParteRespostaDto parseUploadResponse(JsonNode root) {
-        // os nomes podem variar; tente cobrir os mais comuns
         String nextUrl =
                 root.path("next_url").asText(null);
         if (nextUrl == null) nextUrl = root.path("upload_url").asText(null);
@@ -263,7 +385,6 @@ public class CrmDataProvider implements CrmGateway {
         String versionUuid =
                 root.path("version_uuid").asText(null);
 
-        // heurística: se veio uuid mas não veio nextUrl, consideramos finalizado
         if (fileUuid != null && nextUrl == null) finished = true;
 
         return UploadParteRespostaDto.builder()

@@ -34,6 +34,7 @@ public class CrmUseCase {
         String urlChat = chatUseCase.criar(conversaAgente.getId());
         Integer idLead = this.consultaLeadPeloTelefone(cliente.getTelefone());
 
+        log.info("Construindo body para atualizar card.");
         // AJUSTE: value para campos texto; enum_id para selects
         List<CustomFieldDto> customFieldDtos = new ArrayList<>();
 
@@ -62,11 +63,13 @@ public class CrmUseCase {
         midiaClienteUseCase.consultarMidiaPeloTelefoneCliente(cliente.getTelefone()).ifPresent(midia -> midia.getUrlMidias().forEach(this::carregarArquivo));
 
         CardDto cardDto = CardDto.builder()
-                .responsibleUserId(vendedor.getIdVendedorCrm()) // responsible_user_id
-                .statusId(93572343)                              // status_id
-                .customFieldsValues(customFieldDtos)             // custom_fields_values
-                .embedded(embedded)                              // _embedded
+                .responsibleUserId(vendedor.getIdVendedorCrm())
+                .statusId(93572343)
+                .customFieldsValues(customFieldDtos)
+                .embedded(embedded)
                 .build();
+
+        log.info("Body para atualizar card criado com sucesso. Body: {}", cardDto);
 
         // (opcional) logar o JSON real antes de enviar
         try {
@@ -83,17 +86,19 @@ public class CrmUseCase {
     }
 
     public Integer consultaLeadPeloTelefone(String telefone) {
+        log.info("Consultando lead pelo telefone. Telefone: {}", telefone);
         Optional<Integer> lead = gateway.consultaLeadPeloTelefone(telefone);
 
         if (lead.isEmpty()) {
             throw new LeadNaoEncontradoException();
         }
 
+        log.info("Lead consultado com sucesso. Lead: {}", lead.get());
         return lead.get();
     }
 
     public void carregarArquivo(String urlArquivo) {
-        SessaoArquivoDto sessaoArquivo = gateway.criarSessaoArquivo();
+        SessaoArquivoDto sessaoArquivo = gateway.criarSessaoArquivo(urlArquivo);
         gateway.enviarArquivoParaUpload(sessaoArquivo, urlArquivo);
     }
 

@@ -10,7 +10,7 @@ public interface CrmGateway {
 
     void atualizarCard(CardDto cardDto, Integer idLead);
 
-    SessaoArquivoDto criarSessaoArquivo();
+    SessaoArquivoDto criarSessaoArquivo(String urlArquivo);
 
     String enviarArquivoParaUpload(SessaoArquivoDto sessaoArquivo, String urlArquivo);
 }
