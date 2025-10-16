@@ -34,9 +34,7 @@ import java.util.*;
 @Component
 @Slf4j
 public class CrmDataProvider implements CrmGateway {
-
-
-    private static final String KOMMO_DRIVE_BASE = "https://drive-c.kommo.com"; // ajuste para o drive da sua conta, se necessário
+    private static final String KOMMO_DRIVE_BASE = "https://drive-c.kommo.com";
 
     private final WebClient webClient;
 
@@ -47,8 +45,7 @@ public class CrmDataProvider implements CrmGateway {
     private static final String MENSAGEM_ERRO_CONSULTAR_LEAD_PELO_TELEFONE = "Erro ao consultar lead pelo seu telefone.";
     private static final String MENSAGEM_ERRO_ATUALIZAR_CARD = "Erro ao atualizar card.";
     private static final String MENSAGEM_ERRO_CRIAR_SESSAO_ARQUIVO = "Erro ao criar sessão arquivo.";
-
-    // ========= Helpers para arquivo local =========
+    private static final String MENSAGEM_ERRO_ANEXAR_ARQUIVO = "Erro ao anexar arquivo ao card.";
 
     private static boolean isLocalFile(String s) {
         if (s == null || s.isBlank()) return false;
@@ -84,8 +81,6 @@ public class CrmDataProvider implements CrmGateway {
             return "upload.bin";
         }
     }
-
-    // ==============================================
 
     public Optional<Integer> consultaLeadPeloTelefone(String telefoneE164) {
         String normalized = normalizeE164(telefoneE164);
@@ -125,7 +120,6 @@ public class CrmDataProvider implements CrmGateway {
 
     @Override
     public void atualizarCard(CardDto body, Integer idLead) {
-        System.out.println("Body: " + body);
         try {
             webClient.patch()
                     .uri(uri -> uri.path("/leads/{id}").build(idLead))
@@ -161,7 +155,6 @@ public class CrmDataProvider implements CrmGateway {
             log.info("📏 file_size: {} bytes ({} KB)", size, size / 1024);
             log.info("🧾 Content-Type: {}", contentType);
 
-            // body com nomes aceitos pelo Drive (file_name, file_size, content_type)
             var body = new KommoSessionRequest(filename, size, contentType);
 
             SessaoArquivoDto sessao = webClient.post()
@@ -186,14 +179,13 @@ public class CrmDataProvider implements CrmGateway {
             return sessao;
         } catch (Exception ex) {
             log.error("Erro ao criar sessão arquivo.", ex);
-            throw new DataProviderException("Erro ao criar sessão arquivo.", ex.getCause());
+            throw new DataProviderException(MENSAGEM_ERRO_CRIAR_SESSAO_ARQUIVO, ex.getCause());
         }
     }
 
     @Override
     public String enviarArquivoParaUpload(SessaoArquivoDto sessaoArquivo, String urlArquivo) {
 
-        // Detecta tamanho real para decidir single vs multi-part com segurança
         long realSize = detectarTamanhoReal(urlArquivo);
         RemoteFileMetaDto meta = obterMeta(urlArquivo);
         if (meta.getLength() <= 0) {
@@ -207,7 +199,6 @@ public class CrmDataProvider implements CrmGateway {
         String uploadUrl = sessaoArquivo.getUploadUrl();
         String contentType = Optional.ofNullable(meta.getContentType()).orElse("application/octet-stream");
 
-        // SINGLE-PART: quando o arquivo total ≤ max_part_size
         if (realSize > 0 && sessaoArquivo.getMaxPartSize() != null && realSize <= sessaoArquivo.getMaxPartSize()) {
             byte[] bytes = baixarBytes(urlArquivo);
             UploadParteRespostaDto r = postChunk(uploadUrl, bytes, contentType);
@@ -220,7 +211,6 @@ public class CrmDataProvider implements CrmGateway {
             return r.getFileUuid();
         }
 
-        // MULTI-PART (sem Content-Range)
         long offset = 0;
         String nextUrl = uploadUrl;
 
@@ -255,6 +245,24 @@ public class CrmDataProvider implements CrmGateway {
         }
 
         throw new IllegalStateException("Upload não finalizado.");
+    }
+
+    @Override
+    public void anexarArquivoLead(String idArquivo, Integer idLead) {
+        List<Map<String, Object>> body = List.of(Map.of("file_uuid", idArquivo));
+
+        try {
+            webClient.put()
+                    .uri(uri -> uri.path("/leads/{id}/files").build(idLead))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(body)
+                    .retrieve()
+                    .toBodilessEntity()
+                    .block();
+        } catch (Exception ex) {
+            log.error(MENSAGEM_ERRO_ANEXAR_ARQUIVO, ex);
+            throw new DataProviderException(MENSAGEM_ERRO_ANEXAR_ARQUIVO, ex.getCause());
+        }
     }
 
     private long detectarTamanhoReal(String urlArquivo) {
@@ -348,7 +356,6 @@ public class CrmDataProvider implements CrmGateway {
                 if (cl != null) len = Long.parseLong(cl);
             }
 
-            // fallback via GET headers
             if (len <= 0 || ct == null) {
                 var getResp = WebClient.create().get().uri(URI.create(url)).exchangeToMono(r ->
                         r.releaseBody().then(Mono.just(r.headers().asHttpHeaders()))
@@ -363,7 +370,7 @@ public class CrmDataProvider implements CrmGateway {
             }
             return new RemoteFileMetaDto(len, ct);
         } catch (Exception e) {
-            // não é crítico; seguimos sem meta
+
             return new RemoteFileMetaDto(-1, null);
         }
     }

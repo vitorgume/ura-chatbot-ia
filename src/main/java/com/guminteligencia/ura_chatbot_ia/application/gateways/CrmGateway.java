@@ -13,4 +13,6 @@ public interface CrmGateway {
     SessaoArquivoDto criarSessaoArquivo(String urlArquivo);
 
     String enviarArquivoParaUpload(SessaoArquivoDto sessaoArquivo, String urlArquivo);
+
+    void anexarArquivoLead(String idArquivo, Integer idLead);
 }

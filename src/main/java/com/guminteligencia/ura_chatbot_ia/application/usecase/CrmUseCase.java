@@ -1,5 +1,6 @@
 package com.guminteligencia.ura_chatbot_ia.application.usecase;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.guminteligencia.ura_chatbot_ia.application.exceptions.LeadNaoEncontradoException;
 import com.guminteligencia.ura_chatbot_ia.application.gateways.CrmGateway;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.CardDto;
@@ -8,7 +9,6 @@ import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.CustomFieldVal
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.SessaoArquivoDto;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
-import com.guminteligencia.ura_chatbot_ia.domain.MidiaCliente;
 import com.guminteligencia.ura_chatbot_ia.domain.Vendedor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,32 +35,29 @@ public class CrmUseCase {
         Integer idLead = this.consultaLeadPeloTelefone(cliente.getTelefone());
 
         log.info("Construindo body para atualizar card.");
-        // AJUSTE: value para campos texto; enum_id para selects
+
         List<CustomFieldDto> customFieldDtos = new ArrayList<>();
 
-        // Ex.: 1484843 = descricao_material (texto)
         customFieldDtos.add(textField(1484843, cliente.getDescricaoMaterial()));
 
-        // Ex.: 1486843 = segmento (SELECT) -> usa enum_id
         customFieldDtos.add(selectField(1486843, cliente.getSegmento().getIdCrm()));
 
-        // Ex.: 1486845 = regiao (SELECT) -> usa enum_id
         customFieldDtos.add(selectField(1486845, cliente.getRegiao().getIdCrm()));
 
-        // Ex.: 1486847 = endereco_real (texto) -> usa value (**NÃO** "values")
         customFieldDtos.add(textField(1486847, cliente.getEnderecoReal()));
 
-        // Ex.: 1486849 = url_historico (texto)
         customFieldDtos.add(textField(1486849, urlChat));
 
-        // Tags no _embedded
         Map<String, Integer> tagItem = cliente.isInativo()
                 ? Map.of("id", 111143)
                 : Map.of("id", 117527);
 
         Map<String, Object> embedded = Map.of("tags", List.of(tagItem));
 
-        midiaClienteUseCase.consultarMidiaPeloTelefoneCliente(cliente.getTelefone()).ifPresent(midia -> midia.getUrlMidias().forEach(this::carregarArquivo));
+        midiaClienteUseCase.consultarMidiaPeloTelefoneCliente(cliente.getTelefone())
+                .ifPresent(midia -> midia.getUrlMidias()
+                        .forEach(arquivo -> this.carregarArquivo(arquivo, idLead))
+                );
 
         CardDto cardDto = CardDto.builder()
                 .responsibleUserId(vendedor.getIdVendedorCrm())
@@ -71,9 +68,8 @@ public class CrmUseCase {
 
         log.info("Body para atualizar card criado com sucesso. Body: {}", cardDto);
 
-        // (opcional) logar o JSON real antes de enviar
         try {
-            var json = new com.fasterxml.jackson.databind.ObjectMapper()
+            var json = new ObjectMapper()
                     .writerWithDefaultPrettyPrinter()
                     .writeValueAsString(cardDto);
             log.info("Kommo PATCH body=\n{}", json);
@@ -97,16 +93,20 @@ public class CrmUseCase {
         return lead.get();
     }
 
-    public void carregarArquivo(String urlArquivo) {
+    public void carregarArquivo(String urlArquivo, Integer idLead) {
+        log.info("Carregando arquivo. Url do arquivo: {}", urlArquivo);
         SessaoArquivoDto sessaoArquivo = gateway.criarSessaoArquivo(urlArquivo);
-        gateway.enviarArquivoParaUpload(sessaoArquivo, urlArquivo);
+        String idArquivo = gateway.enviarArquivoParaUpload(sessaoArquivo, urlArquivo);
+        gateway.anexarArquivoLead(idArquivo, idLead);
+        log.info("Arquivo carregado com sucesso. Id do arquivo: {}", idArquivo);
+
     }
 
     private CustomFieldDto textField(int fieldId, Object value) {
         return CustomFieldDto.builder()
                 .fieldId(fieldId)
                 .values(List.of(CustomFieldValueDto.builder()
-                        .value(value)       // só value
+                        .value(value)
                         .build()))
                 .build();
     }
@@ -114,7 +114,7 @@ public class CrmUseCase {
     private CustomFieldDto selectField(int fieldId, Integer... enumIds) {
         var list = java.util.Arrays.stream(enumIds)
                 .map(id -> CustomFieldValueDto.builder()
-                        .enumId(id)         // só enum_id
+                        .enumId(id)
                         .build())
                 .toList();
         return CustomFieldDto.builder()

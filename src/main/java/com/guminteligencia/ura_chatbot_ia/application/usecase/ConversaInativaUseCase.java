@@ -23,8 +23,6 @@ public class ConversaInativaUseCase {
 
     private final ConversaAgenteUseCase conversaAgenteUseCase;
     private final VendedorUseCase vendedorUseCase;
-    private final MensagemUseCase mensagemUseCase;
-    private final MensagemBuilder mensagemBuilder;
     private final CrmUseCase crmUseCase;
 
     @Scheduled(cron = "0 */20 * * * *")
