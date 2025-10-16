@@ -42,10 +42,10 @@ public class CrmDataProvider implements CrmGateway {
         this.webClient = webClient;
     }
 
-    private static final String MENSAGEM_ERRO_CONSULTAR_LEAD_PELO_TELEFONE = "Erro ao consultar lead pelo seu telefone.";
-    private static final String MENSAGEM_ERRO_ATUALIZAR_CARD = "Erro ao atualizar card.";
-    private static final String MENSAGEM_ERRO_CRIAR_SESSAO_ARQUIVO = "Erro ao criar sessão arquivo.";
-    private static final String MENSAGEM_ERRO_ANEXAR_ARQUIVO = "Erro ao anexar arquivo ao card.";
+    public static final String MENSAGEM_ERRO_CONSULTAR_LEAD_PELO_TELEFONE = "Erro ao consultar lead pelo seu telefone.";
+    public static final String MENSAGEM_ERRO_ATUALIZAR_CARD = "Erro ao atualizar card.";
+    public static final String MENSAGEM_ERRO_CRIAR_SESSAO_ARQUIVO = "Erro ao criar sessão arquivo.";
+    public static final String MENSAGEM_ERRO_ANEXAR_ARQUIVO = "Erro ao anexar arquivo ao card.";
 
     private static boolean isLocalFile(String s) {
         if (s == null || s.isBlank()) return false;

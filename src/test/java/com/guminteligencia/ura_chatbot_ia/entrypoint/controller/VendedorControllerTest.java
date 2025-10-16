@@ -151,10 +151,10 @@ class VendedorControllerTest {
     void listarQuandoSucessoRetornaOkComLista() throws Exception {
         VendedorEntity v1 = new VendedorEntity(null,"A","1111",false,
                 List.of(Segmento.BOUTIQUE_LOJAS),
-                List.of(Regiao.MARINGA), null);
+                List.of(Regiao.MARINGA),0, null);
         VendedorEntity v2 = new VendedorEntity(null,"B","2222",true,
                 List.of(Segmento.CELULARES),
-                List.of(Regiao.REGIAO_MARINGA), null);
+                List.of(Regiao.REGIAO_MARINGA), 0,    null);
         v1.setId(1L);
         v2.setId(2L);
         given(repository.findAll())

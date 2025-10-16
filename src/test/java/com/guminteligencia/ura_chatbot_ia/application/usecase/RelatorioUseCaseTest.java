@@ -162,32 +162,4 @@ class RelatorioUseCaseTest {
                     .enviarRelatorio(anyString(), eq("Relatorio.xlsx"), anyString());
         }
     }
-
-    @Test
-    void atualizarRelatorioOnline_montaDtoComDataFormatoBR_eChamaGateway() {
-        LocalDate fixedDate = LocalDate.of(2025, 8, 5);
-
-        try (MockedStatic<LocalDate> mockDate =
-                     Mockito.mockStatic(LocalDate.class, Mockito.CALLS_REAL_METHODS)) {
-            mockDate.when(LocalDate::now).thenReturn(fixedDate);
-
-            Cliente cliente = mock(Cliente.class);
-            Vendedor vendedor = mock(Vendedor.class);
-            when(cliente.getTelefone()).thenReturn("+5544999887766");
-            when(cliente.getNome()).thenReturn("Ana");
-            when(vendedor.getNome()).thenReturn("João");
-
-            useCase.atualizarRelatorioOnline(cliente, vendedor);
-
-            ArgumentCaptor<RelatorioOnlineDto> dtoCap = ArgumentCaptor.forClass(RelatorioOnlineDto.class);
-            verify(gateway, times(1)).atualizarRelatorioOnline(dtoCap.capture());
-            verifyNoMoreInteractions(gateway);
-
-            RelatorioOnlineDto dto = dtoCap.getValue();
-            assertEquals("05/08/2025", dto.getData());
-            assertEquals("+5544999887766", dto.getTelefone());
-            assertEquals("Ana", dto.getCliente());
-            assertEquals("João", dto.getVendedor());
-        }
-    }
 }

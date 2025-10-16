@@ -82,7 +82,7 @@ class ProcessamentoRecontatoTest {
                 .thenReturn("msg-recontato-vendedor");
         when(mensagemBuilder.getMensagem(TipoMensagem.MENSAGEM_ALERTA_RECONTATO, "Carlos", cliente))
                 .thenReturn("msg-alerta-recontato");
-        when(outroContatoUseCase.consultarPorNome("Ney")).thenReturn(outroContato);
+        when(outroContatoUseCase.consultarPorNome("Ana")).thenReturn(outroContato);
         when(outroContato.getTelefone()).thenReturn(telOutro);
 
         processamentoRecontato.processar(resposta, conversaAgente, cliente);
@@ -91,9 +91,7 @@ class ProcessamentoRecontatoTest {
 
         ord.verify(mensagemUseCase).enviarMensagem("msg-recontato-vendedor", telCliente, false);
 
-        ord.verify(mensagemUseCase).enviarContatoVendedor(vendedor, cliente);
-
-        ord.verify(outroContatoUseCase).consultarPorNome("Ney");
+        ord.verify(outroContatoUseCase).consultarPorNome("Ana");
 
         ord.verify(mensagemUseCase).enviarMensagem("msg-alerta-recontato", telOutro, false);
 
@@ -117,7 +115,7 @@ class ProcessamentoRecontatoTest {
         when(conversaAgente.getRecontato()).thenReturn(false);
         when(conversaAgente.getVendedor()).thenReturn(vendedor);
         when(mensagemBuilder.getMensagem(any(), any(), any())).thenReturn("m");
-        when(outroContatoUseCase.consultarPorNome("Ney"))
+        when(outroContatoUseCase.consultarPorNome("Ana"))
                 .thenThrow(new RuntimeException("fail-outro"));
 
         RuntimeException ex = assertThrows(RuntimeException.class,

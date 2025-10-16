@@ -67,41 +67,6 @@ class MensagemUseCaseTest {
     }
 
     @Test
-    void deveEnviarContatoVendedorComSucesso() {
-        String msgDados = "DADOS";
-        String msgSep   = "----";
-        when(mensagemBuilder.getMensagem(
-                TipoMensagem.DADOS_CONTATO_VENDEDOR, null, cliente
-        )).thenReturn(msgDados);
-        when(mensagemBuilder.getMensagem(
-                TipoMensagem.MENSAGEM_SEPARACAO, null, null
-        )).thenReturn(msgSep);
-
-        useCase.enviarContatoVendedor(vendedor, cliente);
-
-        InOrder ord = inOrder(gateway);
-        ord.verify(gateway).enviarContato(vendedor.getTelefone(), cliente);
-        ord.verify(gateway).enviar(msgDados, vendedor.getTelefone());
-        ord.verify(gateway).enviar(msgSep, vendedor.getTelefone());
-        ord.verifyNoMoreInteractions();
-    }
-
-    @Test
-    void deveLancarExceptionQuandoEnviarContatoFalhar() {
-        doThrow(new RuntimeException("fail-contato"))
-                .when(gateway).enviarContato(vendedor.getTelefone(), cliente);
-
-        RuntimeException ex = assertThrows(
-                RuntimeException.class,
-                () -> useCase.enviarContatoVendedor(vendedor, cliente)
-        );
-        assertEquals("fail-contato", ex.getMessage());
-
-        verify(gateway).enviarContato(vendedor.getTelefone(), cliente);
-        verifyNoMoreInteractions(gateway);
-    }
-
-    @Test
     void deveEnviarRelatorioComSucesso() {
         String arquivo = "base64xxx";
         String nomeArquivo = "rel.xlsx";

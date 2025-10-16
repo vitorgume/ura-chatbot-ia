@@ -2,6 +2,7 @@ package com.guminteligencia.ura_chatbot_ia.application.usecase.contexto.processa
 
 import com.guminteligencia.ura_chatbot_ia.application.usecase.AgenteUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.ClienteUseCase;
+import com.guminteligencia.ura_chatbot_ia.application.usecase.CrmUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.RelatorioUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.MensagemUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.TipoMensagem;
@@ -51,7 +52,7 @@ class ProcessarClienteQualificadoTest {
     private Vendedor vendedor;
 
     @Mock
-    private RelatorioUseCase relatorioUseCase;
+    private CrmUseCase crmUseCase;
 
     @InjectMocks
     private ProcessarClienteQualificado processarClienteQualificado;
@@ -79,7 +80,7 @@ class ProcessarClienteQualificadoTest {
         qual.setNome("João");
         qual.setRegiao(Regiao.MARINGA.getCodigo());
         qual.setSegmento(Segmento.MEDICINA_SAUDE.getCodigo());
-        qual.setDescricao_material("Descrito");
+        qual.setDescricaoMaterial("Descrito");
         when(agenteUseCase.enviarJsonTrasformacao(resposta)).thenReturn(qual);
         when(conversaAgente.getCliente()).thenReturn(originalCliente);
         when(originalCliente.getId()).thenReturn(originalId);
@@ -99,7 +100,7 @@ class ProcessarClienteQualificadoTest {
 
         when(clienteSalvo.getTelefone()).thenReturn(telSalvo);
 
-        doNothing().when(relatorioUseCase).atualizarRelatorioOnline(Mockito.any(), Mockito.any());
+        doNothing().when(crmUseCase).atualizarCrm(Mockito.any(), Mockito.any(), Mockito.any());
 
         processarClienteQualificado.processar(resposta, conversaAgente, originalCliente);
 
@@ -109,7 +110,7 @@ class ProcessarClienteQualificadoTest {
                 vendedorUseCase,
                 mensagemBuilder,
                 mensagemUseCase,
-                relatorioUseCase,
+                crmUseCase,
                 conversaAgente
         );
 
@@ -130,9 +131,7 @@ class ProcessarClienteQualificadoTest {
 
         inOrder.verify(mensagemUseCase).enviarMensagem("msg-dir", telSalvo, false);
 
-        inOrder.verify(mensagemUseCase).enviarContatoVendedor(vendedor, clienteSalvo);
-
-        inOrder.verify(relatorioUseCase).atualizarRelatorioOnline(Mockito.any(), Mockito.any());
+        inOrder.verify(crmUseCase).atualizarCrm(Mockito.any(), Mockito.any(), Mockito.any());
 
         inOrder.verify(conversaAgente).setVendedor(vendedor);
         inOrder.verify(conversaAgente).setFinalizada(true);

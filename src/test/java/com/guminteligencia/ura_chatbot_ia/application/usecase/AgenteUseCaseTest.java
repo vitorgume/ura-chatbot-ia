@@ -96,7 +96,7 @@ class AgenteUseCaseTest {
         qual.setNome("Ana");
         qual.setRegiao(Regiao.MARINGA.getCodigo());
         qual.setSegmento(Segmento.MEDICINA_SAUDE.getCodigo());
-        qual.setDescricao_material("desc");
+        qual.setDescricaoMaterial("desc");
         String json = new ObjectMapper().writeValueAsString(qual);
 
         when(gateway.enviarJsonTrasformacao(texto)).thenReturn(json);
@@ -107,7 +107,7 @@ class AgenteUseCaseTest {
         assertEquals("Ana", resultado.getNome());
         assertEquals(Regiao.MARINGA.getCodigo(), resultado.getRegiao());
         assertEquals(Segmento.MEDICINA_SAUDE.getCodigo(), resultado.getSegmento());
-        assertEquals("desc", resultado.getDescricao_material());
+        assertEquals("desc", resultado.getDescricaoMaterial());
     }
 
     @Test
@@ -119,7 +119,7 @@ class AgenteUseCaseTest {
         qual.setNome("Ana");
         qual.setRegiao(Regiao.MARINGA.getCodigo());
         qual.setSegmento(Segmento.MEDICINA_SAUDE.getCodigo());
-        qual.setDescricao_material("desc");
+        qual.setDescricaoMaterial("desc");
 
         // JSON "normal"
         String innerJson = new ObjectMapper().writeValueAsString(qual);
@@ -134,7 +134,7 @@ class AgenteUseCaseTest {
         assertEquals("Ana", resultado.getNome());
         assertEquals(Regiao.MARINGA.getCodigo(), resultado.getRegiao());
         assertEquals(Segmento.MEDICINA_SAUDE.getCodigo(), resultado.getSegmento());
-        assertEquals("desc", resultado.getDescricao_material());
+        assertEquals("desc", resultado.getDescricaoMaterial());
     }
 
     @Test

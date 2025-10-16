@@ -34,7 +34,7 @@ class ConversaInativaUseCaseTest {
     private MensagemBuilder mensagemBuilder;
 
     @Mock
-    private RelatorioUseCase relatorioUseCase;
+    private CrmUseCase crmUseCase;
 
     @InjectMocks
     private ConversaInativaUseCase useCase;
@@ -85,24 +85,19 @@ class ConversaInativaUseCaseTest {
                     .thenReturn(List.of(conv));
 
             Vendedor vendedor = mock(Vendedor.class);
-            when(vendedor.getTelefone()).thenReturn("+55111111111");
             when(vendedorUseCase.roletaVendedoresConversaInativa(cliente))
                     .thenReturn(vendedor);
 
-            when(mensagemBuilder.getMensagem(TipoMensagem.CONTATO_INATIVO, null, null))
-                    .thenReturn("MSG_INATIVO");
-
-            doNothing().when(relatorioUseCase).atualizarRelatorioOnline(Mockito.any(), Mockito.any());
+            doNothing().when(crmUseCase).atualizarCrm(Mockito.any(), Mockito.any(), Mockito.any());
 
             useCase.verificaAusenciaDeMensagem();
 
-            InOrder ord = inOrder(conv, vendedorUseCase, mensagemUseCase, conversaAgenteUseCase);
+            InOrder ord = inOrder(conv, vendedorUseCase, crmUseCase, conversaAgenteUseCase);
             ord.verify(conv).setFinalizada(true);
             ord.verify(vendedorUseCase).roletaVendedoresConversaInativa(cliente);
             ord.verify(conv).setVendedor(vendedor);
             ord.verify(conv).setInativa(true);
-            ord.verify(mensagemUseCase).enviarContatoVendedor(vendedor, cliente);
-            ord.verify(mensagemUseCase).enviarMensagem("MSG_INATIVO", vendedor.getTelefone(), false);
+            ord.verify(crmUseCase).atualizarCrm(Mockito.any(), Mockito.any(), Mockito.any());
             ord.verify(conversaAgenteUseCase).salvar(conv);
             ord.verifyNoMoreInteractions();
         }
