@@ -27,7 +27,7 @@ public class ChatUseCase {
             ChatGateway chatGateway,
             MensagemConversaUseCase mensagemConversaUseCase,
             ConversaAgenteUseCase conversaAgenteUseCase,
-            @Value("${neprint.url.chat}") String URL_CHAT
+            @Value("${neoprint.url.chat}") String URL_CHAT
     ) {
         this.gateway = chatGateway;
         this.mensagemConversaUseCase = mensagemConversaUseCase;
