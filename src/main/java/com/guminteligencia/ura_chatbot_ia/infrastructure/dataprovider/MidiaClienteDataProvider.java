@@ -9,6 +9,7 @@ import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity.Midia
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -19,6 +20,7 @@ public class MidiaClienteDataProvider implements MidiaClienteGateway {
 
     private final MidiaCLienteRepository repository;
     private final String MENSAGEM_ERRO_CONSULTAR_MIDIA_CLIENTE_PELO_TELEFONE_CLIENTE = "Erro ao consultar midia de cliente pelo seu telefone.";
+    private final String MENSAGEM_ERRO_DELETAR_MIDIAS_PELO_TELEFONE_CLIENTE = "Erro ao deletar midias pelo telefone do cliente.";
 
     @Override
     public Optional<MidiaCliente> consultarMidiaPeloTelefoneCliente(String telefone) {
@@ -32,5 +34,16 @@ public class MidiaClienteDataProvider implements MidiaClienteGateway {
         }
 
         return midiaCLienteEntity.map(MidiaClienteMapper::paraDomain);
+    }
+
+    @Override
+    @Transactional
+    public void deletarMidiasCliente(String telefone) {
+        try {
+            repository.deleteByTelefoneCliente(telefone);
+        } catch (Exception ex) {
+            log.error(MENSAGEM_ERRO_DELETAR_MIDIAS_PELO_TELEFONE_CLIENTE, ex);
+            throw new DataProviderException(MENSAGEM_ERRO_DELETAR_MIDIAS_PELO_TELEFONE_CLIENTE, ex.getCause());
+        }
     }
 }

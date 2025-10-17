@@ -6,4 +6,6 @@ import java.util.Optional;
 
 public interface MidiaClienteGateway {
     Optional<MidiaCliente> consultarMidiaPeloTelefoneCliente(String telefone);
+
+    void deletarMidiasCliente(String telefone);
 }

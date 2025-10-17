@@ -14,4 +14,6 @@ public interface MidiaCLienteRepository extends JpaRepository<MidiaCLienteEntity
 
     @Query("select m from MidiaCliente m left join fetch m.urlMidias where m.telefoneCliente = :tel")
     Optional<MidiaCLienteEntity> findByTelefoneClienteFetch(@Param("tel") String telefone);
+
+    void deleteByTelefoneCliente(String telefone);
 }

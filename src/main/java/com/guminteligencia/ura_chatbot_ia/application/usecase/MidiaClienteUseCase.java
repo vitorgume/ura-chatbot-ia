@@ -23,4 +23,10 @@ public class MidiaClienteUseCase {
 
         return midiaCliente;
     }
+
+    public void deletarMidiasCliente(String telefone) {
+        log.info("Deletando midias do cliente. Telefone: {}", telefone);
+        gateway.deletarMidiasCliente(telefone);
+        log.info("Deletado midias do cliente com sucesso.");
+    }
 }

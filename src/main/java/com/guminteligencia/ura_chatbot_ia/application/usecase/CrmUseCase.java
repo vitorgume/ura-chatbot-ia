@@ -38,17 +38,17 @@ public class CrmUseCase {
 
         List<CustomFieldDto> customFieldDtos = new ArrayList<>();
 
-        customFieldDtos.add(textField(1484843, cliente.getDescricaoMaterial()));
+        addTextIfPresent(customFieldDtos, 1484843, cliente.getDescricaoMaterial());
 
-        customFieldDtos.add(selectField(1486843, cliente.getSegmento().getIdCrm()));
+        customFieldDtos.add(selectField(1486843, cliente.getSegmento() == null ? 1242461 : cliente.getSegmento().getIdCrm()));
 
-        customFieldDtos.add(selectField(1486845, cliente.getRegiao().getIdCrm()));
+        customFieldDtos.add(selectField(1486845, cliente.getRegiao() == null ? 1242469 : cliente.getRegiao().getIdCrm()));
 
-        customFieldDtos.add(textField(1486847, cliente.getEnderecoReal()));
+        addTextIfPresent(customFieldDtos, 1486847, cliente.getEnderecoReal());
 
-        customFieldDtos.add(textField(1486849, urlChat));
+        addTextIfPresent(customFieldDtos, 1486849, urlChat);
 
-        Map<String, Integer> tagItem = cliente.isInativo()
+        Map<String, Integer> tagItem = conversaAgente.getInativa()
                 ? Map.of("id", 111143)
                 : Map.of("id", 117527);
 
@@ -58,6 +58,8 @@ public class CrmUseCase {
                 .ifPresent(midia -> midia.getUrlMidias()
                         .forEach(arquivo -> this.carregarArquivo(arquivo, idLead))
                 );
+
+        midiaClienteUseCase.deletarMidiasCliente(cliente.getTelefone());
 
         CardDto cardDto = CardDto.builder()
                 .responsibleUserId(vendedor.getIdVendedorCrm())
@@ -121,5 +123,11 @@ public class CrmUseCase {
                 .fieldId(fieldId)
                 .values(list)
                 .build();
+    }
+
+    private void addTextIfPresent(List<CustomFieldDto> list, int fieldId, String value) {
+        if (value != null && !value.isBlank()) {
+            list.add(textField(fieldId, value));
+        }
     }
 }
