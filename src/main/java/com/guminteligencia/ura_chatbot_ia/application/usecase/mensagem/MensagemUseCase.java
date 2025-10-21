@@ -27,6 +27,20 @@ public class MensagemUseCase {
         log.info("Mensagem para o usuário enviada com sucesso.");
     }
 
+    public void enviarContatoVendedor(Vendedor vendedor, Cliente cliente) {
+        log.info("Enviando contato para vendedor. Vendedor: {}, Cliente: {}", vendedor, cliente);
+
+        String textoMensagem = mensagemBuilder.getMensagem(TipoMensagem.DADOS_CONTATO_VENDEDOR, null, cliente);
+        String textoSeparacao = mensagemBuilder.getMensagem(TipoMensagem.MENSAGEM_SEPARACAO, null, null);
+
+        gateway.enviarContato(vendedor.getTelefone(), cliente);
+
+        this.enviarMensagem(textoMensagem, vendedor.getTelefone(), false);
+        this.enviarMensagem(textoSeparacao, vendedor.getTelefone(), false);
+
+        log.info("Contato enviado com sucesso para vendedor.");
+    }
+
     public void enviarRelatorio(String arquivo, String fileName, String telefone) {
         log.info("Enviando relatório de vendedores.");
         gateway.enviarRelatorio(arquivo, fileName, telefone);

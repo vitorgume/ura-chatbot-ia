@@ -23,6 +23,7 @@ public class ConversaInativaUseCase {
     private final ConversaAgenteUseCase conversaAgenteUseCase;
     private final VendedorUseCase vendedorUseCase;
     private final CrmUseCase crmUseCase;
+    private final MensagemUseCase mensagemUseCase;
 
     @Scheduled(cron = "0 */20 * * * *")
     public void verificaAusenciaDeMensagem() {
@@ -50,6 +51,11 @@ public class ConversaInativaUseCase {
                 conversa.setVendedor(vendedor);
                 conversa.setInativa(true);
                 crmUseCase.atualizarCrm(vendedor, conversa.getCliente(), conversa);
+
+                if(vendedor.getNome().equals("Nilza")) {
+                    mensagemUseCase.enviarContatoVendedor(vendedor, conversa.getCliente());
+                }
+
                 conversaAgenteUseCase.salvar(conversa);
             });
         }

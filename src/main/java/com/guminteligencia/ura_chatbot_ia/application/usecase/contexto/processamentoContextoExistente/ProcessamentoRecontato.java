@@ -32,6 +32,11 @@ public class ProcessamentoRecontato implements ProcessamentoContextoExistenteTyp
 
             OutroContato outroContato = outroContatoUseCase.consultarPorNome("Ana");
             mensagemUseCase.enviarMensagem(mensagemBuilder.getMensagem(TipoMensagem.MENSAGEM_ALERTA_RECONTATO, vendedor.getNome(), cliente), outroContato.getTelefone(), false);
+
+            if(vendedor.getNome().equals("Nilza")) {
+                mensagemUseCase.enviarContatoVendedor(vendedor, cliente);
+            }
+
             conversaAgente.setRecontato(true);
             conversaAgenteUseCase.salvar(conversaAgente);
         } else {
