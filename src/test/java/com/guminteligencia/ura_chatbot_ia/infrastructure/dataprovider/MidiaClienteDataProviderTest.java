@@ -3,8 +3,8 @@ package com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider;
 import com.guminteligencia.ura_chatbot_ia.domain.MidiaCliente;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.exceptions.DataProviderException;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.mapper.MidiaClienteMapper;
-import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.MidiaCLienteRepository;
-import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity.MidiaCLienteEntity;
+import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.MidiaClienteRepository;
+import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity.MidiaClienteEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,20 +22,20 @@ import static org.mockito.Mockito.*;
 class MidiaClienteDataProviderTest {
 
     @Mock
-    private MidiaCLienteRepository repository;
+    private MidiaClienteRepository repository;
 
     @InjectMocks
     private MidiaClienteDataProvider provider;
 
     private final String ERR_TEL = "Erro ao consultar midia de cliente pelo seu telefone.";
 
-    private MidiaCLienteEntity entity;
+    private MidiaClienteEntity entity;
     private MidiaCliente domain;
     private String telefone;
 
     @BeforeEach
     void setup() {
-        entity = mock(MidiaCLienteEntity.class);
+        entity = mock(MidiaClienteEntity.class);
         domain = mock(MidiaCliente.class);
         telefone = "+554499999999";
     }

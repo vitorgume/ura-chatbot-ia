@@ -4,8 +4,8 @@ import com.guminteligencia.ura_chatbot_ia.application.gateways.MidiaClienteGatew
 import com.guminteligencia.ura_chatbot_ia.domain.MidiaCliente;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.exceptions.DataProviderException;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.mapper.MidiaClienteMapper;
-import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.MidiaCLienteRepository;
-import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity.MidiaCLienteEntity;
+import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.MidiaClienteRepository;
+import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity.MidiaClienteEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,13 +18,13 @@ import java.util.Optional;
 @Slf4j
 public class MidiaClienteDataProvider implements MidiaClienteGateway {
 
-    private final MidiaCLienteRepository repository;
+    private final MidiaClienteRepository repository;
     private final String MENSAGEM_ERRO_CONSULTAR_MIDIA_CLIENTE_PELO_TELEFONE_CLIENTE = "Erro ao consultar midia de cliente pelo seu telefone.";
     private final String MENSAGEM_ERRO_DELETAR_MIDIAS_PELO_TELEFONE_CLIENTE = "Erro ao deletar midias pelo telefone do cliente.";
 
     @Override
     public Optional<MidiaCliente> consultarMidiaPeloTelefoneCliente(String telefone) {
-        Optional<MidiaCLienteEntity> midiaCLienteEntity;
+        Optional<MidiaClienteEntity> midiaCLienteEntity;
 
         try {
             midiaCLienteEntity = repository.findByTelefoneClienteFetch(telefone);

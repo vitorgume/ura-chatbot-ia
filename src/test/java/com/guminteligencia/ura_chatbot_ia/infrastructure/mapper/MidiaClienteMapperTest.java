@@ -1,7 +1,7 @@
 package com.guminteligencia.ura_chatbot_ia.infrastructure.mapper;
 
 import com.guminteligencia.ura_chatbot_ia.domain.MidiaCliente;
-import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity.MidiaCLienteEntity;
+import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity.MidiaClienteEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,16 +9,14 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class MidiaClienteMapperTest {
 
 
-    private MidiaCLienteEntity midiaCLienteEntity;
+    private MidiaClienteEntity midiaCLienteEntity;
 
     @BeforeEach
     void setUp() {
-        midiaCLienteEntity = MidiaCLienteEntity.builder()
+        midiaCLienteEntity = MidiaClienteEntity.builder()
                 .id(UUID.randomUUID())
                 .telefoneCliente("teste")
                 .urlMidias(List.of("teste01", "teste02"))

@@ -13,7 +13,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
-public class MidiaCLienteEntity {
+public class MidiaClienteEntity {
 
     @Id
     private UUID id;
