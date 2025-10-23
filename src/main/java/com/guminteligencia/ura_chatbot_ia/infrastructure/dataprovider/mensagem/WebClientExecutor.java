@@ -3,9 +3,13 @@ package com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.mensagem;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.exceptions.DataProviderException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 import reactor.util.retry.RetryBackoffSpec;
 
@@ -26,32 +30,42 @@ public class WebClientExecutor {
 
     public String execute(String uri, Object body, Map<String, String> headers, String errorMessage, HttpMethod method) {
         try {
-            WebClient.RequestHeadersSpec<?> requestSpec;
+            WebClient.RequestBodyUriSpec base = webClient.method(method);
 
-            WebClient.RequestBodyUriSpec baseRequest = webClient.method(method);
-
-            WebClient.RequestBodySpec bodySpec = baseRequest
+            WebClient.RequestHeadersSpec<?> req = base
                     .uri(uri)
-                    .headers(httpHeaders -> headers.forEach(httpHeaders::add));
+                    // garante Content-Type se não vier no bean
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .headers(h -> headers.forEach(h::add));
 
             if (method == HttpMethod.POST || method == HttpMethod.PUT || method == HttpMethod.PATCH) {
-                requestSpec = bodySpec.bodyValue(body);
-            } else {
-                requestSpec = bodySpec;
+                req = ((WebClient.RequestBodySpec) req).bodyValue(body);
             }
 
-            String response = requestSpec
+            String response = req
                     .retrieve()
+                    .onStatus(HttpStatusCode::isError, resp ->
+                            resp.bodyToMono(String.class)
+                                    .defaultIfEmpty("<empty-body>")
+                                    .flatMap(bodyStr -> {
+                                        String msg = "%s | HTTP %d | Body: %s"
+                                                .formatted(errorMessage, resp.statusCode().value(), bodyStr);
+                                        log.error(msg);
+                                        return Mono.error(new DataProviderException(msg, null));
+                                    })
+                    )
                     .bodyToMono(String.class)
-                    .retryWhen(retrySpec) // <- usa o spec injetado
-                    .doOnError(e -> log.error("{} | Erro: {}", errorMessage, e.getMessage()))
+                    .retryWhen(retrySpec)
+                    .doOnSuccess(r -> log.info("Response recebido: {}", r))
                     .block();
 
-            log.info("Response recebido: {}", response);
             return response;
+
         } catch (Exception e) {
-            log.error(errorMessage, e);
-            throw new DataProviderException(errorMessage, e.getCause());
+            // Inclui a mensagem original (com status/body se veio do onStatus)
+            String msg = "%s | cause=%s".formatted(errorMessage, e.getMessage());
+            log.error(msg, e);
+            throw new DataProviderException(msg, e);
         }
     }
 }
