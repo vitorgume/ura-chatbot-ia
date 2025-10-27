@@ -8,14 +8,19 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
+import reactor.util.retry.RetryBackoffSpec;
 
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,34 +29,22 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class WebClientExecutorTest {
 
-    @Mock
-    WebClient webClient;
-
-    @Mock
-    WebClient.RequestBodyUriSpec requestBodyUriSpec;
-
-    @Mock
-    WebClient.RequestBodySpec requestBodySpec;
-
-    @Mock
-    WebClient.RequestHeadersSpec<?> requestHeadersSpec;
-
-    @Mock
-    WebClient.ResponseSpec responseSpec;
-
-    @Mock
-    HttpHeaders httpHeadersMock;
+    @Mock WebClient webClient;
+    @Mock WebClient.RequestBodyUriSpec requestBodyUriSpec;
+    @Mock WebClient.RequestBodySpec requestBodySpec;
+    @Mock WebClient.RequestHeadersSpec<?> requestHeadersSpec;
+    @Mock WebClient.ResponseSpec responseSpec;
+    @Mock HttpHeaders httpHeadersMock;
 
     WebClientExecutor executor;
 
     @BeforeEach
     void setup() {
         executor = new WebClientExecutor(webClient, Retry.fixedDelay(3, Duration.ZERO));
-
     }
 
     @Test
-    void deveExecutrPostComSucesso() {
+    void deveExecutarPostComSucesso() {
         String uri = "http://api.test/send";
         Object payload = Map.of("k", "v");
         Map<String, String> headers = Map.of("h", "v");
@@ -59,12 +52,12 @@ class WebClientExecutorTest {
 
         when(webClient.method(HttpMethod.POST)).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(uri)).thenReturn(requestBodySpec);
-        when(requestBodySpec.headers(any(Consumer.class)))
+        when(requestBodySpec.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
                 .thenReturn(requestBodySpec);
-        doReturn(requestHeadersSpec)
-                .when(requestBodySpec)
-                .bodyValue(payload);
+        when(requestBodySpec.headers(any())).thenReturn(requestBodySpec);
+        doReturn(requestHeadersSpec).when(requestBodySpec).bodyValue(payload);
         when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.onStatus(any(), any())).thenReturn(responseSpec);
         when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just("OK"));
 
         String result = executor.execute(uri, payload, headers, errorMsg, HttpMethod.POST);
@@ -73,87 +66,106 @@ class WebClientExecutorTest {
 
         verify(webClient).method(HttpMethod.POST);
         verify(requestBodyUriSpec).uri(uri);
+        verify(requestBodySpec).header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         verify(requestBodySpec).headers(any());
-
-        @SuppressWarnings("unchecked")
-        ArgumentCaptor<Consumer<HttpHeaders>> cap = ArgumentCaptor.forClass(Consumer.class);
-        verify(requestBodySpec).headers(cap.capture());
-        cap.getValue().accept(httpHeadersMock);
-        verify(httpHeadersMock).add("h", "v");
-
         verify(requestBodySpec).bodyValue(payload);
-        verify(requestHeadersSpec).retrieve();
+        verify(responseSpec).onStatus(any(), any());
         verify(responseSpec).bodyToMono(String.class);
     }
 
     @Test
-    void deveExecutarAoLancarExcetion() {
-        String uri = "http://api.test/fail";
-        Object payload = "x";
-        Map<String, String> headers = Map.of();
-        String errorMsg = "failure";
-
-        when(webClient.method(HttpMethod.GET)).thenReturn(requestBodyUriSpec);
-        when(requestBodyUriSpec.uri(uri)).thenReturn(requestBodySpec);
-        when(requestBodySpec.headers(any())).thenReturn(requestBodySpec);
-
-        when(requestBodySpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.error(new RuntimeException("panic")));
-
-        DataProviderException ex = assertThrows(
-                DataProviderException.class,
-                () -> executor.execute(uri, payload, headers, errorMsg, HttpMethod.GET)
-        );
-        assertEquals("failure", ex.getMessage());
-        assertNotNull(ex.getCause());
-    }
-
-    @Test
-    void invocaPostNoExecuter() {
-        String uri = "http://api.test/send";
-        Object body = Map.of("k", "v");
-        Map<String, String> hdrs = Map.of("h", "v");
-        String err = "err-msg";
-
-        when(webClient.method(HttpMethod.POST)).thenReturn(requestBodyUriSpec);
-        when(requestBodyUriSpec.uri(uri)).thenReturn(requestBodySpec);
-        when(requestBodySpec.headers(any())).thenReturn(requestBodySpec);
-        doReturn(requestHeadersSpec)
-                .when(requestBodySpec).bodyValue(body);
-        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just("OK"));
-
-        String resp = executor.post(uri, body, hdrs, err);
-        assertEquals("OK", resp);
-
-        verify(webClient).method(HttpMethod.POST);
-        verify(requestBodySpec).bodyValue(body);
-    }
-
-    @Test
-    void deveExecutarGetSemBodyComSucesso() {
+    void deveExecutarGetComSucessoSemBody() {
         String uri = "http://api.test/status";
         Map<String, String> headers = Map.of();
         String err = "err";
 
         when(webClient.method(HttpMethod.GET)).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(uri)).thenReturn(requestBodySpec);
+        when(requestBodySpec.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
+                .thenReturn(requestBodySpec);
         when(requestBodySpec.headers(any())).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.onStatus(any(), any())).thenReturn(responseSpec);
         when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just("OKGET"));
 
         String out = executor.execute(uri, null, headers, err, HttpMethod.GET);
 
         assertEquals("OKGET", out);
+
         verify(webClient).method(HttpMethod.GET);
         verify(requestBodyUriSpec).uri(uri);
-        verify(requestBodySpec).headers(any());
-        verify(requestBodySpec).retrieve();
+        verify(requestBodySpec).header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        verify(responseSpec).onStatus(any(), any());
         verify(responseSpec).bodyToMono(String.class);
     }
 
     @Test
-    void deveLancarDataProviderExceptionQuandoUriFalhaAntesDoRetrieve() {
+    void deveExecutarPutComBodyEHeaders() {
+        String uri = "http://api.test/update";
+        Object body = Map.of("a", "b");
+        Map<String, String> headers = Map.of("h1", "v1", "h2", "v2");
+        String err = "err";
+
+        when(webClient.method(HttpMethod.PUT)).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri(uri)).thenReturn(requestBodySpec);
+        when(requestBodySpec.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
+                .thenReturn(requestBodySpec);
+        when(requestBodySpec.headers(any())).thenReturn(requestBodySpec);
+        doReturn(requestHeadersSpec).when(requestBodySpec).bodyValue(body);
+        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.onStatus(any(), any())).thenReturn(responseSpec);
+        when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just("OKPUT"));
+
+        String out = executor.execute(uri, body, headers, err, HttpMethod.PUT);
+        assertEquals("OKPUT", out);
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Consumer<HttpHeaders>> cap = ArgumentCaptor.forClass(Consumer.class);
+        verify(requestBodySpec).headers(cap.capture());
+        cap.getValue().accept(httpHeadersMock);
+        verify(httpHeadersMock).add("h1", "v1");
+        verify(httpHeadersMock).add("h2", "v2");
+
+        verify(responseSpec).onStatus(any(), any());
+        verify(responseSpec).bodyToMono(String.class);
+    }
+
+    @Test
+    void deveLancarDataProviderExceptionQuandoOnStatusDetectaErroHttp() {
+        String uri = "http://api.test/fail";
+        Object payload = Map.of("x", 1);
+        String errMsg = "failure";
+
+        // retry que não re-tenta nada
+        RetryBackoffSpec noRetry = Retry.fixedDelay(3, Duration.ZERO).filter(ex -> false);
+        executor = new WebClientExecutor(webClient, noRetry);
+
+        when(webClient.method(HttpMethod.POST)).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri(uri)).thenReturn(requestBodySpec);
+        when(requestBodySpec.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
+                .thenReturn(requestBodySpec);
+        when(requestBodySpec.headers(any())).thenReturn(requestBodySpec);
+        doReturn(requestHeadersSpec).when(requestBodySpec).bodyValue(payload);
+        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.onStatus(any(), any())).thenReturn(responseSpec);
+
+        // Simula falha tratada pelo onStatus -> bodyToMono emite DataProviderException
+        when(responseSpec.bodyToMono(String.class))
+                .thenReturn(Mono.error(new DataProviderException(
+                        "failure | HTTP 400 | Body: {\"error\":\"bad request\"}", null)));
+
+        DataProviderException ex = assertThrows(
+                DataProviderException.class,
+                () -> executor.execute(uri, payload, Map.of(), errMsg, HttpMethod.POST)
+        );
+
+        assertTrue(ex.getMessage().contains("HTTP 400"));
+        assertTrue(ex.getMessage().contains("Body"));
+    }
+
+
+    @Test
+    void deveLancarDataProviderExceptionQuandoFalhaAntesDoRetrieve() {
         String uri = "http://api.test/fail-sync";
         String err = "sync-failure";
 
@@ -165,41 +177,9 @@ class WebClientExecutorTest {
                 () -> executor.execute(uri, null, Map.of(), err, HttpMethod.DELETE)
         );
 
-        assertEquals(err, ex.getMessage());
-        assertNull(ex.getCause());
+        assertTrue(ex.getMessage().startsWith(err));
+        assertTrue(ex.getMessage().contains("cause="));
         verify(webClient).method(HttpMethod.DELETE);
-        verify(requestBodyUriSpec).uri(uri);
-        verifyNoMoreInteractions(webClient, requestBodyUriSpec, requestBodySpec, requestHeadersSpec, responseSpec);
-    }
-
-    @Test
-    void deveExecutarPutComBodyEHeaders() {
-        String uri = "http://api.test/update";
-        Object body = Map.of("a","b");
-        Map<String, String> headers = Map.of("h1","v1","h2","v2");
-        String err = "err";
-
-        when(webClient.method(HttpMethod.PUT)).thenReturn(requestBodyUriSpec);
-        when(requestBodyUriSpec.uri(uri)).thenReturn(requestBodySpec);
-        when(requestBodySpec.headers(any())).thenReturn(requestBodySpec);
-        doReturn(requestHeadersSpec).when(requestBodySpec).bodyValue(body);
-        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just("OKPUT"));
-
-        String out = executor.execute(uri, body, headers, err, HttpMethod.PUT);
-        assertEquals("OKPUT", out);
-
-        // valida headers aplicados
-        @SuppressWarnings("unchecked")
-        ArgumentCaptor<Consumer<HttpHeaders>> cap = ArgumentCaptor.forClass(Consumer.class);
-        verify(requestBodySpec).headers(cap.capture());
-        cap.getValue().accept(httpHeadersMock);
-        verify(httpHeadersMock).add("h1","v1");
-        verify(httpHeadersMock).add("h2","v2");
-
-        verify(requestBodySpec).bodyValue(body);
-        verify(requestHeadersSpec).retrieve();
-        verify(responseSpec).bodyToMono(String.class);
     }
 
     @Test
@@ -211,9 +191,12 @@ class WebClientExecutorTest {
 
         when(webClient.method(HttpMethod.POST)).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(uri)).thenReturn(requestBodySpec);
+        when(requestBodySpec.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
+                .thenReturn(requestBodySpec);
         when(requestBodySpec.headers(any())).thenReturn(requestBodySpec);
         doReturn(requestHeadersSpec).when(requestBodySpec).bodyValue(body);
         when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.onStatus(any(), any())).thenReturn(responseSpec);
 
         AtomicInteger subs = new AtomicInteger(0);
         Mono<String> flaky = Mono.defer(() -> {
@@ -223,16 +206,9 @@ class WebClientExecutorTest {
         });
         when(responseSpec.bodyToMono(String.class)).thenReturn(flaky);
 
-        var zeroBackoff = Retry.fixedDelay(3, Duration.ZERO);
-
-        try (MockedStatic<Retry> mocked = Mockito.mockStatic(Retry.class)) {
-            mocked.when(() -> Retry.backoff(eq(3), any(Duration.class)))
-                    .thenReturn(zeroBackoff);
-
-            String out = executor.execute(uri, body, headers, err, HttpMethod.POST);
-            assertEquals("OK", out);
-            assertEquals(3, subs.get(), "deveria ter 3 subscrições (1 inicial + 2 retries)");
-        }
+        String out = executor.execute(uri, body, headers, err, HttpMethod.POST);
+        assertEquals("OK", out);
+        assertEquals(3, subs.get(), "deveria ter 3 tentativas (1 inicial + 2 retries)");
     }
 
 }

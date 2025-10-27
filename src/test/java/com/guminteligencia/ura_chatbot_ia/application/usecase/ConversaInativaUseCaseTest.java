@@ -84,7 +84,7 @@ class ConversaInativaUseCaseTest {
             when(conversaAgenteUseCase.listarNaoFinalizados())
                     .thenReturn(List.of(conv));
 
-            Vendedor vendedor = mock(Vendedor.class);
+            Vendedor vendedor = Vendedor.builder().id(1L).nome("Nome teste").build();
             when(vendedorUseCase.roletaVendedoresConversaInativa(cliente))
                     .thenReturn(vendedor);
 

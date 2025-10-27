@@ -26,7 +26,6 @@ public class CrmUseCase {
 
     private final CrmGateway gateway;
     private final ChatUseCase chatUseCase;
-    private final MidiaClienteUseCase midiaClienteUseCase;
 
     public void atualizarCrm(Vendedor vendedor, Cliente cliente, ConversaAgente conversaAgente) {
         log.info("Atualizando crm. Vendedor: {}, Cliente: {}, Conversa: {}", vendedor, cliente, conversaAgente);
@@ -54,13 +53,6 @@ public class CrmUseCase {
 
         Map<String, Object> embedded = Map.of("tags", List.of(tagItem));
 
-        midiaClienteUseCase.consultarMidiaPeloTelefoneCliente(cliente.getTelefone())
-                .ifPresent(midia -> midia.getUrlMidias()
-                        .forEach(arquivo -> this.carregarArquivo(arquivo, idLead))
-                );
-
-        midiaClienteUseCase.deletarMidiasCliente(cliente.getTelefone());
-
         CardDto cardDto = CardDto.builder()
                 .responsibleUserId(vendedor.getIdVendedorCrm())
                 .statusId(93572343)
@@ -87,21 +79,12 @@ public class CrmUseCase {
         log.info("Consultando lead pelo telefone. Telefone: {}", telefone);
         Optional<Integer> lead = gateway.consultaLeadPeloTelefone(telefone);
 
-        if (lead.isEmpty()) {
+        if(lead.isEmpty()) {
             throw new LeadNaoEncontradoException();
         }
 
         log.info("Lead consultado com sucesso. Lead: {}", lead.get());
         return lead.get();
-    }
-
-    public void carregarArquivo(String urlArquivo, Integer idLead) {
-        log.info("Carregando arquivo. Url do arquivo: {}", urlArquivo);
-        SessaoArquivoDto sessaoArquivo = gateway.criarSessaoArquivo(urlArquivo);
-        String idArquivo = gateway.enviarArquivoParaUpload(sessaoArquivo, urlArquivo);
-        gateway.anexarArquivoLead(idArquivo, idLead);
-        log.info("Arquivo carregado com sucesso. Id do arquivo: {}", idArquivo);
-
     }
 
     private CustomFieldDto textField(int fieldId, Object value) {
