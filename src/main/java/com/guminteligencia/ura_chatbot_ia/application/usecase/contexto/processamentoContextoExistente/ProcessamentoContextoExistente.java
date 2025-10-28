@@ -25,26 +25,12 @@ public class ProcessamentoContextoExistente {
 
         ConversaAgente conversaAgente = conversaAgenteUseCase.consultarPorCliente(cliente.getId());
 
-        String resposta = conversaAgente.getFinalizada()
-                ? ""
-                : agenteUseCase.enviarMensagem(cliente, conversaAgente, contexto.getMensagens());
-
-        // Normaliza e evita envio de mensagens vazias/whitespace
-        String respostaSan = resposta == null ? "" : resposta.trim();
-
-        if (respostaSan.isEmpty()) {
-            log.warn("Sem mensagem para enviar (conversa finalizada ou resposta vazia). Pular envio.");
-            // se fizer sentido, marque como finalizado/idle aqui
-            conversaAgente.setDataUltimaMensagem(LocalDateTime.now());
-            conversaAgenteUseCase.salvar(conversaAgente);
-            log.info("Processamento concluído sem envio.");
-            return;
-        }
+        String resposta = agenteUseCase.enviarMensagem(cliente, conversaAgente, contexto.getMensagens());
 
         ProcessamentoContextoExistenteType processo =
-                processarContextoExistenteFactory.create(respostaSan, conversaAgente);
+                processarContextoExistenteFactory.create(resposta, conversaAgente);
 
-        processo.processar(respostaSan, conversaAgente, cliente);
+        processo.processar(resposta, conversaAgente, cliente);
 
         conversaAgente.setDataUltimaMensagem(LocalDateTime.now());
         conversaAgenteUseCase.salvar(conversaAgente);

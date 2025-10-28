@@ -47,9 +47,11 @@ public class CrmUseCase {
 
         addTextIfPresent(customFieldDtos, 1486849, urlChat);
 
-        Map<String, Integer> tagItem = conversaAgente.getInativa()
-                ? Map.of("id", 111143)
-                : Map.of("id", 117527);
+        Map<String, Integer> tagItem = conversaAgente.getInativo() == null || conversaAgente.getInativo().getCodigo().equals(0)
+                ? Map.of("id", 117527)
+                : Map.of("id", 111143);
+
+        Integer statusId = conversaAgente.getInativo().getCodigo().equals(1) ? 95198915 : 93572343;
 
         Map<String, Integer> tagIdentificador = Map.of("id", 126472);
 
@@ -57,7 +59,7 @@ public class CrmUseCase {
 
         CardDto cardDto = CardDto.builder()
                 .responsibleUserId(vendedor.getIdVendedorCrm())
-                .statusId(93572343)
+                .statusId(statusId)
                 .customFieldsValues(customFieldDtos)
                 .embedded(embedded)
                 .build();
