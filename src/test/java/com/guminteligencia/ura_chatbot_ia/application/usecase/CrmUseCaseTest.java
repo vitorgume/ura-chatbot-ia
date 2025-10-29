@@ -8,6 +8,7 @@ import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.CustomFieldVal
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.SessaoArquivoDto;
 import com.guminteligencia.ura_chatbot_ia.domain.*;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.exceptions.DataProviderException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -31,7 +32,7 @@ class CrmUseCaseTest {
     private ChatUseCase chatUseCase;
 
     @InjectMocks
-    private com.guminteligencia.ura_chatbot_ia.application.usecase.CrmUseCase useCase;
+    private CrmUseCase useCase;
 
     @Mock
     private Vendedor vendedor;
@@ -41,6 +42,20 @@ class CrmUseCaseTest {
 
     @Mock
     private ConversaAgente conversaAgente;
+
+    @BeforeEach
+    void setUp() {
+        useCase = new CrmUseCase(
+                gateway,
+                chatUseCase,
+                "prod"
+        );
+
+        conversaAgente = ConversaAgente.builder()
+                .id(UUID.randomUUID())
+                .inativo(TipoInativo.INATIVO_G1)
+                .build();
+    }
 
     private final String tel = "+5511999999999";
     private final Integer idLead = 12345;
@@ -69,10 +84,8 @@ class CrmUseCaseTest {
         when(cliente.getRegiao()).thenReturn(regiao);
 
         // vendedor e chat
-        when(vendedor.getIdVendedorCrm()).thenReturn(999);
-        UUID convId = UUID.randomUUID();
-        when(conversaAgente.getId()).thenReturn(convId);
-        when(chatUseCase.criar(convId)).thenReturn(urlChat);
+        when(vendedor.getIdVendedorCrm()).thenReturn(999);;
+        when(chatUseCase.criar(conversaAgente.getId())).thenReturn(urlChat);
 
         // lead encontrado
         when(gateway.consultaLeadPeloTelefone(tel)).thenReturn(Optional.of(idLead));
@@ -120,9 +133,8 @@ class CrmUseCaseTest {
 
         // vendedor e chat
         when(vendedor.getIdVendedorCrm()).thenReturn(999);
-        UUID convId = UUID.randomUUID();
-        when(conversaAgente.getId()).thenReturn(convId);
-        when(chatUseCase.criar(convId)).thenReturn(urlChat);
+
+        when(chatUseCase.criar(conversaAgente.getId())).thenReturn(urlChat);
 
         // lead encontrado
         when(gateway.consultaLeadPeloTelefone(tel)).thenReturn(Optional.of(idLead));

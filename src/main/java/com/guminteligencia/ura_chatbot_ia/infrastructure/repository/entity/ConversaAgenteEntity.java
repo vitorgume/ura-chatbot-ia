@@ -35,7 +35,6 @@ public class ConversaAgenteEntity {
     private LocalDateTime dataUltimaMensagem;
 
     private Boolean finalizada;
-    private Boolean inativa;
     private Boolean recontato;
 
     @Enumerated(EnumType.ORDINAL)

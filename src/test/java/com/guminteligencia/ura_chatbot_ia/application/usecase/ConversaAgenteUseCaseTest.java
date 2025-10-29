@@ -63,7 +63,6 @@ class ConversaAgenteUseCaseTest {
             assertEquals(cliente, toSave.getCliente());
             assertEquals(fixedNow, toSave.getDataCriacao());
             assertFalse(toSave.getFinalizada());
-            assertFalse(toSave.getInativa());
             assertFalse(toSave.getRecontato());
 
             assertSame(saved, result);

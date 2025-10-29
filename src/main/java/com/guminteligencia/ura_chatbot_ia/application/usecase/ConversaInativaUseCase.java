@@ -85,10 +85,6 @@ public class ConversaInativaUseCase {
                     Vendedor vendedor = vendedorUseCase.roletaVendedoresConversaInativa(conversa.getCliente());
                     conversa.setVendedor(vendedor);
                     crmUseCase.atualizarCrm(vendedor, conversa.getCliente(), conversa);
-
-                    if(vendedor.getNome().equals("Nilza")) {
-                        mensagemUseCase.enviarContatoVendedor(vendedor, conversa.getCliente());
-                    }
                 }
 
                 conversaAgenteUseCase.salvar(conversa);

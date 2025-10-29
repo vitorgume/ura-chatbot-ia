@@ -47,10 +47,7 @@ public class ProcessarClienteQualificado implements ProcessamentoContextoExisten
         Vendedor vendedor = vendedorUseCase.escolherVendedor(clienteSalvo);
         mensagemUseCase.enviarMensagem(mensagemBuilder.getMensagem(TipoMensagem.MENSAGEM_DIRECIONAMENTO_VENDEDOR, vendedor.getNome(), null), clienteSalvo.getTelefone(), false);
         crmUseCase.atualizarCrm(vendedor, clienteSalvo, conversaAgente);
-
-        if(vendedor.getNome().equals("Nilza")) {
-            mensagemUseCase.enviarContatoVendedor(vendedor, cliente);
-        }
+        mensagemUseCase.enviarContatoVendedor(vendedor, cliente);
 
         conversaAgente.setVendedor(vendedor);
         conversaAgente.setFinalizada(true);

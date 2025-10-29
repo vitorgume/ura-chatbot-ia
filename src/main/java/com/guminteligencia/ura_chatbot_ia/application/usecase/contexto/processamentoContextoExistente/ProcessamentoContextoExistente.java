@@ -25,7 +25,11 @@ public class ProcessamentoContextoExistente {
 
         ConversaAgente conversaAgente = conversaAgenteUseCase.consultarPorCliente(cliente.getId());
 
-        String resposta = agenteUseCase.enviarMensagem(cliente, conversaAgente, contexto.getMensagens());
+        String resposta = null;
+
+        if(conversaAgente.getInativo() == null) {
+             resposta = agenteUseCase.enviarMensagem(cliente, conversaAgente, contexto.getMensagens());
+        }
 
         ProcessamentoContextoExistenteType processo =
                 processarContextoExistenteFactory.create(resposta, conversaAgente);

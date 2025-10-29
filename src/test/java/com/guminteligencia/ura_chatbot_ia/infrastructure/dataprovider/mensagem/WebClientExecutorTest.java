@@ -11,6 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.ExchangeFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
@@ -209,6 +210,74 @@ class WebClientExecutorTest {
         String out = executor.execute(uri, body, headers, err, HttpMethod.POST);
         assertEquals("OK", out);
         assertEquals(3, subs.get(), "deveria ter 3 tentativas (1 inicial + 2 retries)");
+    }
+
+    @Test
+    void onStatus_devePropagarDataProviderException_comBodyDeErro() {
+        // Arrange: ExchangeFunction que SEMPRE responde 400 + JSON
+        ExchangeFunction exchange = request -> {
+            ClientResponse resp = ClientResponse
+                    .create(HttpStatus.BAD_REQUEST)
+                    .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                    .body("{\"error\":\"bad request\"}")
+                    .build();
+            return Mono.just(resp);
+        };
+
+        WebClient webClient = WebClient.builder()
+                .exchangeFunction(exchange)
+                .build();
+
+        // retry que não re-tenta, só para simplificar a asserção
+        WebClientExecutor executor = new WebClientExecutor(webClient, Retry.fixedDelay(3, Duration.ZERO).filter(ex -> false));
+
+        // Act + Assert
+        DataProviderException ex = assertThrows(
+                DataProviderException.class,
+                () -> executor.execute(
+                        "http://api.test/fake",
+                        Map.of("x", 1),
+                        Map.of("h", "v"),
+                        "failure",
+                        HttpMethod.POST)
+        );
+
+        // Verifica que a mensagem veio do handler do onStatus
+        assertTrue(ex.getMessage().contains("failure | HTTP 400 | Body: {\"error\":\"bad request\"}"),
+                "Mensagem deve conter o texto formatado pelo handler do onStatus");
+    }
+
+    @Test
+    void onStatus_devePropagarDataProviderException_comBodyVazio_usandoDefaultIfEmpty() {
+        // Arrange: ExchangeFunction que SEMPRE responde 404 SEM corpo
+        ExchangeFunction exchange = request -> {
+            ClientResponse resp = ClientResponse
+                    .create(HttpStatus.NOT_FOUND)
+                    // sem body
+                    .build();
+            return Mono.just(resp);
+        };
+
+        WebClient webClient = WebClient.builder()
+                .exchangeFunction(exchange)
+                .build();
+
+        WebClientExecutor executor = new WebClientExecutor(webClient, Retry.fixedDelay(1, Duration.ZERO).filter(ex -> false));
+
+        // Act + Assert
+        DataProviderException ex = assertThrows(
+                DataProviderException.class,
+                () -> executor.execute(
+                        "http://api.test/notfound",
+                        null,
+                        Map.of(),
+                        "not-found",
+                        HttpMethod.GET)
+        );
+
+        // Verifica que entrou no defaultIfEmpty("<empty-body>")
+        assertTrue(ex.getMessage().contains("not-found | HTTP 404 | Body: <empty-body>"),
+                "Mensagem deve indicar body vazio tratado com <empty-body>");
     }
 
 }

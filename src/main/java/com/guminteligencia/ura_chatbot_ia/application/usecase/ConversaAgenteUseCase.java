@@ -28,7 +28,6 @@ public class ConversaAgenteUseCase {
                 .cliente(cliente)
                 .dataCriacao(LocalDateTime.now())
                 .finalizada(false)
-                .inativa(false)
                 .recontato(false)
                 .build();
 

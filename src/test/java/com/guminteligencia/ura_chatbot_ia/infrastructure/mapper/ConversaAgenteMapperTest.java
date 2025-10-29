@@ -27,7 +27,6 @@ class ConversaAgenteMapperTest {
                 .cliente(Cliente.builder().id(UUID.randomUUID()).build())
                 .vendedor(Vendedor.builder().id(1L).build())
                 .dataCriacao(LocalDateTime.now())
-                .inativa(false)
                 .finalizada(false)
                 .dataUltimaMensagem(LocalDateTime.now().plusHours(1))
                 .recontato(false)
@@ -38,7 +37,6 @@ class ConversaAgenteMapperTest {
                 .cliente(ClienteEntity.builder().id(UUID.randomUUID()).build())
                 .vendedor(VendedorEntity.builder().id(1L).build())
                 .dataCriacao(LocalDateTime.now().plusDays(1))
-                .inativa(true)
                 .finalizada(true)
                 .dataUltimaMensagem(LocalDateTime.now().plusDays(1).plusHours(1))
                 .recontato(true)
@@ -54,7 +52,6 @@ class ConversaAgenteMapperTest {
         Assertions.assertEquals(conversaAgenteTeste.getCliente().getId(), conversaAgenteDomain.getCliente().getId());
         Assertions.assertEquals(conversaAgenteTeste.getVendedor().getId(), conversaAgenteDomain.getVendedor().getId());
         Assertions.assertEquals(conversaAgenteTeste.getDataCriacao(), conversaAgenteDomain.getDataCriacao());
-        Assertions.assertFalse(conversaAgenteTeste.getInativa());
         Assertions.assertFalse(conversaAgenteTeste.getFinalizada());
         Assertions.assertEquals(conversaAgenteTeste.getDataUltimaMensagem(), conversaAgenteDomain.getDataUltimaMensagem());
         Assertions.assertFalse(conversaAgenteTeste.getRecontato());
@@ -70,7 +67,6 @@ class ConversaAgenteMapperTest {
         Assertions.assertEquals(conversaAgenteTeste.getCliente().getId(), conversaAgenteDomain.getCliente().getId());
         Assertions.assertNull(conversaAgenteTeste.getVendedor());
         Assertions.assertEquals(conversaAgenteTeste.getDataCriacao(), conversaAgenteDomain.getDataCriacao());
-        Assertions.assertFalse(conversaAgenteTeste.getInativa());
         Assertions.assertFalse(conversaAgenteTeste.getFinalizada());
         Assertions.assertEquals(conversaAgenteTeste.getDataUltimaMensagem(), conversaAgenteDomain.getDataUltimaMensagem());
         Assertions.assertFalse(conversaAgenteTeste.getRecontato());
@@ -84,7 +80,6 @@ class ConversaAgenteMapperTest {
         Assertions.assertEquals(conversaAgenteTeste.getCliente().getId(), conversaAgenteEntity.getCliente().getId());
         Assertions.assertEquals(conversaAgenteTeste.getVendedor().getId(), conversaAgenteEntity.getVendedor().getId());
         Assertions.assertEquals(conversaAgenteTeste.getDataCriacao(), conversaAgenteEntity.getDataCriacao());
-        Assertions.assertTrue(conversaAgenteTeste.getInativa());
         Assertions.assertTrue(conversaAgenteTeste.getFinalizada());
         Assertions.assertEquals(conversaAgenteTeste.getDataUltimaMensagem(), conversaAgenteEntity.getDataUltimaMensagem());
         Assertions.assertTrue(conversaAgenteTeste.getRecontato());
@@ -100,7 +95,6 @@ class ConversaAgenteMapperTest {
         Assertions.assertEquals(conversaAgenteTeste.getCliente().getId(), conversaAgenteEntity.getCliente().getId());
         Assertions.assertNull(conversaAgenteTeste.getVendedor());
         Assertions.assertEquals(conversaAgenteTeste.getDataCriacao(), conversaAgenteEntity.getDataCriacao());
-        Assertions.assertTrue(conversaAgenteTeste.getInativa());
         Assertions.assertTrue(conversaAgenteTeste.getFinalizada());
         Assertions.assertEquals(conversaAgenteTeste.getDataUltimaMensagem(), conversaAgenteEntity.getDataUltimaMensagem());
         Assertions.assertTrue(conversaAgenteTeste.getRecontato());
