@@ -6,7 +6,7 @@ import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.mensagens
 import com.guminteligencia.ura_chatbot_ia.application.usecase.vendedor.VendedorUseCase;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
-import com.guminteligencia.ura_chatbot_ia.domain.TipoInativo;
+import com.guminteligencia.ura_chatbot_ia.domain.StatusConversa;
 import com.guminteligencia.ura_chatbot_ia.domain.Vendedor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,7 +75,7 @@ class ConversaInativaUseCaseTest {
                     .dataCriacao(now)
                     .dataUltimaMensagem(now.minusSeconds(5)) // dentro do limite de 10s
                     .recontato(false)
-                    .inativo(null)
+                    .status(null)
                     .build();
 
             when(conversaAgenteUseCase.listarNaoFinalizados()).thenReturn(List.of(conv));
@@ -97,7 +97,7 @@ class ConversaInativaUseCaseTest {
             ConversaAgente conv = mock(ConversaAgente.class);
 
             // Estado de leitura (G1): inativo == null e atraso > 10s
-            when(conv.getInativo()).thenReturn(null);
+            when(conv.getStatus()).thenReturn(null);
             when(conv.getDataUltimaMensagem()).thenReturn(now.minusSeconds(15)); // > 10s
 
             Cliente cliente = Cliente.builder()
@@ -118,9 +118,9 @@ class ConversaInativaUseCaseTest {
             // Verificações do fluxo G1:
             InOrder inOrder = inOrder(conv, mensagemBuilder, mensagemUseCase, conversaAgenteUseCase);
             inOrder.verify(conv).getDataUltimaMensagem();
-            inOrder.verify(conv).getInativo();
+            inOrder.verify(conv).getStatus();
 
-            inOrder.verify(conv).setInativo(TipoInativo.INATIVO_G1);
+            inOrder.verify(conv).setStatus(StatusConversa.INATIVO_G1);
             inOrder.verify(mensagemBuilder).getMensagem(eq(TipoMensagem.RECONTATO_INATIVO_G1), isNull(), isNull());
             inOrder.verify(mensagemUseCase).enviarMensagem(eq("msg-recontato-g1"), eq(cliente.getTelefone()), eq(false));
             inOrder.verify(conv).setDataUltimaMensagem(now);
@@ -142,7 +142,7 @@ class ConversaInativaUseCaseTest {
             ConversaAgente conv = mock(ConversaAgente.class);
 
             // Estado de leitura (G2): já tem inativo != null e atraso > 20s
-            when(conv.getInativo()).thenReturn(TipoInativo.INATIVO_G1);
+            when(conv.getStatus()).thenReturn(StatusConversa.INATIVO_G1);
             when(conv.getDataUltimaMensagem()).thenReturn(now.minusSeconds(25)); // > 20s
 
             Cliente cliente = Cliente.builder()
@@ -164,9 +164,9 @@ class ConversaInativaUseCaseTest {
             // Verificações do fluxo G2 (ordem relevante conforme código)
             InOrder inOrder = inOrder(conv, vendedorUseCase, crmUseCase, mensagemUseCase, conversaAgenteUseCase);
             inOrder.verify(conv).getDataUltimaMensagem();
-            inOrder.verify(conv).getInativo();
+            inOrder.verify(conv).getStatus();
 
-            inOrder.verify(conv).setInativo(TipoInativo.INATIVO_G2);
+            inOrder.verify(conv).setStatus(StatusConversa.INATIVO_G2);
             inOrder.verify(conv).setFinalizada(true);
             inOrder.verify(vendedorUseCase).roletaVendedoresConversaInativa(cliente);
             inOrder.verify(conv).setVendedor(vendedor);

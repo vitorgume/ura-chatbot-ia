@@ -50,8 +50,10 @@ public class ProcessamentoMensagemUseCase {
                 mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
                 contextoUseCase.deletar(contexto.getId());
             } catch (Exception e) {
-                log.error("Falha ao processar id={}, tel={}. Não deletando da fila para retry.",
+                log.error("Falha ao processar id={}, tel={}.",
                         contexto.getId(), contexto.getTelefone(), e);
+                mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
+                contextoUseCase.deletar(contexto.getId());
             }
         });
 

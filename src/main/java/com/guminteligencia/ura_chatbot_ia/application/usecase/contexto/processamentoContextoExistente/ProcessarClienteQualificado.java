@@ -8,10 +8,7 @@ import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.MensagemU
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.TipoMensagem;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.mensagens.MensagemBuilder;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.vendedor.VendedorUseCase;
-import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
-import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
-import com.guminteligencia.ura_chatbot_ia.domain.Qualificacao;
-import com.guminteligencia.ura_chatbot_ia.domain.Vendedor;
+import com.guminteligencia.ura_chatbot_ia.domain.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
@@ -51,6 +48,7 @@ public class ProcessarClienteQualificado implements ProcessamentoContextoExisten
 
         conversaAgente.setVendedor(vendedor);
         conversaAgente.setFinalizada(true);
+        conversaAgente.setStatus(StatusConversa.ATIVO);
         log.info("Processamento de cliente qualificado concluido com sucesso.");
     }
 

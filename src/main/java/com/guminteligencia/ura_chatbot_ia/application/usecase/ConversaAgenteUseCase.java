@@ -4,6 +4,7 @@ import com.guminteligencia.ura_chatbot_ia.application.exceptions.ConversaAgenteN
 import com.guminteligencia.ura_chatbot_ia.application.gateways.ConversaAgenteGateway;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
+import com.guminteligencia.ura_chatbot_ia.domain.StatusConversa;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.exceptions.DataProviderException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ public class ConversaAgenteUseCase {
                 .cliente(cliente)
                 .dataCriacao(LocalDateTime.now())
                 .finalizada(false)
+                .status(StatusConversa.ANDAMENTO)
                 .recontato(false)
                 .build();
 

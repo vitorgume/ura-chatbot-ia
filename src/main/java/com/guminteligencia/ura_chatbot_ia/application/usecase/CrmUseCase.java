@@ -6,11 +6,9 @@ import com.guminteligencia.ura_chatbot_ia.application.gateways.CrmGateway;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.CardDto;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.CustomFieldDto;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.CustomFieldValueDto;
-import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.SessaoArquivoDto;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
 import com.guminteligencia.ura_chatbot_ia.domain.Vendedor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -61,11 +59,11 @@ public class CrmUseCase {
 
             addTextIfPresent(customFieldDtos, 1486849, urlChat);
 
-            Map<String, Integer> tagItem = conversaAgente.getInativo() == null || conversaAgente.getInativo().getCodigo().equals(0)
+            Map<String, Integer> tagItem = conversaAgente.getStatus().getCodigo().equals(2) || conversaAgente.getStatus().getCodigo().equals(0)
                     ? Map.of("id", 117527)
                     : Map.of("id", 111143);
 
-            Integer statusId = conversaAgente.getInativo().getCodigo().equals(1) ? 95198915 : 93572343;
+            Integer statusId = conversaAgente.getStatus().getCodigo().equals(1) ? 95198915 : 93572343;
 
             Map<String, Integer> tagIdentificador = Map.of("id", 126472);
 

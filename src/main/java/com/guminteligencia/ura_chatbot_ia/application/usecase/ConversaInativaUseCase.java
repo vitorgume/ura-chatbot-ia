@@ -5,7 +5,7 @@ import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.TipoMensa
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.mensagens.MensagemBuilder;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.vendedor.VendedorUseCase;
 import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
-import com.guminteligencia.ura_chatbot_ia.domain.TipoInativo;
+import com.guminteligencia.ura_chatbot_ia.domain.StatusConversa;
 import com.guminteligencia.ura_chatbot_ia.domain.Vendedor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,7 +55,7 @@ public class ConversaInativaUseCase {
         List<ConversaAgente> conversasAtrasadas = conversas.stream()
                 .filter(conversa -> {
                             if(conversa.getDataUltimaMensagem() != null) {
-                                if (conversa.getInativo() == null) {
+                                if (conversa.getStatus() == null) {
                                     return profile.equals("prod")
                                             ? conversa.getDataUltimaMensagem().plusHours(1).plusMinutes(30).isBefore(agora)
                                             : conversa.getDataUltimaMensagem().plusSeconds(10).isBefore(agora);
@@ -75,12 +75,12 @@ public class ConversaInativaUseCase {
         if(!conversasAtrasadas.isEmpty()) {
             conversasAtrasadas.forEach(conversa -> {
 
-                if(conversa.getInativo() == null) {
-                    conversa.setInativo(TipoInativo.INATIVO_G1);
+                if(!conversa.getFinalizada() && !conversa.getStatus().getCodigo().equals(0)) {
+                    conversa.setStatus(StatusConversa.INATIVO_G1);
                     mensagemUseCase.enviarMensagem(mensagemBuilder.getMensagem(TipoMensagem.RECONTATO_INATIVO_G1, null, null), conversa.getCliente().getTelefone(), false);
                     conversa.setDataUltimaMensagem(LocalDateTime.now());
                 } else {
-                    conversa.setInativo(TipoInativo.INATIVO_G2);
+                    conversa.setStatus(StatusConversa.INATIVO_G2);
                     conversa.setFinalizada(true);
                     Vendedor vendedor = vendedorUseCase.roletaVendedoresConversaInativa(conversa.getCliente());
                     conversa.setVendedor(vendedor);

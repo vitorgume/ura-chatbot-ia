@@ -1,6 +1,6 @@
 package com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity;
 
-import com.guminteligencia.ura_chatbot_ia.domain.TipoInativo;
+import com.guminteligencia.ura_chatbot_ia.domain.StatusConversa;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,5 +38,5 @@ public class ConversaAgenteEntity {
     private Boolean recontato;
 
     @Enumerated(EnumType.ORDINAL)
-    private TipoInativo inativo;
+    private StatusConversa status;
 }

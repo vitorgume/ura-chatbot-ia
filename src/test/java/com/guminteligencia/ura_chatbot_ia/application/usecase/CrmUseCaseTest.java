@@ -3,16 +3,12 @@ package com.guminteligencia.ura_chatbot_ia.application.usecase;
 import com.guminteligencia.ura_chatbot_ia.application.exceptions.LeadNaoEncontradoException;
 import com.guminteligencia.ura_chatbot_ia.application.gateways.CrmGateway;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.CardDto;
-import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.CustomFieldDto;
-import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.CustomFieldValueDto;
-import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.SessaoArquivoDto;
 import com.guminteligencia.ura_chatbot_ia.domain.*;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.exceptions.DataProviderException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -53,7 +49,7 @@ class CrmUseCaseTest {
 
         conversaAgente = ConversaAgente.builder()
                 .id(UUID.randomUUID())
-                .inativo(TipoInativo.INATIVO_G1)
+                .status(StatusConversa.INATIVO_G1)
                 .build();
     }
 

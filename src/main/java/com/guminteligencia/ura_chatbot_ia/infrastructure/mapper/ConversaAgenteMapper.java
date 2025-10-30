@@ -15,7 +15,7 @@ public class ConversaAgenteMapper {
                     .finalizada(domain.getFinalizada())
                     .dataUltimaMensagem(domain.getDataUltimaMensagem())
                     .recontato(domain.getRecontato())
-                    .inativo(domain.getInativo())
+                    .status(domain.getStatus())
                     .build();
 
         } else {
@@ -27,7 +27,7 @@ public class ConversaAgenteMapper {
                     .finalizada(domain.getFinalizada())
                     .dataUltimaMensagem(domain.getDataUltimaMensagem())
                     .recontato(domain.getRecontato())
-                    .inativo(domain.getInativo())
+                    .status(domain.getStatus())
                     .build();
         }
     }
@@ -42,7 +42,7 @@ public class ConversaAgenteMapper {
                     .finalizada(entity.getFinalizada())
                     .dataUltimaMensagem(entity.getDataUltimaMensagem())
                     .recontato(entity.getRecontato())
-                    .inativo(entity.getInativo())
+                    .status(entity.getStatus())
                     .build();
         } else {
             return ConversaAgente.builder()
@@ -53,7 +53,7 @@ public class ConversaAgenteMapper {
                     .finalizada(entity.getFinalizada())
                     .dataUltimaMensagem(entity.getDataUltimaMensagem())
                     .recontato(entity.getRecontato())
-                    .inativo(entity.getInativo())
+                    .status(entity.getStatus())
                     .build();
         }
 

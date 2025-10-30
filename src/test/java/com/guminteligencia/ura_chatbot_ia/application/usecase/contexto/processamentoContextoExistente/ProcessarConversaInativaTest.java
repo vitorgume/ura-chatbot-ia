@@ -7,7 +7,7 @@ import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.mensagens
 import com.guminteligencia.ura_chatbot_ia.application.usecase.vendedor.VendedorUseCase;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
-import com.guminteligencia.ura_chatbot_ia.domain.TipoInativo;
+import com.guminteligencia.ura_chatbot_ia.domain.StatusConversa;
 import com.guminteligencia.ura_chatbot_ia.domain.Vendedor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -193,8 +193,8 @@ class ProcessarConversaInativaTest {
     @Test
     void deveProcessar_quandoInativoNaoNull_eCodigoIgualZero() {
         ConversaAgente conversa = mock(ConversaAgente.class);
-        TipoInativo inativo = mock(TipoInativo.class);
-        when(conversa.getInativo()).thenReturn(inativo);
+        StatusConversa inativo = mock(StatusConversa.class);
+        when(conversa.getStatus()).thenReturn(inativo);
         when(inativo.getCodigo()).thenReturn(0);
 
         boolean result = processador.deveProcessar("qualquer", conversa);
@@ -204,7 +204,7 @@ class ProcessarConversaInativaTest {
     @Test
     void naoDeveProcessar_quandoInativoNull() {
         ConversaAgente conversa = mock(ConversaAgente.class);
-        when(conversa.getInativo()).thenReturn(null);
+        when(conversa.getStatus()).thenReturn(null);
 
         boolean result = processador.deveProcessar("qualquer", conversa);
         assertFalse(result);
@@ -213,8 +213,8 @@ class ProcessarConversaInativaTest {
     @Test
     void naoDeveProcessar_quandoInativoNaoNull_eCodigoDiferenteDeZero() {
         ConversaAgente conversa = mock(ConversaAgente.class);
-        TipoInativo inativo = mock(TipoInativo.class);
-        when(conversa.getInativo()).thenReturn(inativo);
+        StatusConversa inativo = mock(StatusConversa.class);
+        when(conversa.getStatus()).thenReturn(inativo);
         when(inativo.getCodigo()).thenReturn(1);
 
         boolean result = processador.deveProcessar("qualquer", conversa);

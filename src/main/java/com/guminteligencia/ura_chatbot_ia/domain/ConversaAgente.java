@@ -18,5 +18,5 @@ public class ConversaAgente {
         private Boolean finalizada;
         private LocalDateTime dataUltimaMensagem;
         private Boolean recontato;
-        private TipoInativo inativo;
+        private StatusConversa status;
 }
