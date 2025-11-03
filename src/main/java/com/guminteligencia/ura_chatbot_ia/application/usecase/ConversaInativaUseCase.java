@@ -55,7 +55,7 @@ public class ConversaInativaUseCase {
         List<ConversaAgente> conversasAtrasadas = conversas.stream()
                 .filter(conversa -> {
                             if(conversa.getDataUltimaMensagem() != null) {
-                                if (conversa.getStatus() == null) {
+                                if (conversa.getStatus().getCodigo().equals(3)) {
                                     return profile.equals("prod")
                                             ? conversa.getDataUltimaMensagem().plusHours(1).plusMinutes(30).isBefore(agora)
                                             : conversa.getDataUltimaMensagem().plusSeconds(10).isBefore(agora);
