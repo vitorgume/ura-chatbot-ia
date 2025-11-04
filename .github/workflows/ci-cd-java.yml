@@ -34,6 +34,7 @@ jobs:
       - name: Build & Test
         run: |
           mvn -B -ntp \
+            -Dspring.profiles.active=test
             -Dsurefire.printSummary=true \
             -DtrimStackTrace=false \
             -Duser.timezone=America/Sao_Paulo \
