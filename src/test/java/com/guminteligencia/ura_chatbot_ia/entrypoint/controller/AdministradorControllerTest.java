@@ -27,11 +27,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
-@SpringBootTest(
-        properties = {
-                "spring.task.scheduling.enabled=false"
-        }
-)
+@SpringBootTest(properties = {
+        "spring.task.scheduling.enabled=false",
+        "spring.autoconfigure.exclude=" +
+                "org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration," +
+                "org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration," +
+                "org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration," +
+                "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration"
+})
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 class AdministradorControllerTest {
