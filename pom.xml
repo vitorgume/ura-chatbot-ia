@@ -159,7 +159,12 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.5.3</version>
 				<configuration>
-					<excludedGroups>it</excludedGroups> <!-- não roda @Tag("it") no CI principal -->
+					<!-- Exclui os testes com @Tag("it") -->
+					<excludedGroups>it</excludedGroups>
+
+					<!-- Opcional: mais verbosidade -->
+					<trimStackTrace>false</trimStackTrace>
+					<printSummary>true</printSummary>
 				</configuration>
 			</plugin>
 		</plugins>
