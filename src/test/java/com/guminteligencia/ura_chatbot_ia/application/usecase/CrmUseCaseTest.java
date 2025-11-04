@@ -81,7 +81,7 @@ class CrmUseCaseTest {
 
         // vendedor e chat
         when(vendedor.getIdVendedorCrm()).thenReturn(999);;
-        when(chatUseCase.criar(conversaAgente.getId())).thenReturn(urlChat);
+//        when(chatUseCase.criar(conversaAgente.getId())).thenReturn(urlChat);
 
         // lead encontrado
         when(gateway.consultaLeadPeloTelefone(tel)).thenReturn(Optional.of(idLead));
@@ -130,7 +130,7 @@ class CrmUseCaseTest {
         // vendedor e chat
         when(vendedor.getIdVendedorCrm()).thenReturn(999);
 
-        when(chatUseCase.criar(conversaAgente.getId())).thenReturn(urlChat);
+//        when(chatUseCase.criar(conversaAgente.getId())).thenReturn(urlChat);
 
         // lead encontrado
         when(gateway.consultaLeadPeloTelefone(tel)).thenReturn(Optional.of(idLead));
