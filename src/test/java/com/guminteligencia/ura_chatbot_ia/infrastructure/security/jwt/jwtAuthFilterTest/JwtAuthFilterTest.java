@@ -6,6 +6,7 @@ import com.guminteligencia.ura_chatbot_ia.application.usecase.AdministradorUseCa
 import com.guminteligencia.ura_chatbot_ia.domain.Administrador;
 import com.guminteligencia.ura_chatbot_ia.entrypoint.dto.AdministradorDto;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.security.jwt.JwtUtil;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Tag("it")
 class JwtAuthFilterTest {
 
     @Autowired
