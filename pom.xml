@@ -165,8 +165,13 @@
 					<!-- Opcional: mais verbosidade -->
 					<trimStackTrace>false</trimStackTrace>
 					<printSummary>true</printSummary>
+					<systemPropertyVariables>
+						<!-- roda tudo, exceto tag it -->
+						<junit.jupiter.tags>!it</junit.jupiter.tags>
+					</systemPropertyVariables>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
+
 </project>
