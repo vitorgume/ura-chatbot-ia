@@ -7,6 +7,7 @@ import com.guminteligencia.ura_chatbot_ia.domain.Segmento;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.VendedorRepository;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity.VendedorEntity;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,16 +27,14 @@ import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(properties = {
-        "spring.task.scheduling.enabled=false",
-        "spring.autoconfigure.exclude=" +
-                "org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration," +
-                "org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration," +
-                "org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration," +
-                "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration"
-})
+@SpringBootTest(
+        properties = {
+                "spring.task.scheduling.enabled=false"
+        }
+)
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
+@Tag("it")
 class VendedorControllerTest {
 
     @Autowired

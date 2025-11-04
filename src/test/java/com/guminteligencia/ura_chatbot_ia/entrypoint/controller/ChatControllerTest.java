@@ -9,6 +9,7 @@ import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
 import com.guminteligencia.ura_chatbot_ia.entrypoint.dto.ChatDto;
 import com.guminteligencia.ura_chatbot_ia.entrypoint.mapper.ChatMapper;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.MediaType;
@@ -36,16 +37,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@SpringBootTest(properties = {
-        "spring.task.scheduling.enabled=false",
-        "spring.autoconfigure.exclude=" +
-                "org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration," +
-                "org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration," +
-                "org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration," +
-                "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration"
-})
+@SpringBootTest(
+        properties = {
+                "spring.task.scheduling.enabled=false"
+        }
+)
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
+@Tag("it")
 class ChatControllerTest {
 
     @Autowired

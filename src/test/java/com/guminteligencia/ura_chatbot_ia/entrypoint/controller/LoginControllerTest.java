@@ -5,6 +5,7 @@ import com.guminteligencia.ura_chatbot_ia.application.gateways.MensageriaGateway
 import com.guminteligencia.ura_chatbot_ia.application.usecase.LoginUseCase;
 import com.guminteligencia.ura_chatbot_ia.domain.LoginResponse;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -23,16 +24,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(properties = {
-        "spring.task.scheduling.enabled=false",
-        "spring.autoconfigure.exclude=" +
-                "org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration," +
-                "org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration," +
-                "org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration," +
-                "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration"
-})
+@SpringBootTest(
+        properties = {
+                "spring.task.scheduling.enabled=false"
+        }
+)
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
+@Tag("it")
 class LoginControllerTest {
 
     @Autowired
