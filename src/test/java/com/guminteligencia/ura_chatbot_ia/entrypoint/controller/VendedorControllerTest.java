@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         }
 )
 @AutoConfigureMockMvc(addFilters = false)
-@ActiveProfiles("test")
+@ActiveProfiles("dev")
 @Tag("it")
 class VendedorControllerTest {
 
