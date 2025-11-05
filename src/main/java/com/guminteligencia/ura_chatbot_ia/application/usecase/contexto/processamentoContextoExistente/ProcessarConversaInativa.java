@@ -38,6 +38,6 @@ public class ProcessarConversaInativa implements ProcessamentoContextoExistenteT
 
     @Override
     public boolean deveProcessar(String resposta, ConversaAgente conversaAgente) {
-        return conversaAgente.getStatus().getCodigo().equals(0);
+        return conversaAgente.getStatus().getCodigo().equals(0) && !conversaAgente.getFinalizada();
     }
 }
