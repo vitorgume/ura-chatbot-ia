@@ -78,7 +78,7 @@ class ProcessarConversaInativaTest {
                 eq("Vendedor Teste"),
                 isNull()
         );
-        inOrder.verify(mensagemUseCase).enviarMensagem(eq("mensagem-g1-direcionamento"), eq("+5511999999999"), eq(false));
+        inOrder.verify(mensagemUseCase).enviarMensagem(eq("mensagem-g1-direcionamento"), eq("+5511999999999"), eq(true));
 
         inOrder.verify(mensagemUseCase).enviarContatoVendedor(eq(vendedor), eq(cliente));
         inOrder.verify(crmUseCase).atualizarCrm(eq(vendedor), eq(cliente), eq(conversa));
@@ -121,7 +121,7 @@ class ProcessarConversaInativaTest {
                 eq("João"), isNull()))
                 .thenReturn("msg");
         doThrow(new RuntimeException("erro-envio"))
-                .when(mensagemUseCase).enviarMensagem(eq("msg"), eq("+5544999999999"), eq(false));
+                .when(mensagemUseCase).enviarMensagem(eq("msg"), eq("+5544999999999"), eq(true));
 
         RuntimeException ex = assertThrows(RuntimeException.class,
                 () -> processador.processar("resp", conversa, cliente));
