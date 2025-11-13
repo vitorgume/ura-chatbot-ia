@@ -30,7 +30,7 @@ public class ProcessarConversaInativa implements ProcessamentoContextoExistenteT
         conversaAgente.setFinalizada(true);
         Vendedor vendedor = vendedorUseCase.roletaVendedoresConversaInativa(cliente);
         conversaAgente.setVendedor(vendedor);
-        mensagemUseCase.enviarMensagem(mensagemBuilder.getMensagem(TipoMensagem.RECONTATO_INATIVO_G1_DIRECIONAMENTO_VENDEDOR, vendedor.getNome(), null), cliente.getTelefone(), false);
+        mensagemUseCase.enviarMensagem(mensagemBuilder.getMensagem(TipoMensagem.RECONTATO_INATIVO_G1_DIRECIONAMENTO_VENDEDOR, vendedor.getNome(), null), cliente.getTelefone(), true);
         mensagemUseCase.enviarContatoVendedor(vendedor, cliente);
         crmUseCase.atualizarCrm(vendedor, cliente, conversaAgente);
         log.info("Processamento de conversa inativa concluida com sucesso.");

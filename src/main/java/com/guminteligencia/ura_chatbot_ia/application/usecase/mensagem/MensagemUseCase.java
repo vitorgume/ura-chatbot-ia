@@ -20,7 +20,7 @@ public class MensagemUseCase {
     public void enviarMensagem(String mensagem, String telefone, boolean semEspacos) {
         log.info("Enviando mensagem para usuário. Resposta: {}, Telefone: {}", mensagem, telefone);
 
-        String mensagemAEnviar = semEspacos ? mensagem.replaceAll("^\"|\"$", "").replaceAll("\\n", "") : mensagem.replaceAll("^\"|\"$", "");
+        String mensagemAEnviar = semEspacos ? mensagem.replaceAll("^\"|\"$", "").replaceAll("\\n", "").replaceAll("\\n\\n", "") : mensagem.replaceAll("^\"|\"$", "");
 
         this.gateway.enviar(mensagemAEnviar, telefone);
 

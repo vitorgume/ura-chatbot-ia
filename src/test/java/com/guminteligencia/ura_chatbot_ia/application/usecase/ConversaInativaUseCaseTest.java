@@ -97,7 +97,7 @@ class ConversaInativaUseCaseTest {
             ConversaAgente conv = mock(ConversaAgente.class);
 
             // Estado de leitura (G1): inativo == null e atraso > 10s
-            when(conv.getStatus()).thenReturn(null);
+            when(conv.getStatus()).thenReturn(StatusConversa.ANDAMENTO);
             when(conv.getDataUltimaMensagem()).thenReturn(now.minusSeconds(15)); // > 10s
 
             Cliente cliente = Cliente.builder()
