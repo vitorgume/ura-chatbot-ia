@@ -5,6 +5,7 @@ import com.guminteligencia.ura_chatbot_ia.application.usecase.CriptografiaUseCas
 import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.AdministradorRepository;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity.AdministradorEntity;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -20,11 +21,9 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(
         properties = {
@@ -32,6 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
         }
 )
 @AutoConfigureMockMvc(addFilters = false)
+@Tag("it")
 class AdministradorControllerTest {
 
     @Autowired

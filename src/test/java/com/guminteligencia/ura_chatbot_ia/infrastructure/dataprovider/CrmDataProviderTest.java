@@ -1,10 +1,7 @@
 package com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.CardDto;
-import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.SessaoArquivoDto;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.ContactsResponse;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.exceptions.DataProviderException;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,11 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;

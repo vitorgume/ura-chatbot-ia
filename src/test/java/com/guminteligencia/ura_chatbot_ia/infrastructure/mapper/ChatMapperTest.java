@@ -11,8 +11,6 @@ import java.time.Month;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class ChatMapperTest {
 
     private Chat chatDomain;

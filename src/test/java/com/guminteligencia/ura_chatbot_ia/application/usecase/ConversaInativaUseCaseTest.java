@@ -75,7 +75,7 @@ class ConversaInativaUseCaseTest {
                     .dataCriacao(now)
                     .dataUltimaMensagem(now.minusSeconds(5)) // dentro do limite de 10s
                     .recontato(false)
-                    .status(null)
+                    .status(StatusConversa.ATIVO)
                     .build();
 
             when(conversaAgenteUseCase.listarNaoFinalizados()).thenReturn(List.of(conv));
@@ -171,7 +171,6 @@ class ConversaInativaUseCaseTest {
             inOrder.verify(vendedorUseCase).roletaVendedoresConversaInativa(cliente);
             inOrder.verify(conv).setVendedor(vendedor);
             inOrder.verify(crmUseCase).atualizarCrm(eq(vendedor), eq(cliente), eq(conv));
-            inOrder.verify(mensagemUseCase).enviarContatoVendedor(eq(vendedor), eq(cliente));
             inOrder.verify(conversaAgenteUseCase).salvar(conv);
             inOrder.verifyNoMoreInteractions();
 

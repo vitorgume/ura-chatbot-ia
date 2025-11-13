@@ -4,8 +4,6 @@ import com.guminteligencia.ura_chatbot_ia.domain.Chat;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.MensagemConversa;
 import com.guminteligencia.ura_chatbot_ia.entrypoint.dto.ChatDto;
-import com.guminteligencia.ura_chatbot_ia.entrypoint.dto.ClienteDto;
-import com.guminteligencia.ura_chatbot_ia.entrypoint.dto.MensagemConversaDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,8 +12,6 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ChatMapperTest {
 

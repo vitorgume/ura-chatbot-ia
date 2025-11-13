@@ -5,14 +5,11 @@ import com.guminteligencia.ura_chatbot_ia.domain.Regiao;
 import com.guminteligencia.ura_chatbot_ia.domain.Segmento;
 import com.guminteligencia.ura_chatbot_ia.domain.Vendedor;
 import com.guminteligencia.ura_chatbot_ia.entrypoint.dto.VendedorDto;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class VendedorMapperTest {
 

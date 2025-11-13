@@ -42,7 +42,7 @@ public class CrmUseCase {
         if(profile.equals("prod")) {
             log.info("Atualizando crm. Vendedor: {}, Cliente: {}, Conversa: {}", vendedor, cliente, conversaAgente);
 
-            String urlChat = chatUseCase.criar(conversaAgente.getId());
+//            String urlChat = chatUseCase.criar(conversaAgente.getId());
             Integer idLead = this.consultaLeadPeloTelefone(cliente.getTelefone());
 
             log.info("Construindo body para atualizar card.");
@@ -57,7 +57,7 @@ public class CrmUseCase {
 
             addTextIfPresent(customFieldDtos, 1486847, cliente.getEnderecoReal());
 
-            addTextIfPresent(customFieldDtos, 1486849, urlChat);
+            addTextIfPresent(customFieldDtos, 1486849, "");
 
             Map<String, Integer> tagItem = conversaAgente.getStatus().getCodigo().equals(2) || conversaAgente.getStatus().getCodigo().equals(0)
                     ? Map.of("id", 117527)
