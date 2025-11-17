@@ -18,9 +18,19 @@ public class MensagemUseCase {
     private final MensagemBuilder mensagemBuilder;
 
     public void enviarMensagem(String mensagem, String telefone, boolean semEspacos) {
-        log.info("Enviando mensagem para usuário. Resposta: {}, Telefone: {}", mensagem, telefone);
+        log.info("Enviando mensagem para usuário. Resposta bruta: {}, Telefone: {}", mensagem, telefone);
 
-        String mensagemAEnviar = semEspacos ? mensagem.replaceAll("^\"|\"$", "").replaceAll("\\n", "").replaceAll("\\n\\n", "") : mensagem.replaceAll("^\"|\"$", "");
+        String mensagemAEnviar = mensagem.replaceAll("^\"|\"$", ""); 
+
+        if (semEspacos) {
+            mensagemAEnviar = mensagemAEnviar
+                    .replace("\\n", " ")
+                    .replace("\r\n", " ")
+                    .replace("\n", " ")
+                    .trim();
+        }
+
+        log.info("Enviando mensagem processada: {}", mensagemAEnviar);
 
         this.gateway.enviar(mensagemAEnviar, telefone);
 
