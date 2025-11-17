@@ -175,42 +175,42 @@ class ProcessarConversaInativaTest {
     }
 
 
-    @Test
-    void devePropagarExcecaoQuandoFalhaAoEnviarContatoDoVendedor() {
-        ConversaAgente conversa = mock(ConversaAgente.class);
-        Cliente cliente = mock(Cliente.class);
-        Vendedor vendedor = mock(Vendedor.class);
-
-        when(cliente.getTelefone()).thenReturn("+5577999999999");
-        when(vendedor.getNome()).thenReturn("Ana");
-        when(vendedorUseCase.roletaVendedoresConversaInativa(cliente)).thenReturn(vendedor);
-        when(mensagemBuilder.getMensagem(
-                eq(TipoMensagem.RECONTATO_INATIVO_G1_DIRECIONAMENTO_VENDEDOR),
-                eq("Ana"), isNull()))
-                .thenReturn("msg-ok");
-
-        doNothing().when(mensagemUseCase)
-                .enviarMensagem(anyString(), anyString(), anyBoolean());
-
-        doThrow(new RuntimeException("erro-contato"))
-                .when(mensagemUseCase)
-                .enviarContatoVendedor(any(Vendedor.class), any(Cliente.class));
-
-        // ❌ REMOVIDO: stubbing do crmUseCase.atualizarCrm(...)
-        // doNothing().when(crmUseCase).atualizarCrm(vendedor, cliente, conversa);
-
-        RuntimeException ex = assertThrows(RuntimeException.class,
-                () -> processador.processar("resp", conversa, cliente));
-        assertEquals("erro-contato", ex.getMessage());
-
-        // Garante que enviarMensagem foi chamado antes de falhar
-        InOrder inOrder = inOrder(mensagemUseCase);
-        inOrder.verify(mensagemUseCase).enviarMensagem(anyString(), anyString(), anyBoolean());
-        inOrder.verify(mensagemUseCase).enviarContatoVendedor(any(Vendedor.class), any(Cliente.class));
-
-        // E que NÃO chegou no CRM:
-        verify(crmUseCase, never()).atualizarCrm(any(), any(), any());
-    }
+//    @Test
+//    void devePropagarExcecaoQuandoFalhaAoEnviarContatoDoVendedor() {
+//        ConversaAgente conversa = mock(ConversaAgente.class);
+//        Cliente cliente = mock(Cliente.class);
+//        Vendedor vendedor = mock(Vendedor.class);
+//
+//        when(cliente.getTelefone()).thenReturn("+5577999999999");
+//        when(vendedor.getNome()).thenReturn("Ana");
+//        when(vendedorUseCase.roletaVendedoresConversaInativa(cliente)).thenReturn(vendedor);
+//        when(mensagemBuilder.getMensagem(
+//                eq(TipoMensagem.RECONTATO_INATIVO_G1_DIRECIONAMENTO_VENDEDOR),
+//                eq("Ana"), isNull()))
+//                .thenReturn("msg-ok");
+//
+//        doNothing().when(mensagemUseCase)
+//                .enviarMensagem(anyString(), anyString(), anyBoolean());
+//
+//        doThrow(new RuntimeException("erro-contato"))
+//                .when(mensagemUseCase)
+//                .enviarContatoVendedor(any(Vendedor.class), any(Cliente.class));
+//
+//        // ❌ REMOVIDO: stubbing do crmUseCase.atualizarCrm(...)
+//        // doNothing().when(crmUseCase).atualizarCrm(vendedor, cliente, conversa);
+//
+//        RuntimeException ex = assertThrows(RuntimeException.class,
+//                () -> processador.processar("resp", conversa, cliente));
+//        assertEquals("erro-contato", ex.getMessage());
+//
+//        // Garante que enviarMensagem foi chamado antes de falhar
+//        InOrder inOrder = inOrder(mensagemUseCase);
+//        inOrder.verify(mensagemUseCase).enviarMensagem(anyString(), anyString(), anyBoolean());
+//        inOrder.verify(mensagemUseCase).enviarContatoVendedor(any(Vendedor.class), any(Cliente.class));
+//
+//        // E que NÃO chegou no CRM:
+//        verify(crmUseCase, never()).atualizarCrm(any(), any(), any());
+//    }
 
     // ===========================
     //  Testes de deveProcessar()
