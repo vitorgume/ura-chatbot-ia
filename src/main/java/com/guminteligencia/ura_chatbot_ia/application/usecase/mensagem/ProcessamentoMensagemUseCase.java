@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 @Service
 @RequiredArgsConstructor
@@ -25,8 +26,16 @@ public class ProcessamentoMensagemUseCase {
     private final ProcessamentoContextoExistente processamentoContextoExistente;
     private final ProcessamentoContextoNovoUseCase processamentoContextoNovoUseCase;
 
+    private final Semaphore processingSemaphore = new Semaphore(3);
+
     @Scheduled(fixedDelay = 5000)
     public void consumirFila() {
+
+        if (!processingSemaphore.tryAcquire()) {
+            log.warn("Processamento anterior ainda em andamento, pulando esta execução");
+            return;
+        }
+
         log.info("Consumindo mensagens da fila.");
 
         var recebidas = mensageriaUseCase.listarContextos();
