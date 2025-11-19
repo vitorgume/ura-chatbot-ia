@@ -25,7 +25,7 @@ public class ProcessamentoMensagemUseCase {
     private final ProcessamentoContextoExistente processamentoContextoExistente;
     private final ProcessamentoContextoNovoUseCase processamentoContextoNovoUseCase;
 
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = 5000, scheduler = "filaTaskScheduler")
     public void consumirFila() {
         log.info("Consumindo mensagens da fila.");
 

@@ -74,12 +74,14 @@ public class ConversaInativaUseCase {
 
         if(!conversasAtrasadas.isEmpty()) {
             conversasAtrasadas.forEach(conversa -> {
-
+                log.info("Processando conversa atrasada: {}", conversa);
                 if(!conversa.getFinalizada() && !conversa.getStatus().getCodigo().equals(0)) {
+                    log.info("Conversa inativa grau 1");
                     conversa.setStatus(StatusConversa.INATIVO_G1);
                     mensagemUseCase.enviarMensagem(mensagemBuilder.getMensagem(TipoMensagem.RECONTATO_INATIVO_G1, null, null), conversa.getCliente().getTelefone(), false);
                     conversa.setDataUltimaMensagem(LocalDateTime.now());
                 } else {
+                    log.info("Conversa inativa grau 2");
                     conversa.setStatus(StatusConversa.INATIVO_G2);
                     conversa.setFinalizada(true);
                     Vendedor vendedor = vendedorUseCase.roletaVendedoresConversaInativa(conversa.getCliente());
@@ -88,6 +90,7 @@ public class ConversaInativaUseCase {
                 }
 
                 conversaAgenteUseCase.salvar(conversa);
+                log.info("Processamento de conversa inativa concluido com sucesso.");
             });
         }
 

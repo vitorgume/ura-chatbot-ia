@@ -10,11 +10,20 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @EnableScheduling
 public class SchedulingConfig {
 
-    @Bean
-    public TaskScheduler taskScheduler() {
+    @Bean(name = "defaultTaskScheduler")
+    public TaskScheduler defaultTaskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(5);
-        scheduler.setThreadNamePrefix("scheduler-");
+        scheduler.setPoolSize(2); // por ex: só para jobs “leves”
+        scheduler.setThreadNamePrefix("default-scheduler-");
+        return scheduler;
+    }
+
+    @Bean(name = "filaTaskScheduler")
+    public TaskScheduler filaTaskScheduler() {
+        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(3); // aqui você limita o consumo da fila
+        scheduler.setThreadNamePrefix("fila-scheduler-");
         return scheduler;
     }
 }
+
