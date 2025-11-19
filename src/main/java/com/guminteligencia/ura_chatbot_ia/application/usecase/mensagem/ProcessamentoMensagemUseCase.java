@@ -36,43 +36,49 @@ public class ProcessamentoMensagemUseCase {
             return;
         }
 
-        log.info("Consumindo mensagens da fila.");
+        try {
+            log.info("Consumindo mensagens da fila.");
 
-        var recebidas = mensageriaUseCase.listarContextos();
+            var recebidas = mensageriaUseCase.listarContextos();
 
-        log.info("Recebidas da SQS: {}", recebidas.size());
+            log.info("Recebidas da SQS: {}", recebidas.size());
 
-        var processaveis = recebidas.stream()
-                .filter(contextoValidadorComposite::permitirProcessar)
-                .toList();
+            var processaveis = recebidas.stream()
+                    .filter(contextoValidadorComposite::permitirProcessar)
+                    .toList();
 
-        var ignoradas = recebidas.stream()
-                .filter(c -> !contextoValidadorComposite.permitirProcessar(c))
-                .toList();
+            var ignoradas = recebidas.stream()
+                    .filter(c -> !contextoValidadorComposite.permitirProcessar(c))
+                    .toList();
 
-        log.info("Processáveis: {}, Ignoradas: {}", processaveis.size(), ignoradas.size());
+            log.info("Processáveis: {}, Ignoradas: {}", processaveis.size(), ignoradas.size());
 
-        processaveis.forEach(contexto -> {
-            try {
-                log.info("Processando: id={}, tel={}", contexto.getId(), contexto.getTelefone());
-                processarMensagem(contexto);
+            processaveis.forEach(contexto -> {
+                try {
+                    log.info("Processando: id={}, tel={}", contexto.getId(), contexto.getTelefone());
+                    processarMensagem(contexto);
+                    mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
+                    contextoUseCase.deletar(contexto.getId());
+                } catch (Exception e) {
+                    log.error("Falha ao processar id={}, tel={}.",
+                            contexto.getId(), contexto.getTelefone(), e);
+                    mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
+                    contextoUseCase.deletar(contexto.getId());
+                }
+            });
+
+            ignoradas.forEach(contexto -> {
+                log.info("Ignorando: {}", contexto);
                 mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
                 contextoUseCase.deletar(contexto.getId());
-            } catch (Exception e) {
-                log.error("Falha ao processar id={}, tel={}.",
-                        contexto.getId(), contexto.getTelefone(), e);
-                mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
-                contextoUseCase.deletar(contexto.getId());
-            }
-        });
+            });
 
-        ignoradas.forEach(contexto -> {
-            log.info("Ignorando: {}", contexto);
-            mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
-            contextoUseCase.deletar(contexto.getId());
-        });
+        } finally {
+            processingSemaphore.release();
+            log.info("Consumo concluído.");
+        }
 
-        log.info("Consumo concluído.");
+
     }
 
     private void processarMensagem(Contexto contexto) {
