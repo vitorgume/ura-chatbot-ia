@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.Duration;
 import java.util.Comparator;
 import java.util.Optional;
 
@@ -43,6 +44,7 @@ public class CrmDataProvider implements CrmGateway {
                             .build())
                     .retrieve()
                     .bodyToMono(ContactsResponse.class)
+                    .timeout(Duration.ofSeconds(30))
                     .block();
 
             if (contacts == null || contacts.getEmbedded() == null || contacts.getEmbedded().getContacts() == null) {

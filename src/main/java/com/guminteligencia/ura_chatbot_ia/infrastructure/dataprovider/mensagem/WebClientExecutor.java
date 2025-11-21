@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.RetryBackoffSpec;
 
+import java.time.Duration;
 import java.util.Map;
 
 @Component
@@ -53,6 +54,7 @@ public class WebClientExecutor {
                                     })
                     )
                     .bodyToMono(String.class)
+                    .timeout(Duration.ofSeconds(30))
                     .retryWhen(retrySpec)
                     .doOnSuccess(r -> log.info("Response recebido: {}", r))
                     .block();
