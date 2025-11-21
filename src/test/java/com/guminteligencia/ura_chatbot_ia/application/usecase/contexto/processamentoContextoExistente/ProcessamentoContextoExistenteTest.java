@@ -5,6 +5,7 @@ import com.guminteligencia.ura_chatbot_ia.application.usecase.ConversaAgenteUseC
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.Contexto;
 import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
+import com.guminteligencia.ura_chatbot_ia.domain.StatusConversa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,6 +51,7 @@ class ProcessamentoContextoExistenteTest {
         when(contexto.getMensagens()).thenReturn(List.of("msg1","msg2"));
 
         conversaAgente = mock(ConversaAgente.class);
+        when(conversaAgente.getStatus()).thenReturn(StatusConversa.ANDAMENTO);
     }
 
     @Test

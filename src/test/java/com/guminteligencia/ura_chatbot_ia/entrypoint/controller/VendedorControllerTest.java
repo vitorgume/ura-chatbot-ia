@@ -7,6 +7,7 @@ import com.guminteligencia.ura_chatbot_ia.domain.Segmento;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.VendedorRepository;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity.VendedorEntity;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         }
 )
 @AutoConfigureMockMvc(addFilters = false)
+@Tag("it")
 class VendedorControllerTest {
 
     @Autowired

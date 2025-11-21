@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 @Service
 @RequiredArgsConstructor
@@ -25,45 +26,59 @@ public class ProcessamentoMensagemUseCase {
     private final ProcessamentoContextoExistente processamentoContextoExistente;
     private final ProcessamentoContextoNovoUseCase processamentoContextoNovoUseCase;
 
+    private final Semaphore processingSemaphore = new Semaphore(3);
+
     @Scheduled(fixedDelay = 5000)
     public void consumirFila() {
-        log.info("Consumindo mensagens da fila.");
 
-        var recebidas = mensageriaUseCase.listarContextos();
+        if (!processingSemaphore.tryAcquire()) {
+            log.warn("Processamento anterior ainda em andamento, pulando esta execução");
+            return;
+        }
 
-        log.info("Recebidas da SQS: {}", recebidas.size());
+        try {
+            log.info("Consumindo mensagens da fila.");
 
-        var processaveis = recebidas.stream()
-                .filter(contextoValidadorComposite::permitirProcessar)
-                .toList();
+            var recebidas = mensageriaUseCase.listarContextos();
 
-        var ignoradas = recebidas.stream()
-                .filter(c -> !contextoValidadorComposite.permitirProcessar(c))
-                .toList();
+            log.info("Recebidas da SQS: {}", recebidas.size());
 
-        log.info("Processáveis: {}, Ignoradas: {}", processaveis.size(), ignoradas.size());
+            var processaveis = recebidas.stream()
+                    .filter(contextoValidadorComposite::permitirProcessar)
+                    .toList();
 
-        processaveis.forEach(contexto -> {
-            try {
-                log.info("Processando: id={}, tel={}", contexto.getId(), contexto.getTelefone());
-                processarMensagem(contexto);
+            var ignoradas = recebidas.stream()
+                    .filter(c -> !contextoValidadorComposite.permitirProcessar(c))
+                    .toList();
+
+            log.info("Processáveis: {}, Ignoradas: {}", processaveis.size(), ignoradas.size());
+
+            processaveis.forEach(contexto -> {
+                try {
+                    log.info("Processando: id={}, tel={}", contexto.getId(), contexto.getTelefone());
+                    processarMensagem(contexto);
+                    mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
+                    contextoUseCase.deletar(contexto.getId());
+                } catch (Exception e) {
+                    log.error("Falha ao processar id={}, tel={}.",
+                            contexto.getId(), contexto.getTelefone(), e);
+                    mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
+                    contextoUseCase.deletar(contexto.getId());
+                }
+            });
+
+            ignoradas.forEach(contexto -> {
+                log.info("Ignorando: {}", contexto);
                 mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
                 contextoUseCase.deletar(contexto.getId());
-            } catch (Exception e) {
-                log.error("Falha ao processar id={}, tel={}.",
-                        contexto.getId(), contexto.getTelefone(), e);
-                mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
-                contextoUseCase.deletar(contexto.getId());
-            }
-        });
+            });
 
-        ignoradas.forEach(contexto -> {
-            log.info("Ignorando: {}", contexto);
-            mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
-            contextoUseCase.deletar(contexto.getId());
-        });
+        } finally {
+            processingSemaphore.release();
+            log.info("Consumo concluído.");
+        }
 
-        log.info("Consumo concluído.");
+
     }
 
     private void processarMensagem(Contexto contexto) {

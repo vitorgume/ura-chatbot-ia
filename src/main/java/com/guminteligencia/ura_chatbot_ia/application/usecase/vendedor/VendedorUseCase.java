@@ -79,9 +79,13 @@ public class VendedorUseCase {
     }
 
     public Vendedor roletaVendedoresConversaInativa(Cliente cliente) {
+        log.info("Rolatando vendedor de conversa inativa: {}", cliente);
+
         if (cliente.getSegmento() != null) {
             return escolherVendedor(cliente);
         }
+
+        log.info("Roleta concluida com sucesso.");
 
         return this.consultarVendedor(this.roletaVendedores("Nilza"));
     }

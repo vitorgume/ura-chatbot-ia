@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.CompletableFuture;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -18,14 +20,23 @@ public class MensagemUseCase {
     private final MensagemBuilder mensagemBuilder;
 
     public void enviarMensagem(String mensagem, String telefone, boolean semEspacos) {
-        log.info("Enviando mensagem para usuário. Resposta: {}, Telefone: {}", mensagem, telefone);
+        log.info("Enviando mensagem para usuário. Resposta bruta: {}, Telefone: {}", mensagem, telefone);
 
         String mensagemAEnviar = "";
 
-        if(mensagem != null) {
-             mensagemAEnviar = semEspacos ? mensagem.replaceAll("^\"|\"$", "").replaceAll("\\n", "") : mensagem.replaceAll("^\"|\"$", "");
+        if (mensagem != null) {
+            mensagemAEnviar = mensagem.replaceAll("^\"|\"$", "");
+
+            if (semEspacos) {
+                mensagemAEnviar = mensagemAEnviar
+                        .replace("\\n", " ")
+                        .replace("\r\n", " ")
+                        .replace("\n", " ")
+                        .trim();
+            }
         }
 
+        log.info("Enviando mensagem processada: {}", mensagemAEnviar);
 
         this.gateway.enviar(mensagemAEnviar, telefone);
 
@@ -35,15 +46,20 @@ public class MensagemUseCase {
     public void enviarContatoVendedor(Vendedor vendedor, Cliente cliente) {
         log.info("Enviando contato para vendedor. Vendedor: {}, Cliente: {}", vendedor, cliente);
 
-        String textoMensagem = mensagemBuilder.getMensagem(TipoMensagem.DADOS_CONTATO_VENDEDOR, null, cliente);
-        String textoSeparacao = mensagemBuilder.getMensagem(TipoMensagem.MENSAGEM_SEPARACAO, null, null);
+        CompletableFuture.runAsync(() -> {
+            try {
+                String textoMensagem = mensagemBuilder.getMensagem(TipoMensagem.DADOS_CONTATO_VENDEDOR, null, cliente);
+                String textoSeparacao = mensagemBuilder.getMensagem(TipoMensagem.MENSAGEM_SEPARACAO, null, null);
 
-        gateway.enviarContato(vendedor.getTelefone(), cliente);
+                gateway.enviarContato(vendedor.getTelefone(), cliente);
+                this.enviarMensagem(textoMensagem, vendedor.getTelefone(), false);
+                this.enviarMensagem(textoSeparacao, vendedor.getTelefone(), false);
 
-        this.enviarMensagem(textoMensagem, vendedor.getTelefone(), false);
-        this.enviarMensagem(textoSeparacao, vendedor.getTelefone(), false);
-
-        log.info("Contato enviado com sucesso para vendedor.");
+                log.info("Contato enviado com sucesso para vendedor.");
+            } catch (Exception e) {
+                log.error("Erro ao enviar contato para vendedor", e);
+            }
+        });
     }
 
     public void enviarRelatorio(String arquivo, String fileName, String telefone) {

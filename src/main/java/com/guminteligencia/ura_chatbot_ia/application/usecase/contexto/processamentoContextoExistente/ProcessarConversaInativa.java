@@ -30,14 +30,22 @@ public class ProcessarConversaInativa implements ProcessamentoContextoExistenteT
         conversaAgente.setFinalizada(true);
         Vendedor vendedor = vendedorUseCase.roletaVendedoresConversaInativa(cliente);
         conversaAgente.setVendedor(vendedor);
-        mensagemUseCase.enviarMensagem(mensagemBuilder.getMensagem(TipoMensagem.RECONTATO_INATIVO_G1_DIRECIONAMENTO_VENDEDOR, vendedor.getNome(), null), cliente.getTelefone(), false);
-        mensagemUseCase.enviarContatoVendedor(vendedor, cliente);
+        mensagemUseCase.enviarMensagem(mensagemBuilder.getMensagem(TipoMensagem.RECONTATO_INATIVO_G1_DIRECIONAMENTO_VENDEDOR, vendedor.getNome(), null), cliente.getTelefone(), true);
+
+        try {
+            log.info("Tentando enviar contato do vendedor...");
+            mensagemUseCase.enviarContatoVendedor(vendedor, cliente);
+            log.info("Contato enviado com sucesso");
+        } catch (Exception e) {
+            log.error("Erro ao enviar contato do vendedor, continuando processamento", e);
+        }
+
         crmUseCase.atualizarCrm(vendedor, cliente, conversaAgente);
         log.info("Processamento de conversa inativa concluida com sucesso.");
     }
 
     @Override
     public boolean deveProcessar(String resposta, ConversaAgente conversaAgente) {
-        return conversaAgente.getStatus().getCodigo().equals(0);
+        return conversaAgente.getStatus().getCodigo().equals(0) && !conversaAgente.getFinalizada();
     }
 }

@@ -1,6 +1,5 @@
 package com.guminteligencia.ura_chatbot_ia.infrastructure.mapper;
 
-import com.guminteligencia.ura_chatbot_ia.domain.Administrador;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.Regiao;
 import com.guminteligencia.ura_chatbot_ia.domain.Segmento;
@@ -10,8 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ClienteMapperTest {
 

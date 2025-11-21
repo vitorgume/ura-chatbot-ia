@@ -23,7 +23,7 @@ class MensagemRecontatoInativoG1DirecionamentoVendedorTest {
 
         String resultado = mensagem.getMensagem("Carlos", cliente);
 
-        String esperado = "Perfeito, estou te redirecionando para o vendedor Carlos que logo entrará em contato. Muito obrigado ! Até...";
+        String esperado = "Perfeito, estou te redirecionando para o vendedor(a) Carlos que logo entrará em contato. Muito obrigado ! Até...";
         assertEquals(esperado, resultado);
     }
 
@@ -31,7 +31,7 @@ class MensagemRecontatoInativoG1DirecionamentoVendedorTest {
     void deveRetornarMensagemMesmoComNomeVendedorNull() {
         // Comportamento atual concatena "null" — este teste documenta isso.
         String resultado = mensagem.getMensagem(null, null);
-        String esperado = "Perfeito, estou te redirecionando para o vendedor null que logo entrará em contato. Muito obrigado ! Até...";
+        String esperado = "Perfeito, estou te redirecionando para o vendedor(a) null que logo entrará em contato. Muito obrigado ! Até...";
         assertEquals(esperado, resultado);
     }
 

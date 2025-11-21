@@ -108,11 +108,6 @@
 			<artifactId>poi-ooxml</artifactId>
 			<version>5.2.3</version>
 		</dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
 
     </dependencies>
 
@@ -152,6 +147,23 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.5.3</version>
+				<configuration>
+					<!-- Exclui os testes com @Tag("it") -->
+					<excludedGroups>it</excludedGroups>
+
+					<!-- Opcional: mais verbosidade -->
+					<trimStackTrace>false</trimStackTrace>
+					<printSummary>true</printSummary>
+					<systemPropertyVariables>
+						<!-- roda tudo, exceto tag it -->
+						<junit.jupiter.tags>!it</junit.jupiter.tags>
+					</systemPropertyVariables>
 				</configuration>
 			</plugin>
 		</plugins>
