@@ -69,11 +69,14 @@ public class VendedorUseCase {
     }
 
     public Vendedor consultarVendedor(String nome) {
+        log.info("Consultando vendedor pelo nome. Nome: {}", nome);
         Optional<Vendedor> vendedor = gateway.consultarVendedor(nome);
 
         if (vendedor.isEmpty()) {
             throw new VendedorNaoEncontradoException();
         }
+
+        log.info("Vendedor consultado com sucesso ! Vendedor: {}", vendedor.get());
 
         return vendedor.get();
     }
