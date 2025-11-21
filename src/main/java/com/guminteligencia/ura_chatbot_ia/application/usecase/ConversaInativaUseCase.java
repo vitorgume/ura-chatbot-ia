@@ -46,54 +46,64 @@ public class ConversaInativaUseCase {
 
     @Scheduled(cron = "${app.cron.conversas.inativas}")
     public void verificaAusenciaDeMensagem() {
-        List<ConversaAgente> conversas = conversaAgenteUseCase.listarNaoFinalizados();
-        log.info("Verificando se existe alguma mensagem inativa por mais do tempo determinado Conversas: {}", conversas);
+        long inicio = System.currentTimeMillis();
+        log.info("[INICIO] verificaAusenciaDeMensagem");
+
+        try {
+            List<ConversaAgente> conversas = conversaAgenteUseCase.listarNaoFinalizados();
+            log.info("Verificando se existe alguma mensagem inativa por mais do tempo determinado Conversas: {}", conversas);
 
 
-        LocalDateTime agora = LocalDateTime.now();
+            LocalDateTime agora = LocalDateTime.now();
 
-        List<ConversaAgente> conversasAtrasadas = conversas.stream()
-                .filter(conversa -> {
-                            if(conversa.getDataUltimaMensagem() != null) {
-                                if (conversa.getStatus().getCodigo().equals(3)) {
-                                    return profile.equals("prod")
-                                            ? conversa.getDataUltimaMensagem().plusHours(1).plusMinutes(30).isBefore(agora)
-                                            : conversa.getDataUltimaMensagem().plusSeconds(10).isBefore(agora);
-                                } else {
-                                    return profile.equals("prod")
-                                            ? conversa.getDataUltimaMensagem().plusHours(12).isBefore(agora)
-                                            : conversa.getDataUltimaMensagem().plusSeconds(20).isBefore(agora);
+            List<ConversaAgente> conversasAtrasadas = conversas.stream()
+                    .filter(conversa -> {
+                                if(conversa.getDataUltimaMensagem() != null) {
+                                    if (conversa.getStatus().getCodigo().equals(3)) {
+                                        return profile.equals("prod")
+                                                ? conversa.getDataUltimaMensagem().plusHours(1).plusMinutes(30).isBefore(agora)
+                                                : conversa.getDataUltimaMensagem().plusSeconds(10).isBefore(agora);
+                                    } else {
+                                        return profile.equals("prod")
+                                                ? conversa.getDataUltimaMensagem().plusHours(12).isBefore(agora)
+                                                : conversa.getDataUltimaMensagem().plusSeconds(20).isBefore(agora);
+                                    }
                                 }
+
+                                return false;
                             }
-
-                            return false;
-                        }
-                )
-                .toList();
+                    )
+                    .toList();
 
 
-        if(!conversasAtrasadas.isEmpty()) {
-            conversasAtrasadas.forEach(conversa -> {
-                log.info("Processando conversa atrasada: {}", conversa);
-                if(!conversa.getFinalizada() && !conversa.getStatus().getCodigo().equals(0)) {
-                    log.info("Conversa inativa grau 1");
-                    conversa.setStatus(StatusConversa.INATIVO_G1);
-                    mensagemUseCase.enviarMensagem(mensagemBuilder.getMensagem(TipoMensagem.RECONTATO_INATIVO_G1, null, null), conversa.getCliente().getTelefone(), false);
-                    conversa.setDataUltimaMensagem(LocalDateTime.now());
-                } else {
-                    log.info("Conversa inativa grau 2");
-                    conversa.setStatus(StatusConversa.INATIVO_G2);
-                    conversa.setFinalizada(true);
-                    Vendedor vendedor = vendedorUseCase.roletaVendedoresConversaInativa(conversa.getCliente());
-                    conversa.setVendedor(vendedor);
-                    crmUseCase.atualizarCrm(vendedor, conversa.getCliente(), conversa);
-                }
+            if(!conversasAtrasadas.isEmpty()) {
+                conversasAtrasadas.forEach(conversa -> {
+                    log.info("Processando conversa atrasada: {}", conversa);
+                    if(!conversa.getFinalizada() && !conversa.getStatus().getCodigo().equals(0)) {
+                        log.info("Conversa inativa grau 1");
+                        conversa.setStatus(StatusConversa.INATIVO_G1);
+                        mensagemUseCase.enviarMensagem(mensagemBuilder.getMensagem(TipoMensagem.RECONTATO_INATIVO_G1, null, null), conversa.getCliente().getTelefone(), false);
+                        conversa.setDataUltimaMensagem(LocalDateTime.now());
+                    } else {
+                        log.info("Conversa inativa grau 2");
+                        conversa.setStatus(StatusConversa.INATIVO_G2);
+                        conversa.setFinalizada(true);
+                        Vendedor vendedor = vendedorUseCase.roletaVendedoresConversaInativa(conversa.getCliente());
+                        conversa.setVendedor(vendedor);
+                        crmUseCase.atualizarCrm(vendedor, conversa.getCliente(), conversa);
+                    }
 
-                conversaAgenteUseCase.salvar(conversa);
-                log.info("Processamento de conversa inativa concluido com sucesso.");
-            });
+                    conversaAgenteUseCase.salvar(conversa);
+                    log.info("Processamento de conversa inativa concluido com sucesso.");
+                });
+            }
+
+            log.info("Verificação concluida com sucesso.");
+        } finally {
+            long total = System.currentTimeMillis() - inicio;
+            log.info("[FIM] verificaAusenciaDeMensagem - tempoTotal={}ms", total);
         }
 
-        log.info("Verificação concluida com sucesso.");
+
     }
 }

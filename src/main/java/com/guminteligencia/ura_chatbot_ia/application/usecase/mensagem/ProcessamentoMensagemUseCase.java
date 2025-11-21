@@ -31,6 +31,9 @@ public class ProcessamentoMensagemUseCase {
     @Scheduled(fixedDelay = 5000)
     public void consumirFila() {
 
+        long inicio = System.currentTimeMillis();
+        log.info("[INICIO] verificaAusenciaDeMensagem");
+
         if (!processingSemaphore.tryAcquire()) {
             log.warn("Processamento anterior ainda em andamento, pulando esta execução");
             return;
@@ -74,6 +77,8 @@ public class ProcessamentoMensagemUseCase {
             });
 
         } finally {
+            long total = System.currentTimeMillis() - inicio;
+            log.info("[FIM] verificaAusenciaDeMensagem - tempoTotal={}ms", total);
             processingSemaphore.release();
             log.info("Consumo concluído.");
         }
