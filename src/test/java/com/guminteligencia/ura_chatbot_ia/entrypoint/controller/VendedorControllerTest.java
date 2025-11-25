@@ -49,7 +49,7 @@ class VendedorControllerTest {
 
     @BeforeEach
     void setMockMensageria() {
-        given(mensageriaGateway.listarMensagens())
+        given(mensageriaGateway.listarAvisos())
                 .willReturn(List.of());
     }
 

@@ -36,7 +36,7 @@ class MensageriaDataProviderTest {
     }
 
     @Test
-    void deveListarMensagensComSucesso() {
+    void deveListarAvisosComSucesso() {
         Message msg1 = Message.builder()
                 .receiptHandle("rh1")
                 .body("b1")
@@ -63,7 +63,7 @@ class MensageriaDataProviderTest {
             ms.when(() -> ContextoMapper.paraDomainDeMessage(msg1)).thenReturn(ctx1);
             ms.when(() -> ContextoMapper.paraDomainDeMessage(msg2)).thenReturn(ctx2);
 
-            List<Contexto> result = provider.listarMensagens();
+            List<Contexto> result = provider.listarAvisos();
 
             assertEquals(List.of(ctx1, ctx2), result);
 
@@ -78,13 +78,13 @@ class MensageriaDataProviderTest {
     }
 
     @Test
-    void deveLancarExceptionAoListarMensagens() {
+    void deveLancarExceptionAoListarAvisos() {
         when(sqsClient.receiveMessage(any(ReceiveMessageRequest.class)))
                 .thenThrow(new RuntimeException("fail-list"));
 
         DataProviderException ex = assertThrows(
                 DataProviderException.class,
-                () -> provider.listarMensagens()
+                () -> provider.listarAvisos()
         );
         assertEquals("Erro ao listar contextos da fila SQS.", ex.getMessage());
     }

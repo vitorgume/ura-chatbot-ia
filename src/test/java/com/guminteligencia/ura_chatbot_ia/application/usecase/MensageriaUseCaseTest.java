@@ -27,15 +27,15 @@ class MensageriaUseCaseTest {
     private Message mensagemFila;
 
     @Test
-    void deveListarContextosDelegandoParaGateway() {
+    void deveListarAvisosDelegandoParaGateway() {
         Contexto c1 = mock(Contexto.class);
         List<Contexto> lista = List.of(c1);
-        when(mensageriaGateway.listarMensagens()).thenReturn(lista);
+        when(mensageriaGateway.listarAvisos()).thenReturn(lista);
 
-        List<Contexto> result = useCase.listarContextos();
+        List<Contexto> result = useCase.listarAvisos();
 
         assertSame(lista, result, "Deve retornar exatamente a lista fornecida pelo gateway");
-        verify(mensageriaGateway).listarMensagens();
+        verify(mensageriaGateway).listarAvisos();
         verifyNoMoreInteractions(mensageriaGateway);
     }
 

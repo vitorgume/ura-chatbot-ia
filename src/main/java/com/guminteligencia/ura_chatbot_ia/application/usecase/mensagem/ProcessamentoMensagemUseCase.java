@@ -42,15 +42,19 @@ public class ProcessamentoMensagemUseCase {
         try {
             log.info("Consumindo mensagens da fila.");
 
-            var recebidas = mensageriaUseCase.listarContextos();
+            var recebidas = mensageriaUseCase.listarAvisos();
+
+            List<Contexto> contextosRecebidos = recebidas.stream().map(avisoContexto ->
+                    contextoUseCase.consultarPeloId(avisoContexto.getIdContexto())
+            ).toList();
 
             log.info("Recebidas da SQS: {}", recebidas.size());
 
-            var processaveis = recebidas.stream()
+            var processaveis = contextosRecebidos.stream()
                     .filter(contextoValidadorComposite::permitirProcessar)
                     .toList();
 
-            var ignoradas = recebidas.stream()
+            var ignoradas = contextosRecebidos.stream()
                     .filter(c -> !contextoValidadorComposite.permitirProcessar(c))
                     .toList();
 

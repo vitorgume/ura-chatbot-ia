@@ -64,11 +64,11 @@ class ProcessamentoMensagemUseCaseTest {
 
     @Test
     void deveNaoFazerNadaQuandoNenhumContextoNaFila() {
-        when(mensageriaUseCase.listarContextos()).thenReturn(List.of());
+        when(mensageriaUseCase.listarAvisos()).thenReturn(List.of());
 
         useCase.consumirFila();
 
-        verify(mensageriaUseCase).listarContextos();
+        verify(mensageriaUseCase).listarAvisos();
         verifyNoMoreInteractions(
                 mensageriaUseCase,
                 contextoUseCase,
@@ -81,7 +81,7 @@ class ProcessamentoMensagemUseCaseTest {
 
     @Test
     void deveProcessarFluxoExistenteComSucesso() {
-        when(mensageriaUseCase.listarContextos()).thenReturn(List.of(ctx1, ctx2));
+        when(mensageriaUseCase.listarAvisos()).thenReturn(List.of(ctx1, ctx2));
         when(contextoValidadorComposite.permitirProcessar(ctx1)).thenReturn(true);
         when(contextoValidadorComposite.permitirProcessar(ctx2)).thenReturn(false);
         when(ctx1.getId()).thenReturn(id1);
@@ -101,7 +101,7 @@ class ProcessamentoMensagemUseCaseTest {
                 contextoUseCase
         );
 
-        ord.verify(mensageriaUseCase).listarContextos();
+        ord.verify(mensageriaUseCase).listarAvisos();
         ord.verify(processamentoContextoExistente)
                 .processarContextoExistente(cliente, ctx1);
         ord.verify(mensageriaUseCase).deletarMensagem(msg1);
@@ -116,7 +116,7 @@ class ProcessamentoMensagemUseCaseTest {
 
     @Test
     void deveProcessarNovoFluxoComSucessoQuandoClienteNaoEncontrado() {
-        when(mensageriaUseCase.listarContextos()).thenReturn(List.of(ctx1));
+        when(mensageriaUseCase.listarAvisos()).thenReturn(List.of(ctx1));
         when(contextoValidadorComposite.permitirProcessar(ctx1)).thenReturn(true);
         when(ctx1.getId()).thenReturn(id1);
         when(ctx1.getMensagemFila()).thenReturn(msg1);
@@ -134,7 +134,7 @@ class ProcessamentoMensagemUseCaseTest {
                 contextoUseCase
         );
 
-        ord.verify(mensageriaUseCase).listarContextos();
+        ord.verify(mensageriaUseCase).listarAvisos();
         ord.verify(processamentoContextoNovoUseCase).processarContextoNovo(ctx1);
         ord.verify(mensageriaUseCase).deletarMensagem(msg1);
         ord.verify(contextoUseCase).deletar(id1);
