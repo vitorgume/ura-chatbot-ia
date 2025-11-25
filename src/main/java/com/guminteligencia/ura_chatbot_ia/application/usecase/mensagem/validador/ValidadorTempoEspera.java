@@ -1,5 +1,6 @@
 package com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.validador;
 
+import com.guminteligencia.ura_chatbot_ia.application.exceptions.ConversaAgenteNaoEncontradoException;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.ClienteUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.ConversaAgenteUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.MensageriaUseCase;
@@ -27,7 +28,14 @@ public class ValidadorTempoEspera implements ContextoValidator {
     public boolean permitirProcessar(Contexto contexto) {
         return clienteUseCase.consultarPorTelefone(contexto.getTelefone())
                 .map(cliente -> {
-                    var conv = conversaAgenteUseCase.consultarPorCliente(cliente.getId());
+                    ConversaAgente conv;
+
+                    try {
+                         conv = conversaAgenteUseCase.consultarPorCliente(cliente.getId());
+                    } catch (ConversaAgenteNaoEncontradoException exception) {
+                        log.info("Conversa não existente para cliente com telefone: {}", cliente.getTelefone());
+                        return true;
+                    }
 
                     boolean aindaNoCooldown = conv.getFinalizada() &&
                             !conv.getDataUltimaMensagem().plusMinutes(30).isBefore(LocalDateTime.now());
