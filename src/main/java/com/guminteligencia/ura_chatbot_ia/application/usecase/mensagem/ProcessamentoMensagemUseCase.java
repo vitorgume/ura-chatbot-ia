@@ -1,5 +1,6 @@
 package com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem;
 
+import com.guminteligencia.ura_chatbot_ia.application.exceptions.ConversaAgenteNaoEncontradoException;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.contexto.ContextoUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.contexto.processamentoContextoExistente.ProcessamentoContextoExistente;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.contexto.ProcessamentoContextoNovoUseCase;
@@ -12,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Semaphore;
 
 @Service
@@ -25,6 +27,7 @@ public class ProcessamentoMensagemUseCase {
     private final ContextoValidadorComposite contextoValidadorComposite;
     private final ProcessamentoContextoExistente processamentoContextoExistente;
     private final ProcessamentoContextoNovoUseCase processamentoContextoNovoUseCase;
+    private final ConversaAgenteUseCase conversaAgenteUseCase;
 
     private final Semaphore processingSemaphore = new Semaphore(3);
 
@@ -89,11 +92,20 @@ public class ProcessamentoMensagemUseCase {
     private void processarMensagem(Contexto contexto) {
         log.info("Processando nova mensagem. Contexto: {}", contexto);
 
-        clienteUseCase.consultarPorTelefone(contexto.getTelefone())
-                .ifPresentOrElse(
-                        cl -> processamentoContextoExistente.processarContextoExistente(cl, contexto),
-                        () -> processamentoContextoNovoUseCase.processarContextoNovo(contexto)
-                );
+        Optional<Cliente> cliente = clienteUseCase.consultarPorTelefone(contexto.getTelefone());
+
+        if(cliente.isPresent()) {
+            try {
+                conversaAgenteUseCase.consultarPorCliente(cliente.get().getId());
+            } catch (ConversaAgenteNaoEncontradoException exception) {
+                processamentoContextoNovoUseCase.processarContextoNovo(contexto);
+                return;
+            }
+
+            processamentoContextoExistente.processarContextoExistente(cliente.get(), contexto);
+        } else {
+            processamentoContextoNovoUseCase.processarContextoNovo(contexto);
+        }
 
         log.info("Mensagem nova processada com sucesso.");
     }
