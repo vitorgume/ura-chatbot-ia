@@ -7,6 +7,7 @@ import com.guminteligencia.ura_chatbot_ia.application.usecase.contexto.Processam
 import com.guminteligencia.ura_chatbot_ia.application.usecase.contexto.processamentoContextoExistente.ProcessamentoContextoExistente;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.validador.ContextoValidadorComposite;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
+import com.guminteligencia.ura_chatbot_ia.domain.AvisoContexto;
 import com.guminteligencia.ura_chatbot_ia.domain.Contexto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -81,12 +82,20 @@ class ProcessamentoMensagemUseCaseTest {
 
     @Test
     void deveProcessarFluxoExistenteComSucesso() {
-        when(mensageriaUseCase.listarAvisos()).thenReturn(List.of(ctx1, ctx2));
         when(contextoValidadorComposite.permitirProcessar(ctx1)).thenReturn(true);
         when(contextoValidadorComposite.permitirProcessar(ctx2)).thenReturn(false);
         when(ctx1.getId()).thenReturn(id1);
         when(ctx1.getMensagemFila()).thenReturn(msg1);
         when(ctx1.getTelefone()).thenReturn(tel1);
+        when(ctx2.getId()).thenReturn(id2);
+        when(ctx2.getMensagemFila()).thenReturn(msg2);
+
+        when(contextoUseCase.consultarPeloId(id1)).thenReturn(ctx1);
+        when(contextoUseCase.consultarPeloId(id2)).thenReturn(ctx2);
+        when(mensageriaUseCase.listarAvisos()).thenReturn(List.of(
+                AvisoContexto.builder().idContexto(id1).mensagemFila(msg1).build(),
+                AvisoContexto.builder().idContexto(id2).mensagemFila(msg2).build()
+        ));
 
         Cliente cliente = mock(Cliente.class);
         when(clienteUseCase.consultarPorTelefone(tel1))
@@ -116,11 +125,14 @@ class ProcessamentoMensagemUseCaseTest {
 
     @Test
     void deveProcessarNovoFluxoComSucessoQuandoClienteNaoEncontrado() {
-        when(mensageriaUseCase.listarAvisos()).thenReturn(List.of(ctx1));
         when(contextoValidadorComposite.permitirProcessar(ctx1)).thenReturn(true);
         when(ctx1.getId()).thenReturn(id1);
         when(ctx1.getMensagemFila()).thenReturn(msg1);
         when(ctx1.getTelefone()).thenReturn(tel1);
+        when(contextoUseCase.consultarPeloId(id1)).thenReturn(ctx1);
+        when(mensageriaUseCase.listarAvisos()).thenReturn(List.of(
+                AvisoContexto.builder().idContexto(id1).mensagemFila(msg1).build()
+        ));
 
         when(clienteUseCase.consultarPorTelefone(tel1))
                 .thenReturn(Optional.empty());

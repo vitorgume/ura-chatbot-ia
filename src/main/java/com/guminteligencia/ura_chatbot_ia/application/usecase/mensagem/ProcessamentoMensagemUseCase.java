@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Semaphore;
 
 @Service
@@ -44,9 +45,15 @@ public class ProcessamentoMensagemUseCase {
 
             var recebidas = mensageriaUseCase.listarAvisos();
 
-            List<Contexto> contextosRecebidos = recebidas.stream().map(avisoContexto ->
-                    contextoUseCase.consultarPeloId(avisoContexto.getIdContexto())
-            ).toList();
+            List<Contexto> contextosRecebidos = recebidas.stream()
+                    .map(avisoContexto -> {
+                        var contexto = contextoUseCase.consultarPeloId(avisoContexto.getIdContexto());
+                        contextoUseCase.deletar(contexto.getId());
+                        contexto.setMensagemFila(avisoContexto.getMensagemFila());
+                        return contexto;
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
 
             log.info("Recebidas da SQS: {}", recebidas.size());
 
@@ -65,19 +72,17 @@ public class ProcessamentoMensagemUseCase {
                     log.info("Processando: id={}, tel={}", contexto.getId(), contexto.getTelefone());
                     processarMensagem(contexto);
                     mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
-                    contextoUseCase.deletar(contexto.getId());
+
                 } catch (Exception e) {
                     log.error("Falha ao processar id={}, tel={}.",
                             contexto.getId(), contexto.getTelefone(), e);
                     mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
-                    contextoUseCase.deletar(contexto.getId());
                 }
             });
 
             ignoradas.forEach(contexto -> {
                 log.info("Ignorando: {}", contexto);
                 mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
-                contextoUseCase.deletar(contexto.getId());
             });
 
         } finally {

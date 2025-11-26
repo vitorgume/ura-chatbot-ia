@@ -1,7 +1,6 @@
 package com.guminteligencia.ura_chatbot_ia.infrastructure.mapper;
 
 import com.guminteligencia.ura_chatbot_ia.domain.Contexto;
-import com.guminteligencia.ura_chatbot_ia.domain.StatusContexto;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity.ContextoEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +23,6 @@ class ContextoMapperTest {
                 .id(UUID.randomUUID())
                 .telefone("000000000000")
                 .mensagens(List.of("Mensagem 1", "Mensagem 2"))
-                .status(StatusContexto.ATIVO)
                 .mensagemFila(Message.builder().build())
                 .build();
 
@@ -32,7 +30,6 @@ class ContextoMapperTest {
                 .id(UUID.randomUUID())
                 .telefone("000000000001")
                 .mensagens(List.of("Mensagem 1", "Mensagem 2", "Mensagem 3"))
-                .status(StatusContexto.OBSOLETO)
                 .build();
     }
 
@@ -43,7 +40,6 @@ class ContextoMapperTest {
         Assertions.assertEquals(contextoTeste.getId(), contextoEntity.getId());
         Assertions.assertEquals(contextoTeste.getTelefone(), contextoEntity.getTelefone());
         Assertions.assertEquals(contextoTeste.getMensagens(), contextoEntity.getMensagens());
-        Assertions.assertEquals(contextoTeste.getStatus(), contextoEntity.getStatus());
         Assertions.assertNull(contextoTeste.getMensagemFila());
     }
 
@@ -54,7 +50,6 @@ class ContextoMapperTest {
         Assertions.assertEquals(contextoTeste.getId(), contextoDomain.getId());
         Assertions.assertEquals(contextoTeste.getTelefone(), contextoDomain.getTelefone());
         Assertions.assertEquals(contextoTeste.getMensagens(), contextoDomain.getMensagens());
-        Assertions.assertEquals(contextoTeste.getStatus(), contextoDomain.getStatus());
     }
 
     @Test
@@ -62,7 +57,6 @@ class ContextoMapperTest {
         UUID expectedId = UUID.randomUUID();
         String expectedTel = "+5511999999999";
         List<String> expectedMsgs = List.of("oi", "tchau");
-        StatusContexto expectedStatus = StatusContexto.OBSOLETO;
 
         String json = String.format(
                 """
@@ -75,8 +69,7 @@ class ContextoMapperTest {
                 """,
                 expectedId,
                 expectedTel,
-                new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(expectedMsgs),
-                expectedStatus.name()
+                new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(expectedMsgs)
         );
 
         Message message = Message.builder()
@@ -91,7 +84,6 @@ class ContextoMapperTest {
                 () -> assertEquals(expectedId,   ctx.getId(),            "id deve vir do JSON"),
                 () -> assertEquals(expectedTel,  ctx.getTelefone(),      "telefone deve vir do JSON"),
                 () -> assertEquals(expectedMsgs, ctx.getMensagens(),     "mensagens deve vir do JSON"),
-                () -> assertEquals(expectedStatus, ctx.getStatus(),      "status deve vir do JSON"),
                 () -> assertSame(message,        ctx.getMensagemFila(),  "deve guardar a mesma instância de Message")
         );
     }
