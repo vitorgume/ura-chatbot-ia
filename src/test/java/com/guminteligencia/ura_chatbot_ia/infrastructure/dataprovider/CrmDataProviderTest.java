@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -73,6 +74,40 @@ class CrmDataProviderTest {
         DataProviderException ex = assertThrows(DataProviderException.class,
                 () -> provider.consultaLeadPeloTelefone("+5511999999999"));
         assertEquals("Erro ao consultar lead pelo seu telefone.", ex.getMessage());
+    }
+
+    @Test
+    void consultaLeadPeloTelefone_deveRetornarLeadMaisRecente() {
+        var newer = new com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.ContactDto(
+                null, null, null, null, null, null, null, null,
+                null, 20L, null, null, null,
+                new com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.ContactDto.Embedded(
+                        null, null, List.of(new com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.ContactDto.LeadRef(999))
+                )
+        );
+
+        var older = new com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.ContactDto(
+                null, null, null, null, null, null, null, null,
+                null, 10L, null, null, null,
+                new com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.ContactDto.Embedded(
+                        null, null, List.of(new com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.ContactDto.LeadRef(123))
+                )
+        );
+
+        ContactsResponse.Embedded embedded = new ContactsResponse.Embedded();
+        embedded.setContacts(List.of(older, newer));
+        ContactsResponse response = new ContactsResponse(embedded);
+
+        when(webClient.get()
+                .uri(any(Function.class))
+                .retrieve()
+                .bodyToMono(eq(ContactsResponse.class)))
+                .thenReturn(Mono.just(response));
+
+        Optional<Integer> out = provider.consultaLeadPeloTelefone(" 55 11 9999-9999 ");
+
+        assertTrue(out.isPresent());
+        assertEquals(999, out.get());
     }
 
     // ------------------------------

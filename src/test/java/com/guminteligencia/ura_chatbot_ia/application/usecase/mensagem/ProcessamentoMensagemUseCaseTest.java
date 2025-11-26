@@ -2,6 +2,7 @@ package com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem;
 
 import com.guminteligencia.ura_chatbot_ia.application.usecase.ClienteUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.MensageriaUseCase;
+import com.guminteligencia.ura_chatbot_ia.application.usecase.ConversaAgenteUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.contexto.ContextoUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.contexto.ProcessamentoContextoNovoUseCase;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.contexto.processamentoContextoExistente.ProcessamentoContextoExistente;
@@ -89,7 +90,6 @@ class ProcessamentoMensagemUseCaseTest {
         when(ctx1.getTelefone()).thenReturn(tel1);
         when(ctx2.getId()).thenReturn(id2);
         when(ctx2.getMensagemFila()).thenReturn(msg2);
-
         when(contextoUseCase.consultarPeloId(id1)).thenReturn(ctx1);
         when(contextoUseCase.consultarPeloId(id2)).thenReturn(ctx2);
         when(mensageriaUseCase.listarAvisos()).thenReturn(List.of(
@@ -105,16 +105,19 @@ class ProcessamentoMensagemUseCaseTest {
 
         InOrder ord = inOrder(
                 mensageriaUseCase,
-                processamentoContextoExistente,
-                mensageriaUseCase,
-                contextoUseCase
+                contextoUseCase,
+                processamentoContextoExistente
         );
 
         ord.verify(mensageriaUseCase).listarAvisos();
+        ord.verify(contextoUseCase).consultarPeloId(id1);
+        ord.verify(contextoUseCase).deletar(id1);
+        ord.verify(contextoUseCase).consultarPeloId(id2);
+        ord.verify(contextoUseCase).deletar(id2);
         ord.verify(processamentoContextoExistente)
                 .processarContextoExistente(cliente, ctx1);
         ord.verify(mensageriaUseCase).deletarMensagem(msg1);
-        ord.verify(contextoUseCase).deletar(id1);
+        ord.verify(mensageriaUseCase).deletarMensagem(msg2);
 
         verify(contextoValidadorComposite, times(2)).permitirProcessar(ctx2);
         verifyNoMoreInteractions(
@@ -147,9 +150,10 @@ class ProcessamentoMensagemUseCaseTest {
         );
 
         ord.verify(mensageriaUseCase).listarAvisos();
+        ord.verify(contextoUseCase).consultarPeloId(id1);
+        ord.verify(contextoUseCase).deletar(id1);
         ord.verify(processamentoContextoNovoUseCase).processarContextoNovo(ctx1);
         ord.verify(mensageriaUseCase).deletarMensagem(msg1);
-        ord.verify(contextoUseCase).deletar(id1);
 
         verify(processamentoContextoExistente, never()).processarContextoExistente(any(), any());
         verifyNoMoreInteractions(

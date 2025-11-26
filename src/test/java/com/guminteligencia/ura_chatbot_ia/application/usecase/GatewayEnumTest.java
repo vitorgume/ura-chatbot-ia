@@ -68,4 +68,10 @@ class GatewayEnumTest {
         assertThrows(EscolhaNaoIdentificadoException.class, () -> GatewayEnum.gatewayRegiaoRelatorio("3"));
         assertThrows(EscolhaNaoIdentificadoException.class, () -> GatewayEnum.gatewayRegiaoRelatorio("abc"));
     }
+
+    @Test
+    void devePermitirInstanciarClasseUtilitariaParaCobrirConstrutorPadrao() {
+        // Mesmo sendo utilitЭria, garantir cobertura do construtor implЦЊcito
+        new GatewayEnum();
+    }
 }

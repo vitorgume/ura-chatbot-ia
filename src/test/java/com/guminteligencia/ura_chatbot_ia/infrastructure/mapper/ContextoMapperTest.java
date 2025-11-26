@@ -57,6 +57,7 @@ class ContextoMapperTest {
         UUID expectedId = UUID.randomUUID();
         String expectedTel = "+5511999999999";
         List<String> expectedMsgs = List.of("oi", "tchau");
+        String expectedStatus = "ANDAMENTO";
 
         String json = String.format(
                 """
@@ -69,7 +70,8 @@ class ContextoMapperTest {
                 """,
                 expectedId,
                 expectedTel,
-                new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(expectedMsgs)
+                new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(expectedMsgs),
+                expectedStatus
         );
 
         Message message = Message.builder()

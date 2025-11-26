@@ -113,4 +113,27 @@ class ConversaAgenteUseCaseTest {
         assertSame(lista, result);
         verify(gateway).listarNaoFinalizados();
     }
+
+    @Test
+    void deveConsultarPorIdQuandoExistir() {
+        UUID idConversa = UUID.randomUUID();
+        ConversaAgente conv = ConversaAgente.builder().id(idConversa).build();
+        when(gateway.consultarPorId(idConversa)).thenReturn(Optional.of(conv));
+
+        ConversaAgente result = useCase.consultarPorId(idConversa);
+
+        assertSame(conv, result);
+        verify(gateway).consultarPorId(idConversa);
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoConsultarPorIdNaoEncontrado() {
+        UUID idConversa = UUID.randomUUID();
+        when(gateway.consultarPorId(idConversa)).thenReturn(Optional.empty());
+
+        assertThrows(ConversaAgenteNaoEncontradoException.class, () ->
+                useCase.consultarPorId(idConversa)
+        );
+        verify(gateway).consultarPorId(idConversa);
+    }
 }

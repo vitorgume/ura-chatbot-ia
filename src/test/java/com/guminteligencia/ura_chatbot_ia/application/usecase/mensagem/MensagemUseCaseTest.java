@@ -10,7 +10,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -56,6 +59,21 @@ class MensagemUseCaseTest {
     }
 
     @Test
+    void deveEnviarMensagemRemovendoAspasERomovendoEspacos() {
+        String msg = "\"olá\\n mundo\"";
+
+        useCase.enviarMensagem(msg, telefone, true);
+
+        verify(gateway).enviar("olá  mundo", telefone);
+    }
+
+    @Test
+    void deveEnviarMensagemVaziaQuandoMensagemForNull() {
+        useCase.enviarMensagem(null, telefone, true);
+        verify(gateway).enviar("", telefone);
+    }
+
+    @Test
     void deveLancarExceptionQuandoGatewayFalharEnviarMensgaem() {
         doThrow(new IllegalStateException("erro-enviar")).when(gateway).enviar(texto, telefone);
 
@@ -66,40 +84,54 @@ class MensagemUseCaseTest {
         assertEquals("erro-enviar", ex.getMessage());
     }
 
-//    @Test
-//    void deveEnviarContatoVendedorComSucesso() {
-//        String msgDados = "DADOS";
-//        String msgSep   = "----";
-//        when(mensagemBuilder.getMensagem(
-//                TipoMensagem.DADOS_CONTATO_VENDEDOR, null, cliente
-//        )).thenReturn(msgDados);
-//        when(mensagemBuilder.getMensagem(
-//                TipoMensagem.MENSAGEM_SEPARACAO, null, null
-//        )).thenReturn(msgSep);
-//
-//        useCase.enviarContatoVendedor(vendedor, cliente);
-//
-//        InOrder ord = inOrder(gateway);
-//        ord.verify(gateway).enviarContato(vendedor.getTelefone(), cliente);
-//        ord.verify(gateway).enviar(msgDados, vendedor.getTelefone());
-//        ord.verify(gateway).enviar(msgSep, vendedor.getTelefone());
-//        ord.verifyNoMoreInteractions();
-//    }
-//
-//    @Test
-//    void deveLancarExceptionQuandoEnviarContatoFalhar() {
-//        doThrow(new RuntimeException("fail-contato"))
-//                .when(gateway).enviarContato(vendedor.getTelefone(), cliente);
-//
-//        RuntimeException ex = assertThrows(
-//                RuntimeException.class,
-//                () -> useCase.enviarContatoVendedor(vendedor, cliente)
-//        );
-//        assertEquals("fail-contato", ex.getMessage());
-//
-//        verify(gateway).enviarContato(vendedor.getTelefone(), cliente);
-//        verifyNoMoreInteractions(gateway);
-//    }
+    @Test
+    void deveEnviarContatoVendedorComSucesso() {
+        String msgDados = "DADOS";
+        String msgSep   = "----";
+        when(mensagemBuilder.getMensagem(
+                TipoMensagem.DADOS_CONTATO_VENDEDOR, null, cliente
+        )).thenReturn(msgDados);
+        when(mensagemBuilder.getMensagem(
+                TipoMensagem.MENSAGEM_SEPARACAO, null, null
+        )).thenReturn(msgSep);
+
+        try (MockedStatic<CompletableFuture> cf = mockStatic(CompletableFuture.class)) {
+            cf.when(() -> CompletableFuture.runAsync(any(Runnable.class)))
+                    .thenAnswer(inv -> {
+                        Runnable r = inv.getArgument(0);
+                        r.run();
+                        return CompletableFuture.completedFuture(null);
+                    });
+
+            useCase.enviarContatoVendedor(vendedor, cliente);
+        }
+
+        InOrder ord = inOrder(gateway);
+        ord.verify(gateway).enviarContato(vendedor.getTelefone(), cliente);
+        ord.verify(gateway).enviar(msgDados, vendedor.getTelefone());
+        ord.verify(gateway).enviar(msgSep, vendedor.getTelefone());
+        ord.verifyNoMoreInteractions();
+    }
+
+    @Test
+    void deveIgnorarErroAoConstruirMensagemDeContato() {
+        when(mensagemBuilder.getMensagem(
+                TipoMensagem.DADOS_CONTATO_VENDEDOR, null, cliente
+        )).thenThrow(new RuntimeException("fail-builder"));
+
+        try (MockedStatic<CompletableFuture> cf = mockStatic(CompletableFuture.class)) {
+            cf.when(() -> CompletableFuture.runAsync(any(Runnable.class)))
+                    .thenAnswer(inv -> {
+                        Runnable r = inv.getArgument(0);
+                        r.run();
+                        return CompletableFuture.completedFuture(null);
+                    });
+
+            assertDoesNotThrow(() -> useCase.enviarContatoVendedor(vendedor, cliente));
+        }
+
+        verifyNoInteractions(gateway);
+    }
 
 
     @Test
