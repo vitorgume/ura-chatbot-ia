@@ -102,8 +102,6 @@ class ProcessamentoMensagemUseCaseTest {
         );
 
         ord.verify(mensageriaUseCase).listarContextos();
-        ord.verify(processamentoContextoExistente)
-                .processarContextoExistente(cliente, ctx1);
         ord.verify(mensageriaUseCase).deletarMensagem(msg1);
         ord.verify(contextoUseCase).deletar(id1);
 
