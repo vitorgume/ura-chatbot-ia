@@ -38,13 +38,17 @@ class ConversaInativaUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        useCase = new ConversaInativaUseCase(
+        useCase = buildUseCase("dev"); // thresholds dev: G1=10s, G2=20s
+    }
+
+    private ConversaInativaUseCase buildUseCase(String profile) {
+        return new ConversaInativaUseCase(
                 conversaAgenteUseCase,
                 vendedorUseCase,
                 crmUseCase,
                 mensagemUseCase,
                 mensagemBuilder,
-                "dev" // thresholds dev: G1=10s, G2=20s
+                profile
         );
     }
 
@@ -176,6 +180,77 @@ class ConversaInativaUseCaseTest {
 
             // G2 não envia mensagem de recontato nem mexe no dataUltimaMensagem via mensagem
             verifyNoInteractions(mensagemBuilder);
+        }
+    }
+
+    @Test
+    void deveProcessarConversasAtrasadas_G1_prod_horarioPermitidoEAtrasoMaiorQueUmaHoraEMeia() {
+        LocalDateTime now = LocalDateTime.of(2025, 8, 4, 15, 0); // dentro da janela 07h-23h
+        try (MockedStatic<LocalDateTime> mockNow = mockStatic(LocalDateTime.class, CALLS_REAL_METHODS)) {
+            // duas chamadas no cÇüdigo: para definir "agora" e para setar dataUltimaMensagem
+            mockNow.when(LocalDateTime::now).thenReturn(now, now);
+
+            ConversaAgente conv = mock(ConversaAgente.class);
+            when(conv.getStatus()).thenReturn(StatusConversa.ANDAMENTO);
+            when(conv.getDataUltimaMensagem()).thenReturn(now.minusHours(1).minusMinutes(40)); // > 1h30
+
+            Cliente cliente = Cliente.builder()
+                    .id(UUID.randomUUID())
+                    .nome("teste")
+                    .telefone("+55999999999")
+                    .build();
+            when(conv.getCliente()).thenReturn(cliente);
+
+            when(conversaAgenteUseCase.listarNaoFinalizados()).thenReturn(List.of(conv));
+            when(mensagemBuilder.getMensagem(eq(TipoMensagem.RECONTATO_INATIVO_G1), any(), any()))
+                    .thenReturn("msg-recontato-g1");
+
+            ConversaInativaUseCase useCaseProd = buildUseCase("prod");
+            useCaseProd.verificaAusenciaDeMensagem();
+
+            InOrder inOrder = inOrder(conv, mensagemBuilder, mensagemUseCase, conversaAgenteUseCase);
+            inOrder.verify(conv).getDataUltimaMensagem();
+            inOrder.verify(conv).getStatus();
+            inOrder.verify(conv).setStatus(StatusConversa.INATIVO_G1);
+            inOrder.verify(mensagemBuilder).getMensagem(eq(TipoMensagem.RECONTATO_INATIVO_G1), isNull(), isNull());
+            inOrder.verify(mensagemUseCase).enviarMensagem(eq("msg-recontato-g1"), eq(cliente.getTelefone()), eq(false));
+            inOrder.verify(conv).setDataUltimaMensagem(now);
+            inOrder.verify(conversaAgenteUseCase).salvar(conv);
+            inOrder.verifyNoMoreInteractions();
+
+            verifyNoInteractions(vendedorUseCase, crmUseCase);
+        }
+    }
+
+    @Test
+    void naoDeveProcessarConversasAtrasadas_G1_prod_foraDoHorarioPermitido() {
+        LocalDateTime now = LocalDateTime.of(2025, 8, 4, 23, 30); // fora da janela 07h-23h
+        try (MockedStatic<LocalDateTime> mockNow = mockStatic(LocalDateTime.class, CALLS_REAL_METHODS)) {
+            mockNow.when(LocalDateTime::now).thenReturn(now);
+
+            ConversaAgente conv = ConversaAgente.builder()
+                    .id(UUID.randomUUID())
+                    .cliente(Cliente.builder()
+                            .id(UUID.randomUUID())
+                            .nome("teste")
+                            .telefone("+55999999999")
+                            .build())
+                    .vendedor(Vendedor.builder().id(1L).build())
+                    .dataCriacao(now.minusDays(1))
+                    .finalizada(false)
+                    .dataUltimaMensagem(now.minusHours(2)) // > 1h30, mas fora da janela
+                    .recontato(false)
+                    .status(StatusConversa.ANDAMENTO)
+                    .build();
+
+            when(conversaAgenteUseCase.listarNaoFinalizados()).thenReturn(List.of(conv));
+
+            ConversaInativaUseCase useCaseProd = buildUseCase("prod");
+            useCaseProd.verificaAusenciaDeMensagem();
+
+            verify(conversaAgenteUseCase).listarNaoFinalizados();
+            verifyNoMoreInteractions(conversaAgenteUseCase);
+            verifyNoInteractions(vendedorUseCase, mensagemUseCase, mensagemBuilder, crmUseCase);
         }
     }
 }

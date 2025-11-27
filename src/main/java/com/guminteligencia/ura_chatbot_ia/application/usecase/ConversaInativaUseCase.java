@@ -61,7 +61,7 @@ public class ConversaInativaUseCase {
                                 if(conversa.getDataUltimaMensagem() != null) {
                                     if (conversa.getStatus().getCodigo().equals(3)) {
                                         return profile.equals("prod")
-                                                ? conversa.getDataUltimaMensagem().plusHours(1).plusMinutes(30).isBefore(agora)
+                                                ? validarHorarioConversaAtrasadaG1(conversa, agora)
                                                 : conversa.getDataUltimaMensagem().plusSeconds(10).isBefore(agora);
                                     } else {
                                         return profile.equals("prod")
@@ -105,5 +105,20 @@ public class ConversaInativaUseCase {
         }
 
 
+    }
+
+    private boolean validarHorarioConversaAtrasadaG1(ConversaAgente conversa, LocalDateTime agora) {
+
+        LocalDateTime limiteManha = agora.toLocalDate().atTime(7, 0);
+        LocalDateTime limiteNoite = agora.toLocalDate().atTime(23, 0);
+
+        boolean dentroDoHorarioPermitido = agora.isAfter(limiteManha) && agora.isBefore(limiteNoite);
+
+        boolean conversaAtrasada = conversa.getDataUltimaMensagem()
+                .plusHours(1)
+                .plusMinutes(30)
+                .isBefore(agora);
+
+        return conversaAtrasada && dentroDoHorarioPermitido;
     }
 }
