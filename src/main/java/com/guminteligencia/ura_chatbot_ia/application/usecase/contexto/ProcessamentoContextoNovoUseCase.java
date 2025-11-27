@@ -27,7 +27,10 @@ public class ProcessamentoContextoNovoUseCase {
     public void processarContextoNovo(Contexto contexto) {
         log.info("Processando novo contexto. Contexto: {}", contexto);
 
-        Cliente clienteSalvo = clienteUseCase.cadastrar(contexto.getTelefone());
+        Cliente clienteSalvo;
+
+        clienteSalvo = clienteUseCase.consultarPorTelefone(contexto.getTelefone()).orElseGet(() -> clienteUseCase.cadastrar(contexto.getTelefone()));
+
         ConversaAgente novaConversa = conversaAgenteUseCase.criar(clienteSalvo);
         String resposta = agenteUseCase.enviarMensagem(clienteSalvo, novaConversa, contexto.getMensagens());
         mensagemUseCase.enviarMensagem(resposta, clienteSalvo.getTelefone(), true);
