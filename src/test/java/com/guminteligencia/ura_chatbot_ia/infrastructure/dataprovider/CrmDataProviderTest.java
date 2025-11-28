@@ -13,7 +13,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
+import reactor.util.retry.RetryBackoffSpec;
 
+import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -28,19 +31,21 @@ class CrmDataProviderTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private WebClient webClient;
 
-    // Mocks "genéricos" para encadear chamadas do WebClient
+    // Mocks "genericos" para encadear chamadas do WebClient
     @Mock private WebClient.RequestHeadersUriSpec<?> headersUriSpec;
     @Mock private WebClient.RequestBodyUriSpec bodyUriSpec;
     @Mock private WebClient.RequestHeadersSpec<?> headersSpec;
     @Mock private WebClient.ResponseSpec responseSpec;
 
-    private CrmDataProvider provider; // não precisamos de spy; só temp files
+    private CrmDataProvider provider; // nao precisamos de spy; so temp files
+    private RetryBackoffSpec retryBackoffSpec;
 
     private final ObjectMapper om = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
-        provider = new CrmDataProvider(webClient);
+        retryBackoffSpec = Retry.fixedDelay(3, Duration.ZERO).filter(ex -> false);
+        provider = new CrmDataProvider(webClient, retryBackoffSpec);
     }
 
     // ------------------------------
