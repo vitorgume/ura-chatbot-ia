@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.util.retry.RetryBackoffSpec;
 
 import java.time.Duration;
 import java.util.Comparator;
@@ -21,9 +22,11 @@ public class CrmDataProvider implements CrmGateway {
     private static final String KOMMO_DRIVE_BASE = "https://drive-c.kommo.com";
 
     private final WebClient webClient;
+    private final RetryBackoffSpec retrySpec;
 
-    public CrmDataProvider(@Qualifier("kommoWebClient") WebClient webClient) {
+    public CrmDataProvider(@Qualifier("kommoWebClient") WebClient webClient, RetryBackoffSpec retrySpec) {
         this.webClient = webClient;
+        this.retrySpec = retrySpec;
     }
 
     public static final String MENSAGEM_ERRO_CONSULTAR_LEAD_PELO_TELEFONE = "Erro ao consultar lead pelo seu telefone.";
@@ -32,8 +35,6 @@ public class CrmDataProvider implements CrmGateway {
 
     public Optional<Integer> consultaLeadPeloTelefone(String telefoneE164) {
         String normalized = normalizeE164(telefoneE164);
-
-        Integer leadId;
 
         try {
             ContactsResponse contacts = webClient.get()
@@ -45,6 +46,7 @@ public class CrmDataProvider implements CrmGateway {
                     .retrieve()
                     .bodyToMono(ContactsResponse.class)
                     .timeout(Duration.ofSeconds(30))
+                    .retryWhen(retrySpec)
                     .block();
 
             if (contacts == null || contacts.getEmbedded() == null || contacts.getEmbedded().getContacts() == null) {
@@ -58,13 +60,12 @@ public class CrmDataProvider implements CrmGateway {
 
             if (contato == null) return Optional.empty();
 
-            leadId = contato.getEmbedded().getLeads().get(0).getId();
+            Integer leadId = contato.getEmbedded().getLeads().get(0).getId();
+            return Optional.ofNullable(leadId);
         } catch (Exception ex) {
             log.error(MENSAGEM_ERRO_CONSULTAR_LEAD_PELO_TELEFONE, ex);
-            throw new DataProviderException(MENSAGEM_ERRO_CONSULTAR_LEAD_PELO_TELEFONE, ex.getCause());
+            throw new DataProviderException(MENSAGEM_ERRO_CONSULTAR_LEAD_PELO_TELEFONE, ex.getCause() == null ? ex : ex.getCause());
         }
-
-        return Optional.ofNullable(leadId);
     }
 
     @Override
