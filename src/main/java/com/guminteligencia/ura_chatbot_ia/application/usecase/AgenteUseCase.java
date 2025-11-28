@@ -7,6 +7,7 @@ import com.guminteligencia.ura_chatbot_ia.application.gateways.AgenteGateway;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.MensagemAgenteDto;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
+import com.guminteligencia.ura_chatbot_ia.domain.MensagemContexto;
 import com.guminteligencia.ura_chatbot_ia.domain.Qualificacao;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,13 +25,15 @@ public class AgenteUseCase {
     private static final ObjectMapper mapper = new ObjectMapper()
             .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
 
-    public String enviarMensagem(Cliente clienteSalvo, ConversaAgente conversa, List<String> mensagens) {
+    public String enviarMensagem(Cliente clienteSalvo, ConversaAgente conversa, List<MensagemContexto> mensagens) {
         log.info("Enviando mensagem para o agente. Cliente: {}, ConversaAgente: {}, Mensagens: {}", clienteSalvo, conversa, mensagens);
 
         MensagemAgenteDto mensagem = MensagemAgenteDto.builder()
                 .clienteId(clienteSalvo.getId().toString())
                 .conversaId(conversa.getId().toString())
                 .mensagem(this.concatenarMensagens(mensagens))
+                .audiosUrl(mensagens.stream().map(MensagemContexto::getAudioUrl).toList())
+                .imagensUrl(mensagens.stream().map(MensagemContexto::getImagemUrl).toList())
                 .build();
 
         String resposta = gateway.enviarMensagem(mensagem);
@@ -52,8 +55,8 @@ public class AgenteUseCase {
         return qualificacao;
     }
 
-    private String concatenarMensagens(List<String> mensagens) {
-        return mensagens.stream().collect(Collectors.joining(", "));
+    private String concatenarMensagens(List<MensagemContexto> mensagens) {
+        return mensagens.stream().map(MensagemContexto::getMensagem).collect(Collectors.joining(", "));
     }
 
     private static Qualificacao parseJson(String json) {

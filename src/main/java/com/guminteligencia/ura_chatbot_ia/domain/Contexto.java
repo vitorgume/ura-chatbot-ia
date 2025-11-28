@@ -15,6 +15,6 @@ import java.util.UUID;
 public class Contexto {
     private UUID id;
     private String telefone;
-    private List<String> mensagens;
+    private List<MensagemContexto> mensagens;
     private Message mensagemFila;
 }
