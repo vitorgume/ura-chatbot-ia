@@ -39,7 +39,9 @@ public class AgenteDataProvider implements AgenteGateway {
         Map<String, Object> requestBody = Map.of(
                 "cliente_id", mensagem.getClienteId(),
                 "conversa_id", mensagem.getConversaId(),
-                "message", mensagem.getMensagem()
+                "message", mensagem.getMensagem(),
+                "audios_url", mensagem.getAudiosUrl(),
+                "imagens_url", mensagem.getImagensUrl()
         );
 
 

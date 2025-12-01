@@ -110,6 +110,30 @@ class CrmDataProviderTest {
         assertEquals(999, out.get());
     }
 
+    @Test
+    void consultaLeadPeloTelefone_deveRetornarEmptyQuandoSemLeadsValidos() {
+        var contatoSemLead = new com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.ContactDto(
+                null, null, null, null, null, null, null, null,
+                null, 15L, null, null, null,
+                new com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.ContactDto.Embedded(
+                        null, null, List.of()
+                )
+        );
+
+        ContactsResponse.Embedded embedded = new ContactsResponse.Embedded();
+        embedded.setContacts(List.of(contatoSemLead));
+        ContactsResponse response = new ContactsResponse(embedded);
+
+        when(webClient.get()
+                .uri(any(Function.class))
+                .retrieve()
+                .bodyToMono(eq(ContactsResponse.class)))
+                .thenReturn(Mono.just(response));
+
+        Optional<Integer> out = provider.consultaLeadPeloTelefone("11999999999");
+        assertTrue(out.isEmpty());
+    }
+
     // ------------------------------
     // atualizarCard
     // ------------------------------

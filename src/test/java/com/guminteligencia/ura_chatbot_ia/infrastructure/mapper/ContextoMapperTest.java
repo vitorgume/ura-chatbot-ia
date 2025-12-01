@@ -1,6 +1,7 @@
 package com.guminteligencia.ura_chatbot_ia.infrastructure.mapper;
 
 import com.guminteligencia.ura_chatbot_ia.domain.Contexto;
+import com.guminteligencia.ura_chatbot_ia.domain.MensagemContexto;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity.ContextoEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,17 +20,48 @@ class ContextoMapperTest {
 
     @BeforeEach
     void setUp() {
+        List<MensagemContexto> mensagensDomain = List.of(
+                MensagemContexto.builder()
+                        .mensagem("Mensagem 1")
+                        .imagemUrl("img-1")
+                        .audioUrl("aud-1")
+                        .build(),
+                MensagemContexto.builder()
+                        .mensagem("Mensagem 2")
+                        .imagemUrl("img-2")
+                        .audioUrl("aud-2")
+                        .build()
+        );
+
         contextoDomain = Contexto.builder()
                 .id(UUID.randomUUID())
                 .telefone("000000000000")
-                .mensagens(List.of("Mensagem 1", "Mensagem 2"))
+                .mensagens(mensagensDomain)
                 .mensagemFila(Message.builder().build())
                 .build();
+
+        List<MensagemContexto> mensagensEntity = List.of(
+                MensagemContexto.builder()
+                        .mensagem("Mensagem 1")
+                        .imagemUrl("img-1")
+                        .audioUrl("aud-1")
+                        .build(),
+                MensagemContexto.builder()
+                        .mensagem("Mensagem 2")
+                        .imagemUrl("img-2")
+                        .audioUrl("aud-2")
+                        .build(),
+                MensagemContexto.builder()
+                        .mensagem("Mensagem 3")
+                        .imagemUrl("img-3")
+                        .audioUrl("aud-3")
+                        .build()
+        );
 
         contextoEntity = ContextoEntity.builder()
                 .id(UUID.randomUUID())
                 .telefone("000000000001")
-                .mensagens(List.of("Mensagem 1", "Mensagem 2", "Mensagem 3"))
+                .mensagens(mensagensEntity)
                 .build();
     }
 
@@ -56,7 +88,18 @@ class ContextoMapperTest {
     void paraDomainDeMessage_deveMapearCamposEManterMensagemFila() throws Exception {
         UUID expectedId = UUID.randomUUID();
         String expectedTel = "+5511999999999";
-        List<String> expectedMsgs = List.of("oi", "tchau");
+        List<MensagemContexto> expectedMsgs = List.of(
+                MensagemContexto.builder()
+                        .mensagem("oi")
+                        .imagemUrl("imgOi")
+                        .audioUrl("audOi")
+                        .build(),
+                MensagemContexto.builder()
+                        .mensagem("tchau")
+                        .imagemUrl("imgTchau")
+                        .audioUrl("audTchau")
+                        .build()
+        );
         String expectedStatus = "ANDAMENTO";
 
         String json = String.format(

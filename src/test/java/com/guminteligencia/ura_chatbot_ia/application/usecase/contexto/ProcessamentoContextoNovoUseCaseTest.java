@@ -7,6 +7,7 @@ import com.guminteligencia.ura_chatbot_ia.application.usecase.mensagem.MensagemU
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.Contexto;
 import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
+import com.guminteligencia.ura_chatbot_ia.domain.MensagemContexto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -50,7 +51,9 @@ class ProcessamentoContextoNovoUseCaseTest {
     private ConversaAgente novaConversa;
 
     private final String telefone = "+5511999000111";
-    private final List<String> mensagens = List.of("oi");
+    private final List<MensagemContexto> mensagens = List.of(
+            MensagemContexto.builder().mensagem("oi").build()
+    );
 
     @Test
     void deveProcessarFluxoCompletoContextoNovo() {
