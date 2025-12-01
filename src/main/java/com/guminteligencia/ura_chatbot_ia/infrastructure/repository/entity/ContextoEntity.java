@@ -1,5 +1,6 @@
 package com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity;
 
+import com.guminteligencia.ura_chatbot_ia.domain.MensagemContexto;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
@@ -15,7 +16,7 @@ import java.util.UUID;
 public class ContextoEntity {
     private UUID id;
     private String telefone;
-    private List<String> mensagens;
+    private List<MensagemContexto> mensagens;
 
     @DynamoDbPartitionKey
     public UUID getId() {
@@ -26,7 +27,7 @@ public class ContextoEntity {
         return telefone;
     }
 
-    public List<String> getMensagens() {
+    public List<MensagemContexto> getMensagens() {
         return mensagens;
     }
 

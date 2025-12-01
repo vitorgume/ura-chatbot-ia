@@ -5,19 +5,34 @@ import com.guminteligencia.ura_chatbot_ia.domain.Vendedor;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @Order(2)
 public class EscolhaPrioritariaRegiao implements EscolhaVendedorType {
     @Override
     public Optional<Vendedor> escolher(Cliente cliente, List<Vendedor> candidatos) {
-        return candidatos.stream()
-                .filter(v -> v.getRegioes().contains(cliente.getRegiao()))
-                .filter(v -> Boolean.TRUE.equals(v.getPrioridade().getPrioritario()))
-                .min(Comparator.comparing(v -> v.getPrioridade().getValor()));
+        if (cliente == null || cliente.getRegiao() == null) return Optional.empty();
+
+        List<Vendedor> elegiveis = candidatos.stream()
+                .filter(Objects::nonNull)
+                .filter(v -> !Boolean.TRUE.equals(v.getInativo()))
+                .filter(v -> VendedorPrioritarioUtil.safe(v.getRegioes())
+                        .contains(cliente.getRegiao()))
+                .filter(VendedorPrioritarioUtil::isPrioritario)
+                .collect(Collectors.toList());
+
+        if (elegiveis.isEmpty()) return Optional.empty();
+
+        Collections.shuffle(elegiveis);
+
+        return elegiveis.stream()
+                .min(Comparator.comparingInt(VendedorPrioritarioUtil::prioridadeValor));
     }
 
 }
