@@ -47,10 +47,16 @@ public class ProcessamentoMensagemUseCase {
 
             List<Contexto> contextosRecebidos = recebidas.stream()
                     .map(avisoContexto -> {
-                        var contexto = contextoUseCase.consultarPeloId(avisoContexto.getIdContexto());
-                        contextoUseCase.deletar(contexto.getId());
-                        contexto.setMensagemFila(avisoContexto.getMensagemFila());
-                        return contexto;
+                        try {
+                            var contexto = contextoUseCase.consultarPeloId(avisoContexto.getIdContexto());
+                            contextoUseCase.deletar(contexto.getId());
+                            contexto.setMensagemFila(avisoContexto.getMensagemFila());
+                            return contexto;
+                        } catch (Exception e) {
+                            log.warn("Contexto {} não encontrado para a mensagem da fila. Deletando mensagem.", avisoContexto.getIdContexto());
+                            mensageriaUseCase.deletarMensagem(avisoContexto.getMensagemFila());
+                            return null;
+                        }
                     })
                     .filter(Objects::nonNull)
                     .toList();

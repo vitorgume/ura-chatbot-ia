@@ -91,7 +91,7 @@ class ProcessamentoContextoExistenteTest {
     }
 
     @Test
-    void deveLancarExceptionAoProcessarContextoExistente() {
+    void deveSalvarConversaMesmoQuandoProcessoDispararErro() {
         when(conversaAgenteUseCase.consultarPorCliente(cliente.getId()))
                 .thenReturn(conversaAgente);
         when(agenteUseCase.enviarMensagem(any(), any(), anyList()))
@@ -100,10 +100,29 @@ class ProcessamentoContextoExistenteTest {
                 .thenReturn(processoMock);
         doThrow(new IllegalStateException("erro-processo"))
                 .when(processoMock).processar("ok", conversaAgente, cliente);
-        IllegalStateException ex = assertThrows(IllegalStateException.class,
-                () -> processamentoContextoExistente.processarContextoExistente(cliente, contexto));
-        assertEquals("erro-processo", ex.getMessage());
 
-        verify(conversaAgenteUseCase, never()).salvar(any());
+        assertDoesNotThrow(() -> processamentoContextoExistente.processarContextoExistente(cliente, contexto));
+
+        verify(processarContextoExistenteFactory).create("ok", conversaAgente);
+        verify(processoMock).processar("ok", conversaAgente, cliente);
+        verify(conversaAgente, times(2)).setDataUltimaMensagem(any(LocalDateTime.class));
+        verify(conversaAgenteUseCase, times(2)).salvar(conversaAgente);
+    }
+
+    @Test
+    void deveSalvarConversaQuandoFactoryDispararErro() {
+        when(conversaAgenteUseCase.consultarPorCliente(cliente.getId()))
+                .thenReturn(conversaAgente);
+        when(agenteUseCase.enviarMensagem(any(), any(), anyList()))
+                .thenReturn("ok");
+        when(processarContextoExistenteFactory.create("ok", conversaAgente))
+                .thenThrow(new RuntimeException("erro-factory"));
+
+        assertDoesNotThrow(() -> processamentoContextoExistente.processarContextoExistente(cliente, contexto));
+
+        verify(processarContextoExistenteFactory).create("ok", conversaAgente);
+        verify(processoMock, never()).processar(any(), any(), any());
+        verify(conversaAgente, times(2)).setDataUltimaMensagem(any(LocalDateTime.class));
+        verify(conversaAgenteUseCase, times(2)).salvar(conversaAgente);
     }
 }

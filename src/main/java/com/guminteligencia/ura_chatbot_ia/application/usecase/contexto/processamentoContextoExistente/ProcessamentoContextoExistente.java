@@ -31,10 +31,16 @@ public class ProcessamentoContextoExistente {
              resposta = agenteUseCase.enviarMensagem(cliente, conversaAgente, contexto.getMensagens());
         }
 
-        ProcessamentoContextoExistenteType processo =
-                processarContextoExistenteFactory.create(resposta, conversaAgente);
+        ProcessamentoContextoExistenteType processo;
 
-        processo.processar(resposta, conversaAgente, cliente);
+        try {
+            processo = processarContextoExistenteFactory.create(resposta, conversaAgente);
+            processo.processar(resposta, conversaAgente, cliente);
+        } catch (Exception ex) {
+            log.error("Erro ao processar contexto existente, Resposta: {}, Erro: {}", resposta, ex.getMessage());
+            conversaAgente.setDataUltimaMensagem(LocalDateTime.now());
+            conversaAgenteUseCase.salvar(conversaAgente);
+        }
 
         conversaAgente.setDataUltimaMensagem(LocalDateTime.now());
         conversaAgenteUseCase.salvar(conversaAgente);
