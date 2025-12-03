@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Semaphore;
 
@@ -45,15 +46,31 @@ public class ProcessamentoMensagemUseCase {
         try {
             log.info("Consumindo mensagens da fila.");
 
-            var recebidas = mensageriaUseCase.listarContextos();
+            var recebidas = mensageriaUseCase.listarAvisos();
+
+            List<Contexto> contextosRecebidos = recebidas.stream()
+                    .map(avisoContexto -> {
+                        try {
+                            var contexto = contextoUseCase.consultarPeloId(avisoContexto.getIdContexto());
+                            contextoUseCase.deletar(contexto.getId());
+                            contexto.setMensagemFila(avisoContexto.getMensagemFila());
+                            return contexto;
+                        } catch (Exception e) {
+                            log.warn("Contexto {} não encontrado para a mensagem da fila. Deletando mensagem.", avisoContexto.getIdContexto());
+                            mensageriaUseCase.deletarMensagem(avisoContexto.getMensagemFila());
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
 
             log.info("Recebidas da SQS: {}", recebidas.size());
 
-            var processaveis = recebidas.stream()
+            var processaveis = contextosRecebidos.stream()
                     .filter(contextoValidadorComposite::permitirProcessar)
                     .toList();
 
-            var ignoradas = recebidas.stream()
+            var ignoradas = contextosRecebidos.stream()
                     .filter(c -> !contextoValidadorComposite.permitirProcessar(c))
                     .toList();
 
@@ -64,19 +81,17 @@ public class ProcessamentoMensagemUseCase {
                     log.info("Processando: id={}, tel={}", contexto.getId(), contexto.getTelefone());
                     processarMensagem(contexto);
                     mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
-                    contextoUseCase.deletar(contexto.getId());
+
                 } catch (Exception e) {
                     log.error("Falha ao processar id={}, tel={}.",
                             contexto.getId(), contexto.getTelefone(), e);
                     mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
-                    contextoUseCase.deletar(contexto.getId());
                 }
             });
 
             ignoradas.forEach(contexto -> {
                 log.info("Ignorando: {}", contexto);
                 mensageriaUseCase.deletarMensagem(contexto.getMensagemFila());
-                contextoUseCase.deletar(contexto.getId());
             });
 
         } finally {

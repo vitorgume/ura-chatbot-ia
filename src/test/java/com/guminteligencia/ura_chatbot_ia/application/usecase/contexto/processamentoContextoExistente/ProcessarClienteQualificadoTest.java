@@ -131,10 +131,9 @@ class ProcessarClienteQualificadoTest {
 
         inOrder.verify(mensagemUseCase).enviarMensagem("msg-dir", telSalvo, false);
 
-        inOrder.verify(crmUseCase).atualizarCrm(Mockito.any(), Mockito.any(), Mockito.any());
-
         inOrder.verify(conversaAgente).setVendedor(vendedor);
         inOrder.verify(conversaAgente).setFinalizada(true);
+        inOrder.verify(crmUseCase).atualizarCrm(Mockito.any(), Mockito.any(), Mockito.any());
 
         inOrder.verifyNoMoreInteractions();
     }

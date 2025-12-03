@@ -47,8 +47,24 @@ class AgenteUseCaseTest {
 
     @Test
     void deveEnviarMensagemConcatenarListaEChamarGateway() {
-        List<String> msgs = List.of("oi", "tudo bem?", "até logo");
-        String esperadoConcat = "oi, tudo bem?, até logo";
+        List<MensagemContexto> msgs = List.of(
+                MensagemContexto.builder()
+                        .mensagem("oi")
+                        .audioUrl("audio1")
+                        .imagemUrl("img1")
+                        .build(),
+                MensagemContexto.builder()
+                        .mensagem("tudo bem?")
+                        .audioUrl("audio2")
+                        .imagemUrl("img2")
+                        .build(),
+                MensagemContexto.builder()
+                        .mensagem("ate logo")
+                        .audioUrl("audio3")
+                        .imagemUrl("img3")
+                        .build()
+        );
+        String esperadoConcat = "oi, tudo bem?, ate logo";
         MensagemAgenteDto capturado;
         when(gateway.enviarMensagem(any())).thenReturn("resp-ok");
         when(conversa.getId()).thenReturn(conversaId);
@@ -64,6 +80,8 @@ class AgenteUseCaseTest {
         assertEquals(clienteId.toString(), capturado.getClienteId());
         assertEquals(conversaId.toString(), capturado.getConversaId());
         assertEquals(esperadoConcat, capturado.getMensagem());
+        assertEquals(List.of("audio1", "audio2", "audio3"), capturado.getAudiosUrl());
+        assertEquals(List.of("img1", "img2", "img3"), capturado.getImagensUrl());
     }
 
     @Test
@@ -71,7 +89,7 @@ class AgenteUseCaseTest {
         when(gateway.enviarMensagem(any())).thenReturn("vazio");
         when(conversa.getId()).thenReturn(conversaId);
 
-        String resp = useCase.enviarMensagem(cliente, conversa, List.of());
+        String resp = useCase.enviarMensagem(cliente, conversa, List.<MensagemContexto>of());
 
         assertEquals("vazio", resp);
         ArgumentCaptor<MensagemAgenteDto> cap = ArgumentCaptor.forClass(MensagemAgenteDto.class);

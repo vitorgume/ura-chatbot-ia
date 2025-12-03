@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,12 +58,20 @@ class AgenteDataProviderTest {
 
     @Test
     void deveEnviarMensagemComSucesso() {
-        MensagemAgenteDto dto = new MensagemAgenteDto("cli1", "conv1", "hello");
+        MensagemAgenteDto dto = MensagemAgenteDto.builder()
+                .clienteId("cli1")
+                .conversaId("conv1")
+                .mensagem("hello")
+                .audiosUrl(List.of("a1"))
+                .imagensUrl(List.of("i1"))
+                .build();
         String uri = agenteUriApi + "/chat";
         Map<String, Object> expectedBody = Map.of(
                 "cliente_id", dto.getClienteId(),
                 "conversa_id", dto.getConversaId(),
-                "message", dto.getMensagem()
+                "message", dto.getMensagem(),
+                "audios_url", dto.getAudiosUrl(),
+                "imagens_url", dto.getImagensUrl()
         );
 
         stubFluentPost(uri, expectedBody);
@@ -82,12 +91,20 @@ class AgenteDataProviderTest {
 
     @Test
     void deveLancarExceptionAoEnviarMensagem() {
-        MensagemAgenteDto dto = new MensagemAgenteDto("cli1", "conv1", "hello");
+        MensagemAgenteDto dto = MensagemAgenteDto.builder()
+                .clienteId("cli1")
+                .conversaId("conv1")
+                .mensagem("hello")
+                .audiosUrl(List.of("a1"))
+                .imagensUrl(List.of("i1"))
+                .build();
         String uri = agenteUriApi + "/chat";
         Map<String, Object> expectedBody = Map.of(
                 "cliente_id", dto.getClienteId(),
                 "conversa_id", dto.getConversaId(),
-                "message", dto.getMensagem()
+                "message", dto.getMensagem(),
+                "audios_url", dto.getAudiosUrl(),
+                "imagens_url", dto.getImagensUrl()
         );
 
         stubFluentPost(uri, expectedBody);

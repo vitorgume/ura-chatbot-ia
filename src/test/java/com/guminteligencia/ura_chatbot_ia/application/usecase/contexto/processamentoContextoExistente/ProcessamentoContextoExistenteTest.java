@@ -5,6 +5,7 @@ import com.guminteligencia.ura_chatbot_ia.application.usecase.ConversaAgenteUseC
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.Contexto;
 import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
+import com.guminteligencia.ura_chatbot_ia.domain.MensagemContexto;
 import com.guminteligencia.ura_chatbot_ia.domain.StatusConversa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +49,10 @@ class ProcessamentoContextoExistenteTest {
         when(cliente.getId()).thenReturn(UUID.randomUUID());
 
         contexto = mock(Contexto.class);
-        when(contexto.getMensagens()).thenReturn(List.of("msg1","msg2"));
+        when(contexto.getMensagens()).thenReturn(List.of(
+                MensagemContexto.builder().mensagem("msg1").build(),
+                MensagemContexto.builder().mensagem("msg2").build()
+        ));
 
         conversaAgente = mock(ConversaAgente.class);
         when(conversaAgente.getStatus()).thenReturn(StatusConversa.ANDAMENTO);
@@ -87,7 +91,7 @@ class ProcessamentoContextoExistenteTest {
     }
 
     @Test
-    void deveLancarExceptionAoProcessarContextoExistente() {
+    void deveSalvarConversaMesmoQuandoProcessoDispararErro() {
         when(conversaAgenteUseCase.consultarPorCliente(cliente.getId()))
                 .thenReturn(conversaAgente);
         when(agenteUseCase.enviarMensagem(any(), any(), anyList()))
@@ -96,10 +100,29 @@ class ProcessamentoContextoExistenteTest {
                 .thenReturn(processoMock);
         doThrow(new IllegalStateException("erro-processo"))
                 .when(processoMock).processar("ok", conversaAgente, cliente);
-        IllegalStateException ex = assertThrows(IllegalStateException.class,
-                () -> processamentoContextoExistente.processarContextoExistente(cliente, contexto));
-        assertEquals("erro-processo", ex.getMessage());
 
-        verify(conversaAgenteUseCase, never()).salvar(any());
+        assertDoesNotThrow(() -> processamentoContextoExistente.processarContextoExistente(cliente, contexto));
+
+        verify(processarContextoExistenteFactory).create("ok", conversaAgente);
+        verify(processoMock).processar("ok", conversaAgente, cliente);
+        verify(conversaAgente, times(2)).setDataUltimaMensagem(any(LocalDateTime.class));
+        verify(conversaAgenteUseCase, times(2)).salvar(conversaAgente);
+    }
+
+    @Test
+    void deveSalvarConversaQuandoFactoryDispararErro() {
+        when(conversaAgenteUseCase.consultarPorCliente(cliente.getId()))
+                .thenReturn(conversaAgente);
+        when(agenteUseCase.enviarMensagem(any(), any(), anyList()))
+                .thenReturn("ok");
+        when(processarContextoExistenteFactory.create("ok", conversaAgente))
+                .thenThrow(new RuntimeException("erro-factory"));
+
+        assertDoesNotThrow(() -> processamentoContextoExistente.processarContextoExistente(cliente, contexto));
+
+        verify(processarContextoExistenteFactory).create("ok", conversaAgente);
+        verify(processoMock, never()).processar(any(), any(), any());
+        verify(conversaAgente, times(2)).setDataUltimaMensagem(any(LocalDateTime.class));
+        verify(conversaAgenteUseCase, times(2)).salvar(conversaAgente);
     }
 }

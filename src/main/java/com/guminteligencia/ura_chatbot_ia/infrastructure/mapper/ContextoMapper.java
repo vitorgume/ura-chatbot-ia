@@ -4,17 +4,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.guminteligencia.ura_chatbot_ia.domain.Contexto;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.repository.entity.ContextoEntity;
 import software.amazon.awssdk.services.sqs.model.Message;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 
 public class ContextoMapper {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     public static Contexto paraDomain(ContextoEntity entity) {
         return Contexto.builder()
                 .id(entity.getId())
                 .mensagens(entity.getMensagens())
                 .telefone(entity.getTelefone())
-                .status(entity.getStatus())
                 .build();
     }
 
@@ -23,7 +24,6 @@ public class ContextoMapper {
                 .id(domain.getId())
                 .mensagens(domain.getMensagens())
                 .telefone(domain.getTelefone())
-                .status(domain.getStatus())
                 .build();
     }
 

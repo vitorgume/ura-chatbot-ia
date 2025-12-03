@@ -56,5 +56,22 @@ class ChatControllerTest {
         Mockito.verify(chatUseCase).acessar(Mockito.any());
     }
 
+    @Test
+    void deveCriarChat() throws Exception {
+        UUID conversaId = UUID.randomUUID();
+        Mockito.when(chatUseCase.criar(conversaId)).thenReturn("ok");
+
+        mockMvc.perform(
+                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                .post("/chats")
+                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                                .content("{\"id\":\"" + conversaId + "\"}")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.dado").value("ok"));
+
+        Mockito.verify(chatUseCase).criar(conversaId);
+    }
+
 
 }
