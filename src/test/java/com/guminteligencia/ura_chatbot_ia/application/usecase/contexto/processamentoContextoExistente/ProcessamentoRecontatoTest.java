@@ -101,16 +101,6 @@ class ProcessamentoRecontatoTest {
     }
 
     @Test
-    void deveEnviarApenasRespostaQuandoForRecontato() {
-        when(conversaAgente.getRecontato()).thenReturn(true);
-        when(conversaAgente.getCliente()).thenReturn(cliente);
-
-        processamentoRecontato.processar(resposta, conversaAgente, cliente);
-        verify(mensagemUseCase).enviarMensagem(resposta, telCliente, true);
-        verifyNoInteractions(mensagemBuilder, outroContatoUseCase, conversaAgenteUseCase);
-    }
-
-    @Test
     void deveProcessarQuandoOutroContatoFalha() {
         when(conversaAgente.getRecontato()).thenReturn(false);
         when(conversaAgente.getVendedor()).thenReturn(vendedor);

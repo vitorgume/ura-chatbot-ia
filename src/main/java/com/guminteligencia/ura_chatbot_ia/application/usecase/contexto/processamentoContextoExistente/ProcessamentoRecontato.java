@@ -36,9 +36,8 @@ public class ProcessamentoRecontato implements ProcessamentoContextoExistenteTyp
 
             conversaAgente.setRecontato(true);
             conversaAgenteUseCase.salvar(conversaAgente);
-        } else {
-            mensagemUseCase.enviarMensagem(resposta, conversaAgente.getCliente().getTelefone(), true);
         }
+
         log.info("Processamente de recontato concluido com sucesso.");
     }
 

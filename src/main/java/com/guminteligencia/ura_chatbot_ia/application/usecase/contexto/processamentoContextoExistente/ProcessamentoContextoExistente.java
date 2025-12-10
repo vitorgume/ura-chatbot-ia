@@ -27,7 +27,7 @@ public class ProcessamentoContextoExistente {
 
         String resposta = null;
 
-        if(conversaAgente.getStatus().getCodigo().equals(2) || conversaAgente.getStatus().getCodigo().equals(3)) {
+        if(conversaAgente.getStatus().getCodigo().equals(3)) {
              resposta = agenteUseCase.enviarMensagem(cliente, conversaAgente, contexto.getMensagens());
         }
 
