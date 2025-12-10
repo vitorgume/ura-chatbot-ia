@@ -59,7 +59,7 @@ public class ProcessarClienteQualificado implements ProcessamentoContextoExisten
 
     @Override
     public boolean deveProcessar(String resposta, ConversaAgente conversaAgente) {
-        return isQualificado(resposta);
+        return isQualificado(resposta) && !conversaAgente.getFinalizada();
     }
 
     private boolean isQualificado(String resposta) {
