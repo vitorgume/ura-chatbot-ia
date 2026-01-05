@@ -1,4 +1,4 @@
-# Cotalizer – API Chatbot
+# API Chatbot
 
 ---
 
