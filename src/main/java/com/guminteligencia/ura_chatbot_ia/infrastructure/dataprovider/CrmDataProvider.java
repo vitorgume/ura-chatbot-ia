@@ -2,6 +2,7 @@ package com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider;
 
 import com.guminteligencia.ura_chatbot_ia.application.gateways.CrmGateway;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.CardDto;
+import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.ContatoBodyDto;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.ContactDto;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.ContactsResponse;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.exceptions.DataProviderException;
@@ -31,9 +32,10 @@ public class CrmDataProvider implements CrmGateway {
 
     public static final String MENSAGEM_ERRO_CONSULTAR_LEAD_PELO_TELEFONE = "Erro ao consultar lead pelo seu telefone.";
     public static final String MENSAGEM_ERRO_ATUALIZAR_CARD = "Erro ao atualizar card.";
+    public static final String MENSAGEM_ERRO_ATUALIZAR_CONTATO = "Erro ao atualizar contato.     ";
 
 
-    public Optional<Integer> consultaLeadPeloTelefone(String telefoneE164) {
+    public Optional<ContactDto> consultaLeadPeloTelefone(String telefoneE164) {
         String normalized = normalizeE164(telefoneE164);
 
         try {
@@ -53,20 +55,21 @@ public class CrmDataProvider implements CrmGateway {
                 return Optional.empty();
             }
 
-            var contato = contacts.getEmbedded().getContacts().stream()
+            ContactDto contato = contacts.getEmbedded().getContacts().stream()
                     .filter(c -> c.getEmbedded() != null && c.getEmbedded().getLeads() != null && !c.getEmbedded().getLeads().isEmpty())
                     .max(Comparator.comparing(ContactDto::getUpdatedAt, Comparator.nullsFirst(Long::compareTo)))
                     .orElse(null);
 
             if (contato == null) return Optional.empty();
 
-            Integer leadId = contato.getEmbedded().getLeads().get(0).getId();
-            return Optional.ofNullable(leadId);
+
+            return Optional.of(contato);
         } catch (Exception ex) {
             log.error(MENSAGEM_ERRO_CONSULTAR_LEAD_PELO_TELEFONE, ex);
             throw new DataProviderException(MENSAGEM_ERRO_CONSULTAR_LEAD_PELO_TELEFONE, ex.getCause() == null ? ex : ex.getCause());
         }
     }
+
 
     @Override
     public void atualizarCard(CardDto body, Integer idLead) {
@@ -81,6 +84,22 @@ public class CrmDataProvider implements CrmGateway {
         } catch (Exception ex) {
             log.error(MENSAGEM_ERRO_ATUALIZAR_CARD, ex);
             throw new DataProviderException(MENSAGEM_ERRO_ATUALIZAR_CARD, ex.getCause());
+        }
+    }
+    
+    @Override
+    public void atualizarContato(Integer idContato, ContatoBodyDto body) {
+        try {
+            webClient.patch()
+                    .uri(uri -> uri.path("/contacts/{id}").build(idContato))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(body)
+                    .retrieve()
+                    .toBodilessEntity()
+                    .block();
+        } catch (Exception ex) {
+            log.error(MENSAGEM_ERRO_ATUALIZAR_CONTATO, ex);
+            throw new DataProviderException(MENSAGEM_ERRO_ATUALIZAR_CONTATO, ex.getCause());
         }
     }
 

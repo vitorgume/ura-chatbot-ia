@@ -52,8 +52,6 @@ public class ProcessarClienteQualificado implements ProcessamentoContextoExisten
         conversaAgente.setVendedor(vendedor);
         conversaAgente.setFinalizada(true);
 
-        crmUseCase.atualizarCrm(vendedor, clienteSalvo, conversaAgente);
-
         log.info("Processamento de cliente qualificado concluido com sucesso.");
     }
 
