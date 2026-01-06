@@ -82,7 +82,7 @@ public class CrmUseCase {
 
             ContatoBodyDto contatoBodyDto = new ContatoBodyDto(vendedor.getIdVendedorCrm());
 
-            this.atualizarContato(contato.getId(), contatoBodyDto);
+            gateway.atualizarContato(contato.getId(), contatoBodyDto);
 
             log.info("Body para atualizar card criado com sucesso. Body: {}", cardDto);
 
@@ -114,10 +114,6 @@ public class CrmUseCase {
 
         log.info("Contato consultado com sucesso. Contato: {}", contato.get().getId());
         return contato.get();
-    }
-
-    public void atualizarContato(Integer idContato, ContatoBodyDto body) {
-
     }
 
     private CustomFieldDto textField(int fieldId, Object value) {

@@ -63,6 +63,7 @@ class ProcessarClienteQualificadoTest {
 
     @Test
     void deveRetornarTrueSeRespostaContemQualificadoTrue() {
+        when(conversaAgente.getFinalizada()).thenReturn(false);
         assertTrue(processarClienteQualificado.deveProcessar(" QUALIFICADO:True  ", conversaAgente));
         assertTrue(processarClienteQualificado.deveProcessar("abcQualificado:truexyz", conversaAgente));
     }
@@ -81,6 +82,7 @@ class ProcessarClienteQualificadoTest {
         qual.setRegiao(Regiao.MARINGA.getCodigo());
         qual.setSegmento(Segmento.MEDICINA_SAUDE.getCodigo());
         qual.setDescricaoMaterial("Descrito");
+        qual.setEnderecoReal("Rua X, 100");
         when(agenteUseCase.enviarJsonTrasformacao(resposta)).thenReturn(qual);
         when(conversaAgente.getCliente()).thenReturn(originalCliente);
         when(originalCliente.getId()).thenReturn(originalId);
@@ -97,6 +99,11 @@ class ProcessarClienteQualificadoTest {
                 "Carlos",
                 null
         )).thenReturn("msg-dir");
+        when(mensagemBuilder.getMensagem(
+                TipoMensagem.MENSAGEM_INFORMACOES_CLIENTE,
+                null,
+                null
+        )).thenReturn("msg-info");
 
         when(clienteSalvo.getTelefone()).thenReturn(telSalvo);
 
@@ -121,19 +128,30 @@ class ProcessarClienteQualificadoTest {
         assertEquals(1, built.getRegiao().getCodigo());
         assertEquals(1, built.getSegmento().getCodigo());
         assertEquals("Descrito", built.getDescricaoMaterial());
+        assertEquals("Rua X, 100", built.getEnderecoReal());
 
         inOrder.verify(clienteUseCase).alterar(any(), eq(originalId));
 
         inOrder.verify(vendedorUseCase).escolherVendedor(clienteSalvo);
+
+        inOrder.verify(conversaAgente).setStatus(StatusConversa.ATIVO);
 
         inOrder.verify(mensagemBuilder)
                 .getMensagem(TipoMensagem.MENSAGEM_DIRECIONAMENTO_VENDEDOR, "Carlos", null);
 
         inOrder.verify(mensagemUseCase).enviarMensagem("msg-dir", telSalvo, false);
 
+        inOrder.verify(mensagemBuilder)
+                .getMensagem(TipoMensagem.MENSAGEM_INFORMACOES_CLIENTE, null, null);
+
+        inOrder.verify(mensagemUseCase).enviarMensagem("msg-info", telSalvo, false);
+
+        inOrder.verify(mensagemUseCase).enviarContatoVendedor(vendedor, clienteSalvo);
+
+        inOrder.verify(crmUseCase).atualizarCrm(Mockito.any(), Mockito.any(), Mockito.any());
+
         inOrder.verify(conversaAgente).setVendedor(vendedor);
         inOrder.verify(conversaAgente).setFinalizada(true);
-        inOrder.verify(crmUseCase).atualizarCrm(Mockito.any(), Mockito.any(), Mockito.any());
 
         inOrder.verifyNoMoreInteractions();
     }
