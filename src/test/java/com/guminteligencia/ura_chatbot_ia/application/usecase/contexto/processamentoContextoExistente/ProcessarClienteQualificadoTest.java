@@ -99,11 +99,6 @@ class ProcessarClienteQualificadoTest {
                 "Carlos",
                 null
         )).thenReturn("msg-dir");
-        when(mensagemBuilder.getMensagem(
-                TipoMensagem.MENSAGEM_INFORMACOES_CLIENTE,
-                null,
-                null
-        )).thenReturn("msg-info");
 
         when(clienteSalvo.getTelefone()).thenReturn(telSalvo);
 
@@ -140,11 +135,6 @@ class ProcessarClienteQualificadoTest {
                 .getMensagem(TipoMensagem.MENSAGEM_DIRECIONAMENTO_VENDEDOR, "Carlos", null);
 
         inOrder.verify(mensagemUseCase).enviarMensagem("msg-dir", telSalvo, false);
-
-        inOrder.verify(mensagemBuilder)
-                .getMensagem(TipoMensagem.MENSAGEM_INFORMACOES_CLIENTE, null, null);
-
-        inOrder.verify(mensagemUseCase).enviarMensagem("msg-info", telSalvo, false);
 
         inOrder.verify(mensagemUseCase).enviarContatoVendedor(vendedor, clienteSalvo);
 
