@@ -2,6 +2,7 @@ package com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.CardDto;
+import com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.ContactDto;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.ContactsResponse;
 import com.guminteligencia.ura_chatbot_ia.infrastructure.exceptions.DataProviderException;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,7 +62,7 @@ class CrmDataProviderTest {
                 .bodyToMono(eq(ContactsResponse.class)))
                 .thenReturn(Mono.empty()); // <= sem usar Mono.just(null)
 
-        Optional<Integer> out = provider.consultaLeadPeloTelefone("+5511999999999");
+        Optional<ContactDto> out = provider.consultaLeadPeloTelefone("+5511999999999");
         assertTrue(out.isEmpty());
     }
 
@@ -109,10 +110,10 @@ class CrmDataProviderTest {
                 .bodyToMono(eq(ContactsResponse.class)))
                 .thenReturn(Mono.just(response));
 
-        Optional<Integer> out = provider.consultaLeadPeloTelefone(" 55 11 9999-9999 ");
+        Optional<ContactDto> out = provider.consultaLeadPeloTelefone(" 55 11 9999-9999 ");
 
         assertTrue(out.isPresent());
-        assertEquals(999, out.get());
+        assertEquals(999, out.get().getEmbedded().getLeads().get(0).getId());
     }
 
     @Test
@@ -135,7 +136,7 @@ class CrmDataProviderTest {
                 .bodyToMono(eq(ContactsResponse.class)))
                 .thenReturn(Mono.just(response));
 
-        Optional<Integer> out = provider.consultaLeadPeloTelefone("11999999999");
+        Optional<ContactDto> out = provider.consultaLeadPeloTelefone("11999999999");
         assertTrue(out.isEmpty());
     }
 

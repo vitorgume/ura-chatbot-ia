@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.guminteligencia.ura_chatbot_ia.application.exceptions.LeadNaoEncontradoException;
 import com.guminteligencia.ura_chatbot_ia.application.gateways.CrmGateway;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.CardDto;
+import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.ContatoBodyDto;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.CustomFieldDto;
 import com.guminteligencia.ura_chatbot_ia.application.usecase.dto.CustomFieldValueDto;
 import com.guminteligencia.ura_chatbot_ia.domain.Cliente;
 import com.guminteligencia.ura_chatbot_ia.domain.ConversaAgente;
 import com.guminteligencia.ura_chatbot_ia.domain.Vendedor;
+import com.guminteligencia.ura_chatbot_ia.infrastructure.dataprovider.dto.ContactDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -43,7 +45,9 @@ public class CrmUseCase {
             log.info("Atualizando crm. Vendedor: {}, Cliente: {}, Conversa: {}", vendedor, cliente, conversaAgente);
 
 //            String urlChat = chatUseCase.criar(conversaAgente.getId());
-            Integer idLead = this.consultaLeadPeloTelefone(cliente.getTelefone());
+            ContactDto contato = this.consultaLeadPeloTelefone(cliente.getTelefone());
+
+            Integer idLead = contato.getEmbedded().getLeads().get(0).getId();
 
             log.info("Construindo body para atualizar card.");
 
@@ -76,6 +80,10 @@ public class CrmUseCase {
                     .embedded(embedded)
                     .build();
 
+            ContatoBodyDto contatoBodyDto = new ContatoBodyDto(vendedor.getIdVendedorCrm());
+
+            gateway.atualizarContato(contato.getId(), contatoBodyDto);
+
             log.info("Body para atualizar card criado com sucesso. Body: {}", cardDto);
 
             try {
@@ -95,16 +103,17 @@ public class CrmUseCase {
 
     }
 
-    public Integer consultaLeadPeloTelefone(String telefone) {
+    public ContactDto consultaLeadPeloTelefone(String telefone) {
         log.info("Consultando lead pelo telefone. Telefone: {}", telefone);
-        Optional<Integer> lead = gateway.consultaLeadPeloTelefone(telefone);
 
-        if(lead.isEmpty()) {
+        Optional<ContactDto> contato = gateway.consultaLeadPeloTelefone(telefone);
+
+        if(contato.isEmpty()) {
             throw new LeadNaoEncontradoException();
         }
 
-        log.info("Lead consultado com sucesso. Lead: {}", lead.get());
-        return lead.get();
+        log.info("Contato consultado com sucesso. Contato: {}", contato.get().getId());
+        return contato.get();
     }
 
     private CustomFieldDto textField(int fieldId, Object value) {
