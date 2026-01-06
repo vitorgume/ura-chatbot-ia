@@ -6,12 +6,12 @@ WORKDIR /workspace
 # Cache de dependências e plugins (sem compilar ainda)
 COPY pom.xml .
 RUN --mount=type=cache,target=/root/.m2 \
-    mvn -B -q -DskipTests dependency:resolve dependency:resolve-plugins
+    mvn -U -B -q -DskipTests dependency:resolve dependency:resolve-plugins
 
 # Agora copia o código e compila
 COPY src ./src
 RUN --mount=type=cache,target=/root/.m2 \
-    mvn -B -DskipTests package
+    mvn -U -B -DskipTests package
 
 # ====== RUNTIME ======
 FROM eclipse-temurin:17-jre-alpine
