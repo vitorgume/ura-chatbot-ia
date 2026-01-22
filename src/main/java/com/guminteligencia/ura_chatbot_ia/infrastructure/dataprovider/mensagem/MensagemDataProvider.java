@@ -60,13 +60,13 @@ public class MensagemDataProvider implements MensagemGateway {
     }
 
     @Override
-    public void enviarContato(String telefone, Cliente cliente) {
-        String nomeCliente = cliente.getNome() != null ? cliente.getNome() : "Nome não informado";
+    public void enviarContato(String telefoneReceptivo, String telefoneContato, String nomeContato) {
+        String nomeContatoOficial = nomeContato != null ? nomeContato : "Nome não informado";
 
         ContatoRequestDto body = ContatoRequestDto.builder()
-                .phone(telefone)
-                .contactName(nomeCliente)
-                .contactPhone(cliente.getTelefone())
+                .phone(telefoneReceptivo)
+                .contactName(nomeContatoOficial)
+                .contactPhone(telefoneContato)
                 .build();
 
         if(profile.equals("prod")) {

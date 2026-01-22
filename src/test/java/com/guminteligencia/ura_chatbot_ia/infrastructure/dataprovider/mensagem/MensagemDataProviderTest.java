@@ -78,7 +78,7 @@ public class MensagemDataProviderTest {
     @Test
     void deveEnviarContatoEmProdDeveChamarExecutorComParametrosCorretos() {
         Cliente cliente = Cliente.builder().id(UUID.randomUUID()).telefone("+55999999999").build();
-        prodProvider.enviarContato("+55333333333", cliente);
+        prodProvider.enviarContato("+55333333333", cliente.getTelefone(), cliente.getNome());
 
         ArgumentCaptor<String> uriCap = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<ContatoRequestDto> bodyCap = ArgumentCaptor.forClass(ContatoRequestDto.class);
@@ -103,7 +103,8 @@ public class MensagemDataProviderTest {
 
     @Test
     void deveEnviarContatoEmDevNaoDeveChamarExecutor() {
-        devProvider.enviarContato("+55444444444", Cliente.builder().id(UUID.randomUUID()).telefone("+55666666666").build());
+        Cliente cliente = Cliente.builder().id(UUID.randomUUID()).telefone("+55666666666").build();
+        devProvider.enviarContato("+55444444444", cliente.getTelefone(), cliente.getNome());
         verifyNoInteractions(executor);
     }
 

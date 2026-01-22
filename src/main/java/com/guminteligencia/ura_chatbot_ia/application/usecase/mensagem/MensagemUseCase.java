@@ -43,6 +43,16 @@ public class MensagemUseCase {
         log.info("Mensagem para o usuário enviada com sucesso.");
     }
 
+    public void enviarContatoCliente(Cliente cliente, Vendedor vendedor) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                gateway.enviarContato(cliente.getTelefone(), vendedor.getTelefone(), vendedor.getNome());
+            } catch (Exception e) {
+                log.error("Erro ao enviar contato para cliente", e);
+            }
+        });
+    }
+
     public void enviarContatoVendedor(Vendedor vendedor, Cliente cliente) {
         log.info("Enviando contato para vendedor. Vendedor: {}, Cliente: {}", vendedor, cliente);
 
@@ -51,7 +61,7 @@ public class MensagemUseCase {
                 String textoMensagem = mensagemBuilder.getMensagem(TipoMensagem.DADOS_CONTATO_VENDEDOR, null, cliente);
                 String textoSeparacao = mensagemBuilder.getMensagem(TipoMensagem.MENSAGEM_SEPARACAO, null, null);
 
-                gateway.enviarContato(vendedor.getTelefone(), cliente);
+                gateway.enviarContato(vendedor.getTelefone(), cliente.getTelefone(), cliente.getNome());
                 this.enviarMensagem(textoMensagem, vendedor.getTelefone(), false);
                 this.enviarMensagem(textoSeparacao, vendedor.getTelefone(), false);
 

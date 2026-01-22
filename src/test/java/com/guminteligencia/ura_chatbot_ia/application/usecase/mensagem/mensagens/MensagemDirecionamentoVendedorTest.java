@@ -18,17 +18,17 @@ class MensagemDirecionamentoVendedorTest {
 
         String msg = mensagemDirecionamentoVendedor.getMensagem(vendedor, cliente);
 
-        String esperado = "Muito obrigado pelas informações ! Agora você será redirecionado para o(a) "
+        String esperado = "Muito obrigado pelas informações ! Agora você será redirecionado para a "
                 + vendedor
-                + ", logo entrará em contato com você ! Até...";
+                + ". Você consegue chama-la nesse número ?";
         assertEquals(esperado, msg);
     }
 
     @Test
     void deveTratarNomeVendedorNullComStringNull() {
         String msg = mensagemDirecionamentoVendedor.getMensagem(null, null);
-        assertTrue(msg.contains("para o(a) null"));
-        assertTrue(msg.endsWith("Até..."));
+        assertTrue(msg.contains("para a null"));
+        assertTrue(msg.endsWith("?"));
     }
 
     @Test

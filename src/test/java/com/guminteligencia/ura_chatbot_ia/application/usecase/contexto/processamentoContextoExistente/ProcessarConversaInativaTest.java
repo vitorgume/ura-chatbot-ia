@@ -81,6 +81,7 @@ class ProcessarConversaInativaTest {
         inOrder.verify(mensagemUseCase).enviarMensagem(eq("mensagem-g1-direcionamento"), eq("+5511999999999"), eq(true));
 
         inOrder.verify(mensagemUseCase).enviarContatoVendedor(eq(vendedor), eq(cliente));
+        inOrder.verify(mensagemUseCase).enviarContatoCliente(eq(cliente), eq(vendedor));
         inOrder.verify(crmUseCase).atualizarCrm(eq(vendedor), eq(cliente), eq(conversa));
         inOrder.verifyNoMoreInteractions();
 
@@ -152,6 +153,7 @@ class ProcessarConversaInativaTest {
         // Envio de mensagem e contato do vendedor ocorrem normalmente
         doNothing().when(mensagemUseCase).enviarMensagem(anyString(), anyString(), anyBoolean());
         doNothing().when(mensagemUseCase).enviarContatoVendedor(any(Vendedor.class), any(Cliente.class));
+        doNothing().when(mensagemUseCase).enviarContatoCliente(any(Cliente.class), any(Vendedor.class));
 
         // CRM lança exceção
         doThrow(new IllegalArgumentException("erro-crm"))
@@ -168,6 +170,7 @@ class ProcessarConversaInativaTest {
         InOrder inOrder = inOrder(mensagemUseCase, crmUseCase);
         inOrder.verify(mensagemUseCase).enviarMensagem(anyString(), anyString(), anyBoolean());
         inOrder.verify(mensagemUseCase).enviarContatoVendedor(any(Vendedor.class), any(Cliente.class));
+        inOrder.verify(mensagemUseCase).enviarContatoCliente(any(Cliente.class), any(Vendedor.class));
         inOrder.verify(crmUseCase).atualizarCrm(vendedor, cliente, conversa);
 
         // E garante que nada além disso foi chamado

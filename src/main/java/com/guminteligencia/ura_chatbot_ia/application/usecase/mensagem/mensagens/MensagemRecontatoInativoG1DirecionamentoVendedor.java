@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class MensagemRecontatoInativoG1DirecionamentoVendedor implements MensagemType {
     @Override
     public String getMensagem(String nomeVendedor, Cliente cliente) {
-        return "Perfeito, estou te redirecionando para o vendedor(a) " + nomeVendedor + " que logo entrará em contato. Muito obrigado ! Até...";
+        return "Perfeito, estou te redirecionando para a vendedora " + nomeVendedor + " que logo entrará em contato. Você consegue chama-la nesse número ?";
     }
 
     @Override

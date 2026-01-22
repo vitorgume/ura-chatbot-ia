@@ -107,7 +107,7 @@ class MensagemUseCaseTest {
         }
 
         InOrder ord = inOrder(gateway);
-        ord.verify(gateway).enviarContato(vendedor.getTelefone(), cliente);
+        ord.verify(gateway).enviarContato(vendedor.getTelefone(), cliente.getTelefone(), cliente.getNome());
         ord.verify(gateway).enviar(msgDados, vendedor.getTelefone());
         ord.verify(gateway).enviar(msgSep, vendedor.getTelefone());
         ord.verifyNoMoreInteractions();
