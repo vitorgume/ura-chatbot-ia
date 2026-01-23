@@ -88,18 +88,21 @@ class VendedorUseCaseTest {
         Vendedor unico = Vendedor.builder().nome("A").inativo(false).build();
         when(gateway.listar()).thenReturn(List.of(unico));
 
-        String nome = useCase.roletaVendedores(null);
-        assertEquals("A", nome);
+        Vendedor vendedor = useCase.roletaVendedores(null);
+        assertEquals(unico, vendedor);
     }
 
     @Test
     void roletaVendedoresComExcecaoUsaListarComExcecao() {
+
+        Vendedor vendedorTeste = Vendedor.builder().nome("B").inativo(false).build();
+
         when(gateway.listarComExcecao("exc")).thenReturn(List.of(
-                Vendedor.builder().nome("B").inativo(false).build()
+                vendedorTeste
         ));
 
-        String nome = useCase.roletaVendedores("exc");
-        assertEquals("B", nome);
+        Vendedor vendedor = useCase.roletaVendedores("exc");
+        assertEquals(vendedorTeste, vendedor);
         verify(gateway).listarComExcecao("exc");
     }
 
@@ -118,8 +121,8 @@ class VendedorUseCaseTest {
         rf.setAccessible(true);
         rf.set(useCase, rnd);
 
-        String escolhido = useCase.roletaVendedores(null);
-        assertEquals("V1", escolhido);
+        Vendedor escolhido = useCase.roletaVendedores(null);
+        assertEquals(v1, escolhido);
     }
 
     @Test
@@ -160,14 +163,14 @@ class VendedorUseCaseTest {
     void roletaVendedoresConversaInativaSeSegmentoNuloChamaRoletaEConsultar() {
         Cliente cli = Cliente.builder().build();
         cli.setSegmento(null);
+        Vendedor vendedorTeste = Vendedor.builder().id(null).nome("NM").build();
 
         VendedorUseCase spyUC = spy(useCase);
-        doReturn("NM").when(spyUC).roletaVendedores("Nilza");
+        doReturn(vendedorTeste).when(spyUC).roletaVendedores("Nilza");
         Vendedor v = Vendedor.builder().nome("NM").build();
-        when(gateway.consultarVendedor("NM")).thenReturn(Optional.of(v));
 
         Vendedor res = spyUC.roletaVendedoresConversaInativa(cli);
-        assertSame(v, res);
+        assertEquals(v.getNome(), res.getNome());
     }
 
     @Test

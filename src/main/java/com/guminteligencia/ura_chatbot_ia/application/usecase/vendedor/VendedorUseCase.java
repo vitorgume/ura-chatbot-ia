@@ -47,7 +47,7 @@ public class VendedorUseCase {
     }
 
 
-    public String roletaVendedores(String excecao) {
+    public Vendedor roletaVendedores(String excecao) {
         List<Vendedor> vendedores;
 
         if (excecao == null) {
@@ -56,7 +56,7 @@ public class VendedorUseCase {
             vendedores = gateway.listarComExcecao(excecao);
         }
 
-        if (vendedores.size() <= 1) return vendedores.get(0).getNome();
+        if (vendedores.size() <= 1) return vendedores.get(0);
 
         Vendedor vendedor;
         do {
@@ -64,7 +64,7 @@ public class VendedorUseCase {
         } while (vendedor.getInativo() || vendedor.getNome().equals(ultimoVendedor));
 
         ultimoVendedor = vendedor.getNome();
-        return vendedor.getNome();
+        return vendedor;
 
     }
 
@@ -90,7 +90,7 @@ public class VendedorUseCase {
 
         log.info("Roleta concluida com sucesso.");
 
-        return this.consultarVendedor(this.roletaVendedores("Nilza"));
+        return this.roletaVendedores("Nilza");
     }
 
     public Vendedor alterar(Vendedor novosDados, Long idVendedor) {
