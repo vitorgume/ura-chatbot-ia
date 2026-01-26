@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@Order(4)
+@Order(5)
 @Slf4j
 public class ProcessamentoRecontato implements ProcessamentoContextoExistenteType {
 

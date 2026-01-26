@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@Order(3)
+@Order(4)
 public class ProcessarContextoNaoFinalizadoNaoQualificado implements ProcessamentoContextoExistenteType {
 
     private final MensagemUseCase mensagemUseCase;
